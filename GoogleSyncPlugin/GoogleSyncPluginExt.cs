@@ -240,12 +240,12 @@ namespace GoogleSyncPlugin
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
             Uri authUri = arg.RequestUserAuthorization(state);
 
-            string struid = m_host.CustomConfig.GetString("GoogleSyncKeypassUID");
+            string struid = m_host.CustomConfig.GetString("GoogleSyncKeepassUID");
             PwUuid pid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(struid));
             PwEntry pentry = m_host.Database.RootGroup.FindEntry(pid, true);
             if (pentry == null)
                 MessageBox.Show("Entry for google account not found. Invalid UID: " + struid);
-            Form1 form1 = new Form1(pentry.Strings.Get(PwDefs.UserNameField).ReadString(), 
+            GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(pentry.Strings.Get(PwDefs.UserNameField).ReadString(), 
                 pentry.Strings.Get(PwDefs.PasswordField).ReadString());
             form1.Browser.Navigate(authUri);
             form1.ShowDialog();

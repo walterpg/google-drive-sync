@@ -9,12 +9,12 @@ using System.Windows.Forms;
 
 namespace GoogleSyncPlugin
 {
-    public partial class Form1 : Form
+    public partial class GoogleAuthenticateForm : Form
     {
         private string authCode;
         private string m_user;
         private string m_password;
-        public Form1(string user, string password)
+        public GoogleAuthenticateForm(string user, string password)
         {
             InitializeComponent();
             authCode = "access_denied";

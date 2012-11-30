@@ -1,6 +1,6 @@
 ﻿namespace GoogleSyncPlugin
 {
-    partial class Form1
+    partial class GoogleAuthenticateForm
     {
         /// <summary>
         /// Required designer variable.
@@ -42,7 +42,7 @@
             this.webBrowser1.DocumentTitleChanged += new System.EventHandler(this.webBrowser1_DocumentTitleChanged);
             this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(webBrowser1_DocumentCompleted);
             // 
-            // Form1
+            // GoogleAuthenticateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -50,7 +50,7 @@
             this.Controls.Add(this.webBrowser1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "GoogleAuthenticateForm";
             this.ShowIcon = false;
             this.ResumeLayout(false);
 

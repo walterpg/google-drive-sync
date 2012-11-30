@@ -38,20 +38,20 @@
   <ItemGroup>
     <Reference Include="DotNetOpenAuth, Version=4.0.0.11165, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\DotNetOpenAuth.dll</HintPath>
+      <HintPath>Libraries\DotNetOpenAuth.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis, Version=1.2.4696.27637, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>.\Google.Apis.dll</HintPath>
+      <HintPath>Libraries\Google.Apis.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
     <Reference Include="Google.Apis.Authentication.OAuth2, Version=1.2.4696.27633, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Google.Apis.Authentication.OAuth2.dll</HintPath>
+      <HintPath>Libraries\Google.Apis.Authentication.OAuth2.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Drive.v2, Version=1.2.4696.27611, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Google.Apis.Drive.v2.dll</HintPath>
+      <HintPath>Libraries\Google.Apis.Drive.v2.dll</HintPath>
     </Reference>
     <Reference Include="KeePass, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -60,7 +60,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json.Net35, Version=4.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Newtonsoft.Json.Net35.dll</HintPath>
+      <HintPath>Libraries\Newtonsoft.Json.Net35.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -72,11 +72,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Forms\GoogleAuthenticateForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\GoogleAuthenticateForm.Designer.cs">
+      <DependentUpon>GoogleAuthenticateForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GoogleSyncPluginExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,8 +85,8 @@
     <None Include="GoogleSyncPlugin.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\GoogleAuthenticateForm.resx">
+      <DependentUpon>GoogleAuthenticateForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
