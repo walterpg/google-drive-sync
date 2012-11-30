@@ -21,6 +21,7 @@ namespace GoogleSyncPlugin
             m_user = user;
             m_password = password;
             webBrowser1.ScriptErrorsSuppressed = true;
+            Visible = false;
         }
 
         public WebBrowser Browser
@@ -53,6 +54,7 @@ namespace GoogleSyncPlugin
             }
             else if (e.Url.AbsolutePath.Equals("/o/oauth2/auth"))
             {
+                Visible = true;
                 // TODO: allow access button is enabled through javscript code post document complete event
                 // at this moment, i'm unable to automate this part
                 // When hitting "Allow access" too fast, iOS gives "Javascript is disabled" error messsage

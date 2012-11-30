@@ -126,6 +126,9 @@ namespace GoogleSyncPlugin
             syncWithGoogle();
         }
 
+        /// <summary>
+        /// Sync the current database with Google Drive. Create a new file if it does not already exists
+        /// </summary>
         private void syncWithGoogle()
         {
             if (!m_host.Database.IsOpen)
@@ -171,6 +174,12 @@ namespace GoogleSyncPlugin
             }
         }
 
+        /// <summary>
+        /// Get File from Google Drive
+        /// </summary>
+        /// <param name="service">DriveService</param>
+        /// <param name="filepath">Full path of the current database file</param>
+        /// <returns>Return Google File</returns>
         private File getFile(DriveService service, String filepath)
         {
             string filename = System.IO.Path.GetFileName(filepath);
@@ -185,6 +194,14 @@ namespace GoogleSyncPlugin
             return null;
         }
 
+        /// <summary>
+        /// Replace contents of the Google Drive File with currently open Database file
+        /// </summary>
+        /// <param name="service">DriveService</param>
+        /// <param name="file">File from Google Drive</param>
+        /// <param name="filepath">Full path of the current database file</param>
+        /// <param name="contentType">Content type of the Database file</param>
+        /// <returns>Return status of the update</returns>
         private string updateFile(DriveService service, File file, String filepath, String contentType)
         {
             // see if file on server needs updating (is it newer than current database?)
@@ -212,6 +229,16 @@ namespace GoogleSyncPlugin
             return string.Format("File updated. Id:{0}, Name:{1}", file.Id, file.Title);
         }
 
+        /// <summary>
+        /// Upload a new file to Google Drive
+        /// </summary>
+        /// <param name="service">DriveService</param>
+        /// <param name="description">File description</param>
+        /// <param name="title">File title</param>
+        /// <param name="mimeType">File MIME ype</param>
+        /// <param name="contentType">File conrent type</param>
+        /// <param name="filepath">Full path of the current database file</param>
+        /// <returns>Return status of the upload</returns>
         private string uploadFile(DriveService service, String description, String title, String mimeType, String contentType, String filepath)
         {
             string filename = System.IO.Path.GetFileName(filepath);
@@ -233,6 +260,11 @@ namespace GoogleSyncPlugin
             return string.Format("File uploaded. Id:{0}, Name:{1}", file.Id, file.Title);
         }
 
+        /// <summary>
+        /// Get Authorization token from Google
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
         private IAuthorizationState GetAuthorization(NativeApplicationClient arg)
         {
             // Get the auth URL:
@@ -240,7 +272,7 @@ namespace GoogleSyncPlugin
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
             Uri authUri = arg.RequestUserAuthorization(state);
 
-            string struid = m_host.CustomConfig.GetString("GoogleSyncKeepassUID");
+            string struid = m_host.CustomConfig.GetString("GoogleSyncKeePassUID");
             PwUuid pid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(struid));
             PwEntry pentry = m_host.Database.RootGroup.FindEntry(pid, true);
             if (pentry == null)
@@ -248,6 +280,11 @@ namespace GoogleSyncPlugin
             GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(pentry.Strings.Get(PwDefs.UserNameField).ReadString(), 
                 pentry.Strings.Get(PwDefs.PasswordField).ReadString());
             form1.Browser.Navigate(authUri);
+            while (!form1.Visible)
+            {
+                Application.DoEvents();
+            }
+            form1.Visible = false;
             form1.ShowDialog();
             return arg.ProcessUserAuthorization(form1.AuthCode, state);
         }
