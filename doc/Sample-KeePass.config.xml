@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+...
+	<Custom>
+		<Item>
+			<Key>EnableAutoSync</Key>
+			<Value>false</Value>
+		</Item>
+		<Item>
+			<Key>GoogleSyncClientID</Key>
+			<Value>{google api client id}</Value>
+		</Item>
+		<Item>
+			<Key>GoogleSyncClientSecret</Key>
+			<Value>{google api client secret}</Value>
+		</Item>
+		<Item>
+			<Key>GoogleSyncKeePassUID</Key>
+			<Value>{keepass google account UID}</Value>
+		</Item>
+	</Custom>
+</Configuration>
