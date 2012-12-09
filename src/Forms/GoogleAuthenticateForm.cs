@@ -14,14 +14,14 @@ namespace GoogleSyncPlugin
         private string authCode;
         private string m_user;
         private string m_password;
-        public GoogleAuthenticateForm(string user, string password)
+        public GoogleAuthenticateForm(string user, string password, bool showAuthenticationForm)
         {
             InitializeComponent();
             authCode = "access_denied";
             m_user = user;
             m_password = password;
             webBrowser1.ScriptErrorsSuppressed = true;
-            Visible = false;
+            Visible = showAuthenticationForm;
         }
 
         public WebBrowser Browser
@@ -50,7 +50,8 @@ namespace GoogleSyncPlugin
             {
                 webBrowser1.Document.GetElementById("Email").SetAttribute("value", m_user);
                 webBrowser1.Document.GetElementById("Passwd").SetAttribute("value", m_password);
-                webBrowser1.Document.Forms[0].InvokeMember("submit");
+                if (!this.Visible)
+                    webBrowser1.Document.Forms[0].InvokeMember("submit");
             }
             else if (e.Url.AbsolutePath.Equals("/o/oauth2/auth"))
             {

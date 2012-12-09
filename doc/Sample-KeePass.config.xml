@@ -18,5 +18,9 @@
 			<Key>GoogleSyncKeePassUID</Key>
 			<Value>{keepass google account UID}</Value>
 		</Item>
+		<Item>
+			<Key>GoogleSyncShowAuthenticationForm</Key>
+			<Value>false</Value>
+		</Item>
 	</Custom>
 </Configuration>

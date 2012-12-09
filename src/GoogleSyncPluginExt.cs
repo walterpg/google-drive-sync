@@ -39,6 +39,9 @@ using Google.Apis.Util;
 using System.Threading;
 using System.Net;
 using Google.Apis.Requests;
+using KeePass.DataExchange;
+using KeePassLib.Serialization;
+using Google.Apis.Authentication;
 
 namespace GoogleSyncPlugin
 {
@@ -51,9 +54,17 @@ namespace GoogleSyncPlugin
 
 		private ToolStripSeparator m_tsSeparator = null;
 		private ToolStripMenuItem m_tsmiPopup = null;
-		private ToolStripMenuItem m_tsmiAddEntries = null;
-
-		/// <summary>
+		private ToolStripMenuItem m_tsmiSync = null;
+        private ToolStripMenuItem m_tsmiUpload = null;
+        private ToolStripMenuItem m_tsmiDownload = null;
+        private enum SyncCommand
+        {
+            DOWNLOAD = 1,
+            SYNC = 2,
+            UPLOAD = 3
+        }
+		
+        /// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
 		/// </summary>
@@ -70,6 +81,18 @@ namespace GoogleSyncPlugin
 			if(host == null) return false;
 			m_host = host;
 
+			bool isConfigFound = !String.IsNullOrEmpty(m_host.CustomConfig.GetString("GoogleSyncClientID"))
+							&& !String.IsNullOrEmpty(m_host.CustomConfig.GetString("GoogleSyncClientSecret"))
+							&& !String.IsNullOrEmpty(m_host.CustomConfig.GetString("GoogleSyncKeePassUID"));
+			
+			if (!isConfigFound)
+			{
+				MessageBox.Show("Initilization Failed: Required configuration entries were not found. Please exit KeePass and update configuration file.\n" +
+                 "Required Configuration entries: GoogleSyncClientID, GoogleSyncClientSecret, GoogleSyncKeePassUID\n" +
+                 "Optional Configuration entires: EnableAutoSync, GoogleSyncShowAuthenticationForm", "Google Sync Plugin");
+				return false;
+			}
+			
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
 
@@ -79,13 +102,26 @@ namespace GoogleSyncPlugin
 
 			// Add the popup menu item
 			m_tsmiPopup = new ToolStripMenuItem();
-			m_tsmiPopup.Text = "Sync";
+			m_tsmiPopup.Text = "GoogleSyncPlugin";
 			tsMenu.Add(m_tsmiPopup);
 
-            m_tsmiAddEntries = new ToolStripMenuItem();
-            m_tsmiAddEntries.Text = "Sync with Google";
-            m_tsmiAddEntries.Click += OnSyncWithGoogle;
-            m_tsmiPopup.DropDownItems.Add(m_tsmiAddEntries);
+            m_tsmiSync = new ToolStripMenuItem();
+            m_tsmiSync.Name = SyncCommand.SYNC.ToString();
+            m_tsmiSync.Text = "Sync with Google Drive";
+            m_tsmiSync.Click += OnSyncWithGoogle;
+            m_tsmiPopup.DropDownItems.Add(m_tsmiSync);
+
+            m_tsmiUpload = new ToolStripMenuItem();
+            m_tsmiUpload.Name = SyncCommand.UPLOAD.ToString();
+            m_tsmiUpload.Text = "Upload to Google Drive";
+            m_tsmiUpload.Click += OnSyncWithGoogle;
+            m_tsmiPopup.DropDownItems.Add(m_tsmiUpload);
+
+            m_tsmiDownload = new ToolStripMenuItem();
+            m_tsmiDownload.Name = SyncCommand.DOWNLOAD.ToString();
+            m_tsmiDownload.Text = "Download from Google Drive";
+            m_tsmiDownload.Click += OnSyncWithGoogle;
+            m_tsmiPopup.DropDownItems.Add(m_tsmiDownload);
 
 			// We want a notification when the user tried to save the
 			// current database
@@ -105,7 +141,9 @@ namespace GoogleSyncPlugin
 			// Remove all of our menu items
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
 			tsMenu.Remove(m_tsSeparator);
-			tsMenu.Remove(m_tsmiAddEntries);
+            tsMenu.Remove(m_tsmiSync);
+            tsMenu.Remove(m_tsmiUpload);
+            tsMenu.Remove(m_tsmiDownload);
 
 			// Important! Remove event handlers!
 			m_host.MainWindow.FileSaved -= OnFileSaved;
@@ -118,25 +156,27 @@ namespace GoogleSyncPlugin
             //    (e.Success ? "Success" : "Failed"), "Plugin",
             //    MessageBoxButtons.OK, MessageBoxIcon.Information);
             if (m_host.CustomConfig.GetBool("EnableAutoSync", false))
-                syncWithGoogle();
+                syncWithGoogle(SyncCommand.SYNC);
         }
 
         private void OnSyncWithGoogle(object sender, EventArgs e)
         {
-            syncWithGoogle();
+            ToolStripItem item = (ToolStripItem)sender;
+            SyncCommand syncCommand = (SyncCommand)Enum.Parse(typeof(SyncCommand), item.Name);
+            syncWithGoogle(syncCommand);
         }
 
         /// <summary>
         /// Sync the current database with Google Drive. Create a new file if it does not already exists
         /// </summary>
-        private void syncWithGoogle()
+        private void syncWithGoogle(SyncCommand syncCommand)
         {
-            if (!m_host.Database.IsOpen)
+            if (!m_host.Database.IsOpen && syncCommand != SyncCommand.DOWNLOAD)
             {
                 MessageBox.Show("You first need to open a database!", "Google Sync Plugin");
                 return;
             }
-            string status = "Google sync started,  please wait ...";
+            string status = "Google sync started, please wait ...";
             try
             {
                 m_host.MainWindow.SetStatusEx(status);
@@ -145,21 +185,42 @@ namespace GoogleSyncPlugin
                 String CLIENT_ID = m_host.CustomConfig.GetString("GoogleSyncClientID");
                 String CLIENT_SECRET = m_host.CustomConfig.GetString("GoogleSyncClientSecret");
 
+                string filePath = m_host.Database.IOConnectionInfo.Path;
+                string contentType = "*/*";
 
                 // Register the authenticator and create the service
                 var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description, CLIENT_ID, CLIENT_SECRET);
                 var auth = new OAuth2Authenticator<NativeApplicationClient>(provider, GetAuthorization);
                 var service = new DriveService(auth);
 
-                string filepath = m_host.Database.IOConnectionInfo.Path;
-                File file = getFile(service, filepath);
+                File file = getFile(service, filePath);
                 if (file == null)
                 {
-                    status = uploadFile(service, "Keepass Password Safe Database", string.Empty, "*/*", "*/*", filepath);
+                    if (syncCommand == SyncCommand.DOWNLOAD)
+                    {
+                        status = "File was not found. Please upload or sync with Google Drive first.";
+                    }
+                    else // upload or sync
+                        status = uploadFile(service, "Keepass Password Safe Database", string.Empty, contentType, contentType, filePath);
                 }
                 else
                 {
-                    status = updateFile(service, file, filepath, "*/*");
+                    if (syncCommand == SyncCommand.UPLOAD)
+                        status = updateFile(service, file, filePath, contentType);
+                    else
+                    {
+                        string downloadFilePath = downloadFile(service.Authenticator, file, filePath);
+                        if (!string.IsNullOrEmpty(downloadFilePath))
+                        {
+                            if (syncCommand == SyncCommand.DOWNLOAD)
+                                status = "File downloaded: " + downloadFilePath;
+                            else // sync
+                                status = string.Format("{0} {1}", syncFile(downloadFilePath), 
+                                    updateFile(service, file, filePath, contentType));
+                        }
+                        else
+                            status = "File could not be downloaded";
+                    }
                 }
             }
             catch (Exception ex)
@@ -169,10 +230,61 @@ namespace GoogleSyncPlugin
             }
             finally
             {
-                m_host.MainWindow.Enabled = true;
+                m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
                 m_host.MainWindow.SetStatusEx("Google sync complete. " + status);
+                m_host.MainWindow.Enabled = true;
             }
         }
+
+        /// <summary>
+        /// Download a file and return a string with its content.
+        /// </summary>
+        /// <param name="authenticator">
+        /// Authenticator responsible for creating authorized web requests.
+        /// </param>
+        /// <param name="file">Drive File instance.</param>
+        /// <returns>File's content if successful, null otherwise.</returns>
+        public string downloadFile(IAuthenticator authenticator, File file, String filePath)
+        {
+            if (!String.IsNullOrEmpty(file.DownloadUrl))
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+                    new Uri(file.DownloadUrl));
+                authenticator.ApplyAuthenticationToRequest(request);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    String downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
+                        + System.IO.Path.GetFileNameWithoutExtension(filePath) + DateTime.Now.ToString("_yyyy-MM-dd-hh-mm-ss-tt") + System.IO.Path.GetExtension(filePath);
+                    using (System.IO.Stream stream = response.GetResponseStream())
+                    {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        using (System.IO.FileStream fileStream = System.IO.File.Create(downloadFilePath))
+                        {
+                            do
+                            {
+                                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                                fileStream.Write(buffer, 0, bytesRead);
+                            } while (bytesRead > 0);
+                        }
+                    }
+                    return downloadFilePath;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "An error occurred downloading file: " + response.StatusDescription);
+                    return null;
+                }
+            }
+            else
+            {
+                // The file doesn't have any content stored on Drive.
+                return null;
+            }
+        }
+
 
         /// <summary>
         /// Get File from Google Drive
@@ -195,38 +307,41 @@ namespace GoogleSyncPlugin
         }
 
         /// <summary>
+        /// Sync Google Drive File with currently open Database file
+        /// </summary>
+        /// <param name="downloadFilePath">Full path of database file to sync with</param>
+        /// <returns>Return status of the update</returns>
+        private string syncFile(String downloadFilePath)
+        {
+            IOConnectionInfo connection = IOConnectionInfo.FromPath(downloadFilePath);
+            ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
+ 
+            System.IO.File.Delete(downloadFilePath);
+
+            return "Local file synchronzied.";
+        }
+
+        /// <summary>
         /// Replace contents of the Google Drive File with currently open Database file
         /// </summary>
         /// <param name="service">DriveService</param>
         /// <param name="file">File from Google Drive</param>
-        /// <param name="filepath">Full path of the current database file</param>
+        /// <param name="filePath">Full path of the current database file</param>
         /// <param name="contentType">Content type of the Database file</param>
         /// <returns>Return status of the update</returns>
-        private string updateFile(DriveService service, File file, String filepath, String contentType)
+        private string updateFile(DriveService service, File file, String filePath, String contentType)
         {
-            // see if file on server needs updating (is it newer than current database?)
-            DateTime dtFileModified;
-            DateTime dtDatabaseModified;
+            string filename = System.IO.Path.GetFileName(filePath);
 
-            DateTime.TryParse(file.ModifiedDate, out dtFileModified);
-            dtDatabaseModified = System.IO.File.GetLastWriteTime(m_host.Database.IOConnectionInfo.Path);
-
-            int result = DateTime.Compare(dtFileModified, dtDatabaseModified);
-
-            if (result >= 0) // same or is later than
-            {
-                return "File on server is newer. Aborting update.";
-            }
-
-            string filename = System.IO.Path.GetFileName(filepath);
-
-            byte[] byteArray = System.IO.File.ReadAllBytes(filepath);
+            byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
             FilesResource.UpdateMediaUpload request = service.Files.Update(file, file.Id, stream, contentType);
             request.Upload();
+            
+            System.IO.File.SetLastWriteTime(filePath, DateTime.Now);
 
-            return string.Format("File updated. Id:{0}, Name:{1}", file.Id, file.Title);
+            return string.Format("File on Google Drive updated. Id:{0}, Name:{1}", file.Id, file.Title);
         }
 
         /// <summary>
@@ -273,16 +388,20 @@ namespace GoogleSyncPlugin
             Uri authUri = arg.RequestUserAuthorization(state);
 
             string struid = m_host.CustomConfig.GetString("GoogleSyncKeePassUID");
+            bool showAuthenticationForm = m_host.CustomConfig.GetBool("GoogleSyncShowAuthenticationForm", false);
             PwUuid pid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(struid));
             PwEntry pentry = m_host.Database.RootGroup.FindEntry(pid, true);
             if (pentry == null)
                 MessageBox.Show("Entry for google account not found. Invalid UID: " + struid);
-            GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(pentry.Strings.Get(PwDefs.UserNameField).ReadString(), 
-                pentry.Strings.Get(PwDefs.PasswordField).ReadString());
+            GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(pentry.Strings.Get(PwDefs.UserNameField).ReadString(),
+                pentry.Strings.Get(PwDefs.PasswordField).ReadString(), showAuthenticationForm);
             form1.Browser.Navigate(authUri);
-            while (!form1.Visible)
+            if (!showAuthenticationForm)
             {
-                Application.DoEvents();
+                while (!form1.Visible)
+                {
+                    Application.DoEvents();
+                }
             }
             form1.Visible = false;
             form1.ShowDialog();
