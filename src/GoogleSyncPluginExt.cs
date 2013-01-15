@@ -179,6 +179,7 @@ namespace GoogleSyncPlugin
             string status = "Google sync started, please wait ...";
             try
             {
+				m_host.MainWindow.FileSaved -= OnFileSaved;
                 m_host.MainWindow.SetStatusEx(status);
                 m_host.MainWindow.Enabled = false;
 
@@ -233,6 +234,7 @@ namespace GoogleSyncPlugin
                 m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
                 m_host.MainWindow.SetStatusEx("Google sync complete. " + status);
                 m_host.MainWindow.Enabled = true;
+				m_host.MainWindow.FileSaved += OnFileSaved;
             }
         }
 
@@ -331,8 +333,6 @@ namespace GoogleSyncPlugin
         /// <returns>Return status of the update</returns>
         private string updateFile(DriveService service, File file, String filePath, String contentType)
         {
-            string filename = System.IO.Path.GetFileName(filePath);
-
             byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
@@ -356,16 +356,15 @@ namespace GoogleSyncPlugin
         /// <returns>Return status of the upload</returns>
         private string uploadFile(DriveService service, String description, String title, String mimeType, String contentType, String filepath)
         {
-            string filename = System.IO.Path.GetFileName(filepath);
             File temp = new File();
             if (string.IsNullOrEmpty(title))
-                temp.Title = filename;
+                temp.Title = System.IO.Path.GetFileName(filepath);
             else
                 temp.Title = title;
             temp.Description = description;
             temp.MimeType = mimeType;
 
-            byte[] byteArray = System.IO.File.ReadAllBytes(filename);
+            byte[] byteArray = System.IO.File.ReadAllBytes(filepath);
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
             FilesResource.InsertMediaUpload request = service.Files.Insert(temp, stream, contentType);
