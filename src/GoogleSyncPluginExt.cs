@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 using KeePass.Plugins;
@@ -384,6 +385,17 @@ namespace GoogleSyncPlugin
             // Get the auth URL:
             IAuthorizationState state = new AuthorizationState(new[] { DriveService.Scopes.Drive.GetStringValue() });
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
+
+            string refreshToken = LoadRefreshToken();
+            if (!String.IsNullOrEmpty(refreshToken))
+            {
+                state.RefreshToken = refreshToken;
+                if (arg.RefreshToken(state))
+                {
+                    return state;
+                }
+            }
+            
             Uri authUri = arg.RequestUserAuthorization(state);
 
             string struid = m_host.CustomConfig.GetString("GoogleSyncKeePassUID");
@@ -404,7 +416,25 @@ namespace GoogleSyncPlugin
             }
             form1.Visible = false;
             form1.ShowDialog();
-            return arg.ProcessUserAuthorization(form1.AuthCode, state);
+            
+            var result = arg.ProcessUserAuthorization(form1.AuthCode, state);
+            
+            StoreRefreshToken(state);
+            
+            return result;
+        }
+
+        private static byte[] aditionalEntropy = { 1, 2, 3, 4, 5 };
+        private static string LoadRefreshToken()
+        {
+            if (string.IsNullOrEmpty(Properties.Settings.Default.RefreshToken))
+                return null;
+            return Encoding.Unicode.GetString(ProtectedData.Unprotect(Convert.FromBase64String(Properties.Settings.Default.RefreshToken), aditionalEntropy, DataProtectionScope.CurrentUser));
+        }
+        private static void StoreRefreshToken(IAuthorizationState state)
+        {
+            Properties.Settings.Default.RefreshToken = Convert.ToBase64String(ProtectedData.Protect(Encoding.Unicode.GetBytes(state.RefreshToken), aditionalEntropy, DataProtectionScope.CurrentUser));
+            Properties.Settings.Default.Save();
         }
     }
 }
