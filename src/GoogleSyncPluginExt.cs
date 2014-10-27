@@ -1,6 +1,6 @@
 /**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright (C) 2012-2013  DesignsInnovate
+ * Copyright (C) 2012-2014  DesignsInnovate
  * Copyright (C) 2014  Paul Voegler
  *
  * This program is free software: you can redistribute it and/or modify
