@@ -37,21 +37,20 @@
 			this.webBrowser1.Location = new System.Drawing.Point(0, 0);
 			this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
 			this.webBrowser1.Name = "webBrowser1";
-			this.webBrowser1.Size = new System.Drawing.Size(634, 412);
+			this.webBrowser1.Size = new System.Drawing.Size(524, 502);
 			this.webBrowser1.TabIndex = 0;
+			this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
 			this.webBrowser1.DocumentTitleChanged += new System.EventHandler(this.webBrowser1_DocumentTitleChanged);
-			this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(webBrowser1_DocumentCompleted);
 			//
 			// GoogleAuthenticateForm
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(634, 412);
+			this.ClientSize = new System.Drawing.Size(524, 502);
 			this.Controls.Add(this.webBrowser1);
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
 			this.Name = "GoogleAuthenticateForm";
 			this.ShowIcon = false;
+			this.Text = "Google Sync Plugin Authorization";
 			this.ResumeLayout(false);
 
 		}
