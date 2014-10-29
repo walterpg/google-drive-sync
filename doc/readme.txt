@@ -18,9 +18,8 @@ It supports three modes of operation:
   to the Google Drive, replacing the old version.
 * Upload: The open database is uploaded to the Google Drive creating a new
   file or replacing an existing version.
-* Download: The remote version of the open database is downloaded into the
-  directory of the open database to a new file with a timestamp appended to
-  the file name. The open database is NOT replaced.
+* Download: The remote version of the open database is downloaded replacing
+  the open database.
 
 The Synchronize mode can be configured to run automatically when the open
 database is saved.

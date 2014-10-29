@@ -33,49 +33,73 @@ namespace GoogleSyncPlugin
 {
 	public partial class GoogleAuthenticateForm : Form
 	{
-		private string m_authCode;
-		private string m_user;
-		private ProtectedString m_password;
+		private Uri m_uri = null;
+		private string m_email = string.Empty;
+		private ProtectedString m_passwd = null;
+		private bool m_success = false;
+		private string m_code = "access_denied";
 
-		public GoogleAuthenticateForm(string user, ProtectedString password)
+		public GoogleAuthenticateForm(Uri uri, string email, ProtectedString password)
 		{
 			InitializeComponent();
-			m_authCode = string.Empty;
-			m_user = user;
-			m_password = password;
-			webBrowser1.ScriptErrorsSuppressed = true;
-			Visible = false;
+
+			m_uri = uri;
+			m_email = email;
+			m_passwd = password;
+
+			this.Visible = false;
 		}
 
-		public WebBrowser Browser
+		public bool Success
 		{
-			get { return this.webBrowser1; }
+			get { return m_success; }
 		}
 
-		public string AuthCode
+		public string Code
 		{
-			get { return m_authCode; }
+			get { return m_code; }
 		}
 
-		void webBrowser1_DocumentTitleChanged(object sender, System.EventArgs e)
+		private void GoogleAuthenticateForm_Load(object sender, EventArgs e)
+		{
+			webBrowser1.Navigate(m_uri);
+		}
+
+		private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
 			string title = webBrowser1.DocumentTitle;
-			this.Text = title;
-			if (title.Contains("code="))
-			{
-				int indexStart = title.IndexOf("=") + 1;
-				m_authCode = title.Substring(indexStart);
-				this.Close();
-			}
-		}
 
-		void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-		{
 			if (e.Url.AbsolutePath.Equals("/ServiceLogin"))
 			{
-				webBrowser1.Document.GetElementById("Email").SetAttribute("value", m_user);
-				webBrowser1.Document.GetElementById("Passwd").SetAttribute("value", m_password.ReadString());
-				webBrowser1.Document.GetElementById("signIn").Focus();
+				HtmlElement elEmail = webBrowser1.Document.GetElementById("Email");
+				if (elEmail != null && m_email != null && !String.IsNullOrEmpty(m_email.Trim()))
+				{
+					elEmail.SetAttribute("value", m_email);
+					HtmlElement elPasswd = webBrowser1.Document.GetElementById("Passwd");
+					if (elPasswd != null && m_passwd != null && !m_passwd.IsEmpty)
+					{
+						elPasswd.SetAttribute("value", m_passwd.ReadString());
+						HtmlElement elSignIn = webBrowser1.Document.GetElementById("signIn");
+						if (elSignIn != null)
+							elSignIn.Focus();
+					}
+					else if (elPasswd != null)
+					{
+						elPasswd.Focus();
+					}
+				}
+				else if (elEmail != null)
+				{
+					elEmail.Focus();
+				}
+			}
+			else if (title.Contains("code=") || title.Contains("error="))
+			{
+				int indexStart = title.IndexOf("=") + 1;
+				m_code = title.Substring(indexStart);
+				if (title.Contains("code="))
+					m_success = true;
+				this.Close();
 			}
 		}
 	}

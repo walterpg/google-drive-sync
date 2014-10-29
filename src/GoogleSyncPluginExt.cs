@@ -248,7 +248,17 @@ namespace GoogleSyncPlugin
 						if (!string.IsNullOrEmpty(downloadFilePath))
 						{
 							if (syncCommand == SyncCommand.DOWNLOAD)
-								status = "File downloaded: " + downloadFilePath;
+							{
+								var pwKey = m_host.Database.MasterKey;
+								m_host.Database.Close();
+
+								System.IO.File.Delete(filePath);
+								System.IO.File.Move(downloadFilePath, filePath);
+
+								m_host.Database.Open(IOConnectionInfo.FromPath(filePath), pwKey, new NullStatusLogger());
+
+								status = "File downloaded: " + filePath;
+							}
 							else // sync
 								status = string.Format("{0} {1}", syncFile(downloadFilePath),
 									updateFile(service, file, filePath, contentType));
@@ -260,8 +270,8 @@ namespace GoogleSyncPlugin
 			}
 			catch (Exception ex)
 			{
-				status = string.Empty;
-				MessageBox.Show(ex.Message, Defs.ProductName);
+				status = "ERROR";
+				MessageBox.Show(ex.Message, "ERROR: " + Defs.ProductName);
 			}
 			finally
 			{
@@ -275,51 +285,47 @@ namespace GoogleSyncPlugin
 		/// <summary>
 		/// Download a file and return a string with its content.
 		/// </summary>
-		/// <param name="authenticator">
-		/// Authenticator responsible for creating authorized web requests.
-		/// </param>
-		/// <param name="file">Drive File instance.</param>
-		/// <returns>File's content if successful, null otherwise.</returns>
-		public string downloadFile(IAuthenticator authenticator, File file, String filePath)
+		/// <param name="authenticator">Authenticator responsible for creating authorized web requests.</param>
+		/// <param name="file">The Google Drive File instance</param>
+		/// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
+		/// <returns>File's path if successful, null or empty otherwise.</returns>
+		private string downloadFile(IAuthenticator authenticator, File file, string filePath)
 		{
-			if (!String.IsNullOrEmpty(file.DownloadUrl))
+			if (file == null || String.IsNullOrEmpty(file.DownloadUrl) || String.IsNullOrEmpty(filePath))
+				return null;
+
+			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+				new Uri(file.DownloadUrl));
+			authenticator.ApplyAuthenticationToRequest(request);
+			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+			if (response.StatusCode == HttpStatusCode.OK)
 			{
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
-					new Uri(file.DownloadUrl));
-				authenticator.ApplyAuthenticationToRequest(request);
-				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-				if (response.StatusCode == HttpStatusCode.OK)
+				string downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
+					+ System.IO.Path.GetFileNameWithoutExtension(filePath)
+					+ DateTime.Now.ToString("_yyyyMMddHHmmss")
+					+ System.IO.Path.GetExtension(filePath);
+
+				using (System.IO.Stream stream = response.GetResponseStream())
 				{
-					String downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
-						+ System.IO.Path.GetFileNameWithoutExtension(filePath) + DateTime.Now.ToString("_yyyy-MM-dd-HH-mm-ss") + System.IO.Path.GetExtension(filePath);
-					using (System.IO.Stream stream = response.GetResponseStream())
+					byte[] buffer = new byte[1024];
+					int bytesRead;
+					using (System.IO.FileStream fileStream = System.IO.File.Create(downloadFilePath))
 					{
-						byte[] buffer = new byte[1024];
-						int bytesRead;
-						using (System.IO.FileStream fileStream = System.IO.File.Create(downloadFilePath))
+						do
 						{
-							do
-							{
-								bytesRead = stream.Read(buffer, 0, buffer.Length);
-								fileStream.Write(buffer, 0, bytesRead);
-							} while (bytesRead > 0);
-						}
+							bytesRead = stream.Read(buffer, 0, buffer.Length);
+							fileStream.Write(buffer, 0, bytesRead);
+						} while (bytesRead > 0);
 					}
-					return downloadFilePath;
 				}
-				else
-				{
-					MessageBox.Show("An error occurred downloading file: " + response.StatusDescription, Defs.ProductName);
-					return null;
-				}
+				return downloadFilePath;
 			}
 			else
 			{
-				// The file doesn't have any content stored on Drive.
+				MessageBox.Show("An error occurred downloading file: " + response.StatusDescription, Defs.ProductName);
 				return null;
 			}
 		}
-
 
 		/// <summary>
 		/// Get File from Google Drive
@@ -327,7 +333,7 @@ namespace GoogleSyncPlugin
 		/// <param name="service">DriveService</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return Google File</returns>
-		private File getFile(DriveService service, String filepath)
+		private File getFile(DriveService service, string filepath)
 		{
 			string filename = System.IO.Path.GetFileName(filepath);
 			FilesResource.ListRequest req = service.Files.List();
@@ -346,7 +352,7 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		/// <param name="downloadFilePath">Full path of database file to sync with</param>
 		/// <returns>Return status of the update</returns>
-		private string syncFile(String downloadFilePath)
+		private string syncFile(string downloadFilePath)
 		{
 			IOConnectionInfo connection = IOConnectionInfo.FromPath(downloadFilePath);
 			ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
@@ -364,7 +370,7 @@ namespace GoogleSyncPlugin
 		/// <param name="filePath">Full path of the current database file</param>
 		/// <param name="contentType">Content type of the Database file</param>
 		/// <returns>Return status of the update</returns>
-		private string updateFile(DriveService service, File file, String filePath, String contentType)
+		private string updateFile(DriveService service, File file, string filePath, string contentType)
 		{
 			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
@@ -387,7 +393,7 @@ namespace GoogleSyncPlugin
 		/// <param name="contentType">File conrent type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
-		private string uploadFile(DriveService service, String description, String title, String mimeType, String contentType, String filepath)
+		private string uploadFile(DriveService service, string description, string title, string mimeType, string contentType, string filepath)
 		{
 			File temp = new File();
 			if (string.IsNullOrEmpty(title))
@@ -428,10 +434,15 @@ namespace GoogleSyncPlugin
 				}
 				catch (DotNetOpenAuth.Messaging.ProtocolException ex)
 				{
+					// fetch http status code
+					HttpStatusCode status = 0;
+					if (ex.InnerException is WebException && ((WebException)ex.InnerException).Response is HttpWebResponse)
+						status =((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode;
+
 					// refresh token invalid (because user revoked access)?
-					if (ex.InnerException is WebException
-						&& ((WebException)ex.InnerException).Response is HttpWebResponse
-						&& ((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode == HttpStatusCode.BadRequest) // Status 400?
+					if (status == HttpStatusCode.BadRequest
+						|| status == HttpStatusCode.Unauthorized
+						|| status == HttpStatusCode.Forbidden)
 					{
 						// invalidate token and let the user authorize again below
 						m_refreshToken = null;
@@ -447,17 +458,20 @@ namespace GoogleSyncPlugin
 			Uri authUri = arg.RequestUserAuthorization(state);
 			GoogleAuthenticateForm form1;
 			if (m_entry != null)
-				form1 = new GoogleAuthenticateForm(m_entry.Strings.Get(PwDefs.UserNameField).ReadString(), m_entry.Strings.Get(PwDefs.PasswordField));
+				form1 = new GoogleAuthenticateForm(authUri, m_entry.Strings.Get(PwDefs.UserNameField).ReadString(), m_entry.Strings.Get(PwDefs.PasswordField));
 			else
-				form1 = new GoogleAuthenticateForm(string.Empty, null);
-			form1.Browser.Navigate(authUri);
+				form1 = new GoogleAuthenticateForm(authUri, string.Empty, null);
+
 			form1.Show();
 			do
 			{
 				Application.DoEvents();
 			} while (form1.Visible);
 
-			state = arg.ProcessUserAuthorization(form1.AuthCode, state);
+			if (!form1.Success)
+				throw new PlgxException("Authorization failed: " + form1.Code);
+
+			state = arg.ProcessUserAuthorization(form1.Code, state);
 
 			// save the refresh token if new or different
 			if (!String.IsNullOrEmpty(state.RefreshToken) && (m_refreshToken == null || state.RefreshToken != m_refreshToken.ReadString()))

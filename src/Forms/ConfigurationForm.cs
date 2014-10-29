@@ -45,9 +45,11 @@ namespace GoogleSyncPlugin
 		public ConfigurationForm(PwObjectList<PwEntry> accounts, int idx, bool autoSync)
 		{
 			InitializeComponent();
+
 			m_accounts = accounts;
 			m_accidx = idx >= 0 ? idx : -1;
 			m_autoSync = autoSync;
+
 			Visible = false;
 		}
 
