@@ -98,6 +98,9 @@ settings and revoke the API access.
 Now install and configure the new Plugin like a new installation skipping
 the part to create a new Project with Google and instead using your existing
 Project.
+Since your old OAuth 2.0 credentials (Client ID and Client Secret) were not
+saved as securely before, you may want to create new credentials as well, even
+though they cannot be abused in any meaningful way in this case.
 
 Although it is not necessary because the refresh token to access the
 Google Drive API is now invalid, you may want to remove the old configuration
