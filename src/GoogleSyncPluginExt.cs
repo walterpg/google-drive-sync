@@ -191,7 +191,7 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database!", Defs.ProductName);
+				MessageBox.Show("You first need to open a database.", Defs.ProductName);
 				return;
 			}
 
@@ -206,7 +206,13 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database!", Defs.ProductName);
+				MessageBox.Show("You first need to open a database.", Defs.ProductName);
+				return;
+			}
+			else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
+			{
+				MessageBox.Show("Only databases stored locally or on a network share are supported.\n" +
+					"Save your database locally or on a network share and try again.", Defs.ProductName);
 				return;
 			}
 
@@ -233,7 +239,7 @@ namespace GoogleSyncPlugin
 				{
 					if (syncCommand == SyncCommand.DOWNLOAD)
 					{
-						status = "File was not found. Please upload or sync with Google Drive first.";
+						status = "File name not found on Google Drive. Please upload or sync with Google Drive first.";
 					}
 					else // upload
 						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, contentType, filePath);
@@ -245,22 +251,13 @@ namespace GoogleSyncPlugin
 					else
 					{
 						string downloadFilePath = downloadFile(service.Authenticator, file, filePath);
-						if (!string.IsNullOrEmpty(downloadFilePath))
+						if (!String.IsNullOrEmpty(downloadFilePath))
 						{
 							if (syncCommand == SyncCommand.DOWNLOAD)
-							{
-								var pwKey = m_host.Database.MasterKey;
-								m_host.Database.Close();
-
-								System.IO.File.Delete(filePath);
-								System.IO.File.Move(downloadFilePath, filePath);
-
-								m_host.Database.Open(IOConnectionInfo.FromPath(filePath), pwKey, new NullStatusLogger());
-
-								status = "File downloaded: " + filePath;
-							}
+								status = replaceDatabase(downloadFilePath);
 							else // sync
-								status = string.Format("{0} {1}", syncFile(downloadFilePath),
+								status = String.Format("{0} {1}",
+									syncFile(downloadFilePath),
 									updateFile(service, file, filePath, contentType));
 						}
 						else
@@ -271,7 +268,7 @@ namespace GoogleSyncPlugin
 			catch (Exception ex)
 			{
 				status = "ERROR";
-				MessageBox.Show(ex.Message, "ERROR: " + Defs.ProductName);
+				MessageBox.Show(ex.Message, Defs.ProductName);
 			}
 			finally
 			{
@@ -322,7 +319,7 @@ namespace GoogleSyncPlugin
 			}
 			else
 			{
-				MessageBox.Show("An error occurred downloading file: " + response.StatusDescription, Defs.ProductName);
+				MessageBox.Show("File download failed: " + response.StatusDescription, Defs.ProductName);
 				return null;
 			}
 		}
@@ -344,7 +341,7 @@ namespace GoogleSyncPlugin
 			else if (files.Items.Count == 1)
 				return files.Items[0];
 
-			throw new PlgxException("More than one file matching the file name '" + filename + "' found in Google Drive!");
+			throw new PlgxException("More than one file name '" + filename + "' found on Google Drive. Please make sure the file name is unique across all folders.");
 		}
 
 		/// <summary>
@@ -393,24 +390,64 @@ namespace GoogleSyncPlugin
 		/// <param name="contentType">File conrent type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
-		private string uploadFile(DriveService service, string description, string title, string mimeType, string contentType, string filepath)
+		private string uploadFile(DriveService service, string description, string title, string mimeType, string contentType, string filePath)
 		{
 			File temp = new File();
 			if (string.IsNullOrEmpty(title))
-				temp.Title = System.IO.Path.GetFileName(filepath);
+				temp.Title = System.IO.Path.GetFileName(filePath);
 			else
 				temp.Title = title;
 			temp.Description = description;
 			temp.MimeType = mimeType;
 
-			byte[] byteArray = System.IO.File.ReadAllBytes(filepath);
+			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
 			FilesResource.InsertMediaUpload request = service.Files.Insert(temp, stream, contentType);
 			request.Upload();
 
 			File file = request.ResponseBody;
-			return string.Format("File uploaded. Name: {0}, ID: {1}", file.Title, file.Id);
+			return string.Format("File uploaded to Google Drive. Name: {0}, ID: {1}", file.Title, file.Id);
+		}
+
+		/// <summary>
+		/// Replace the current database file with a new file and open it
+		/// </summary>
+		/// <param name="downloadFilePath">Full path of the new database file</param>
+		/// <returns>Status of the replacement</returns>
+		private string replaceDatabase(string downloadFilePath)
+		{
+			string status = string.Empty;
+			string currentFilePath = m_host.Database.IOConnectionInfo.Path;
+
+			var pwKey = m_host.Database.MasterKey;
+			m_host.Database.Close();
+
+			try
+			{
+				System.IO.File.Delete(currentFilePath);
+				System.IO.File.Move(downloadFilePath, currentFilePath);
+				status = "File downloaded replacing current database '" + System.IO.Path.GetFileName(currentFilePath) + "'";
+			}
+			catch (Exception)
+			{
+				status = "Replacing current database failed. File downloaded as '" + System.IO.Path.GetFileName(downloadFilePath) + "'";
+			}
+			finally
+			{
+				try
+				{
+					// try to open with current MasterKey ...
+					m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
+				}
+				catch (KeePassLib.Keys.InvalidCompositeKeyException)
+				{
+					// ... MasterKey is different, let user enter the MasterKey
+					m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
+				}
+			}
+
+			return status;
 		}
 
 		/// <summary>
