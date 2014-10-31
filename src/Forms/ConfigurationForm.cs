@@ -86,7 +86,7 @@ namespace GoogleSyncPlugin
 			cbAccount.Items.Add("Custom KeePass UUID");
 			foreach (PwEntry entry in m_accounts)
 			{
-				cbAccount.Items.Add(entry.Strings.Get(PwDefs.UserNameField).ReadString() + " - " + entry.Strings.Get(PwDefs.TitleField).ReadString());
+                cbAccount.Items.Add(entry.Strings.GetSafe(PwDefs.UserNameField).ReadString() + " - " + entry.Strings.GetSafe(PwDefs.TitleField).ReadString());
 			}
 
 			cbAccount.SelectedIndex = (int)m_accidx + 1;
