@@ -11,7 +11,7 @@ This is a Plugin for KeePass Password Safe >= v2.09. It allows to synchronize
 the currently open database with a Google Drive Account.
 It supports three modes of operation:
 
-* Synchronize: The remote version of the open database downloaded to a
+* Synchronize: The remote version of the open database is downloaded to a
   temporary file in the same directory as the open database.
   The remote version is then merged into the open database by KeePass'
   "Synchronize with File" feature. The updated database is saved and uploaded
@@ -21,12 +21,12 @@ It supports three modes of operation:
 * Download: The remote version of the open database is downloaded replacing
   the open database.
 
-The Synchronize mode can be configured to run automatically when the open
+The "Synchronize" mode can be configured to run automatically when the open
 database is saved.
 
-The Plugin matches remote file by the file name of the open database. The
+The Plugin matches the remote file by the file name of the open database. The
 remote file can be moved to any folder within the Google Drive, but the file
-name must be unique within the drive and match the local file name.
+name must be unique within the Drive and match the local file name.
 
 
 Requirements
@@ -44,7 +44,7 @@ obtain OAuth 2.0 credentials to access the Google Drive:
 * Choose an e-mail address at "APIs & auth" > "Consent screen".
 * Set the product name for the consent screen to "KeePass Google Sync Plugin".
 * Create OAuth 2.0 credentials for an "Installed application" with application
-  type "Other".
+  type "Other". ("APIs & auth" > "Credentials")
 
 You should now have a "CLIENT ID" and "CLIENT SECRET".
 
@@ -102,7 +102,7 @@ Since your old OAuth 2.0 credentials (Client ID and Client Secret) were not
 saved as securely before, you may want to create new credentials as well, even
 though they cannot be abused in any meaningful way in this case.
 
-Although it is not necessary because the refresh token to access the
-Google Drive API is now invalid, you may want to remove the old configuration
+Although it is not necessary because the Refresh Token to access the
+Google Drive API is now invalid, you may want to remove the old Refresh Token
 regardless. In that case go to the discussion forum linked above for
 detailed instructions.
