@@ -21,6 +21,8 @@ using System;
 using System.Windows.Forms;
 using System.Net;
 
+using KeePass;
+using KeePass.UI;
 using KeePass.Plugins;
 using KeePass.Forms;
 using KeePass.DataExchange;
@@ -499,12 +501,7 @@ namespace GoogleSyncPlugin
 			else
 				form1 = new GoogleAuthenticateForm(authUri, string.Empty, null);
 
-			form1.Show();
-			do
-			{
-				Application.DoEvents();
-			} while (form1.Visible);
-
+			UIUtil.ShowDialogAndDestroy(form1);
 			if (!form1.Success)
 				throw new PlgxException("Authorization failed: " + form1.Code);
 
@@ -555,13 +552,7 @@ namespace GoogleSyncPlugin
 			}
 
 			ConfigurationForm form1 = new ConfigurationForm(accounts, idx, m_autoSync);
-			form1.Show();
-			do
-			{
-				Application.DoEvents();
-			} while (form1.Visible);
-
-			if (!form1.OkButtonPressed)
+			if (DialogResult.OK != UIUtil.ShowDialogAndDestroy(form1))
 				return false;
 
 			m_entry = null;

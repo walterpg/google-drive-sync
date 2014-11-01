@@ -1,5 +1,6 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
+ * Copyright (C) 2014  DesignsInnovate
  * Copyright (C) 2014  Paul Voegler
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,7 +35,6 @@ namespace GoogleSyncPlugin
 {
 	public partial class ConfigurationForm : Form
 	{
-		private bool m_ok = false;
 		private PwObjectList<PwEntry> m_accounts = null;
 		private int m_accidx = -1;
 		private bool m_autoSync = false;
@@ -51,11 +51,6 @@ namespace GoogleSyncPlugin
 			m_autoSync = autoSync;
 
 			Visible = false;
-		}
-
-		public bool OkButtonPressed
-		{
-			get { return m_ok; }
 		}
 
 		public string Uuid
@@ -117,7 +112,6 @@ namespace GoogleSyncPlugin
 			m_clientId = txtClientId.Text.Trim();
 			m_clientSecret = txtClientSecret.Text.Trim();
 			m_autoSync = chkAutoSync.Checked;
-			m_ok = true;
 
 			this.Close();
 		}
