@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DesignsInnovate")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright © 2012 DesignsInnovate")]
+[assembly: AssemblyCopyright("Copyright © 2014 DesignsInnovate")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
