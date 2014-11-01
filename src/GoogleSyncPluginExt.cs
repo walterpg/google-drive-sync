@@ -256,7 +256,7 @@ namespace GoogleSyncPlugin
 						if (!String.IsNullOrEmpty(downloadFilePath))
 						{
 							if (syncCommand == SyncCommand.DOWNLOAD)
-								status = replaceDatabase(downloadFilePath);
+								status = replaceDatabase(filePath, downloadFilePath);
 							else // sync
 								status = String.Format("{0} {1}",
 									syncFile(downloadFilePath),
@@ -417,18 +417,19 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		/// <param name="downloadFilePath">Full path of the new database file</param>
 		/// <returns>Status of the replacement</returns>
-		private string replaceDatabase(string downloadFilePath)
+		private string replaceDatabase(string currentFilePath, string downloadFilePath)
 		{
 			string status = string.Empty;
-			string currentFilePath = m_host.Database.IOConnectionInfo.Path;
+			string tempFilePath = currentFilePath + ".gsyncbak";
 
 			var pwKey = m_host.Database.MasterKey;
 			m_host.Database.Close();
 
 			try
 			{
-				System.IO.File.Delete(currentFilePath);
+				System.IO.File.Move(currentFilePath, tempFilePath);
 				System.IO.File.Move(downloadFilePath, currentFilePath);
+				System.IO.File.Delete(tempFilePath);
 				status = "File downloaded replacing current database '" + System.IO.Path.GetFileName(currentFilePath) + "'";
 			}
 			catch (Exception)
