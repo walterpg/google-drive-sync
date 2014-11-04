@@ -20,6 +20,8 @@
 using System;
 using System.Windows.Forms;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 using KeePass;
 using KeePass.UI;
@@ -33,14 +35,16 @@ using KeePassLib.Serialization;
 using KeePassLib.Security;
 using KeePassLib.Collections;
 
-using DotNetOpenAuth.OAuth2;
-
-using Google.Apis.Authentication.OAuth2;
-using Google.Apis.Authentication.OAuth2.DotNetOpenAuth;
+using Google;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using Google.Apis.Download;
 using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
-using Google.Apis.Util;
-using Google.Apis.Authentication;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Auth.OAuth2.Requests;
 
 
 namespace GoogleSyncPlugin
@@ -204,7 +208,7 @@ namespace GoogleSyncPlugin
 		/// <summary>
 		/// Sync the current database with Google Drive. Create a new file if it does not already exists
 		/// </summary>
-		private void syncWithGoogle(SyncCommand syncCommand)
+		private async void syncWithGoogle(SyncCommand syncCommand)
 		{
 			if (!m_host.Database.IsOpen)
 			{
@@ -225,16 +229,18 @@ namespace GoogleSyncPlugin
 				m_host.MainWindow.SetStatusEx(status);
 				m_host.MainWindow.Enabled = false;
 
-				if (!LoadConfiguration() || m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
-					throw new PlgxException(Defs.ProductName + " aborted!");
+				// Get Access Token / Authorization
+				UserCredential myCredential = await GetAuthorization();
+
+				// Create a new Google Drive API Service
+				DriveService service = new DriveService(new BaseClientService.Initializer()
+				{
+					HttpClientInitializer = myCredential,
+					ApplicationName = Defs.ProductName
+				});
 
 				string filePath = m_host.Database.IOConnectionInfo.Path;
 				string contentType = "application/x-keepass2";
-
-				// Register the authenticator and create the service
-				var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description, m_clientId, m_clientSecret.ReadString());
-				var auth = new OAuth2Authenticator<NativeApplicationClient>(provider, GetAuthorization);
-				var service = new DriveService(auth);
 
 				File file = getFile(service, filePath);
 				if (file == null)
@@ -252,7 +258,7 @@ namespace GoogleSyncPlugin
 						status = updateFile(service, file, filePath, contentType);
 					else
 					{
-						string downloadFilePath = downloadFile(service.Authenticator, file, filePath);
+						string downloadFilePath = await downloadFile(service, file, filePath);
 						if (!String.IsNullOrEmpty(downloadFilePath))
 						{
 							if (syncCommand == SyncCommand.DOWNLOAD)
@@ -266,6 +272,40 @@ namespace GoogleSyncPlugin
 							status = "File could not be downloaded.";
 					}
 				}
+			}
+			catch (TokenResponseException ex)
+			{
+				string msg = string.Empty;
+				switch (ex.Error.Error)
+				{
+					case "access_denied":
+						msg = "Access authorization request denied.";
+						break;
+					case "invalid_request":
+						msg = "Either Client ID or Client Secret is missing.";
+						break;
+					case "invalid_client":
+						msg = "Either Client ID or Client Secret is invalid.";
+						break;
+					case "invalid_grant":
+						msg = "The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.";
+						break;
+					case "unauthorized_client":
+						msg = "The authenticated client is not authorized to use this authorization grant type.";
+						break;
+					case "unsupported_grant_type":
+						msg = "The authorization grant type is not supported by the authorization server.";
+						break;
+					case "invalid_scope":
+						msg = "The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.";
+						break;
+					default:
+						msg = ex.Message;
+						break;
+				}
+
+				status = "ERROR";
+				MessageBox.Show(msg, Defs.ProductName);
 			}
 			catch (Exception ex)
 			{
@@ -284,45 +324,29 @@ namespace GoogleSyncPlugin
 		/// <summary>
 		/// Download a file and return a string with its content.
 		/// </summary>
-		/// <param name="authenticator">Authenticator responsible for creating authorized web requests.</param>
+		/// <param name="service">The Google Drive service</param>
 		/// <param name="file">The Google Drive File instance</param>
 		/// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
 		/// <returns>File's path if successful, null or empty otherwise.</returns>
-		private string downloadFile(IAuthenticator authenticator, File file, string filePath)
+		private async Task<string> downloadFile(DriveService service, File file, string filePath)
 		{
 			if (file == null || String.IsNullOrEmpty(file.DownloadUrl) || String.IsNullOrEmpty(filePath))
 				return null;
 
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
-				new Uri(file.DownloadUrl));
-			authenticator.ApplyAuthenticationToRequest(request);
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-			if (response.StatusCode == HttpStatusCode.OK)
-			{
-				string downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
-					+ System.IO.Path.GetFileNameWithoutExtension(filePath)
-					+ DateTime.Now.ToString("_yyyyMMddHHmmss")
-					+ System.IO.Path.GetExtension(filePath);
+			var downloader = new MediaDownloader(service);
 
-				using (System.IO.Stream stream = response.GetResponseStream())
-				{
-					byte[] buffer = new byte[1024];
-					int bytesRead;
-					using (System.IO.FileStream fileStream = System.IO.File.Create(downloadFilePath))
-					{
-						do
-						{
-							bytesRead = stream.Read(buffer, 0, buffer.Length);
-							fileStream.Write(buffer, 0, bytesRead);
-						} while (bytesRead > 0);
-					}
-				}
-				return downloadFilePath;
-			}
-			else
+			string downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
+				+ System.IO.Path.GetFileNameWithoutExtension(filePath)
+				+ DateTime.Now.ToString("_yyyyMMddHHmmss")
+				+ System.IO.Path.GetExtension(filePath);
+
+			using (var fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
 			{
-				MessageBox.Show("File download failed: " + response.StatusDescription, Defs.ProductName);
-				return null;
+				var progress = await downloader.DownloadAsync(file.DownloadUrl, fileStream);
+				if (progress.Status == DownloadStatus.Completed)
+					return downloadFilePath;
+				else
+					return string.Empty;
 			}
 		}
 
@@ -337,7 +361,7 @@ namespace GoogleSyncPlugin
 			string filename = System.IO.Path.GetFileName(filepath);
 			FilesResource.ListRequest req = service.Files.List();
 			req.Q = "title='" + filename.Replace("'", "\\'") + "' and trashed=false";
-			FileList files = req.Fetch();
+			FileList files = req.Execute();
 			if (files.Items.Count < 1)
 				return null;
 			else if (files.Items.Count == 1)
@@ -454,68 +478,59 @@ namespace GoogleSyncPlugin
 		}
 
 		/// <summary>
-		/// Get Authorization token from Google
+		/// Get Access Token from Google OAuth 2.0 API v1.9
 		/// </summary>
-		/// <param name="arg"></param>
-		/// <returns></returns>
-		private IAuthorizationState GetAuthorization(NativeApplicationClient arg)
+		/// <returns>The UserCredentials with Access Token and Refresh Token</returns>
+		private async Task<UserCredential> GetAuthorization()
 		{
-			// Get the auth URL:
-			IAuthorizationState state = new AuthorizationState(new[] { DriveService.Scopes.Drive.GetStringValue() });
-			state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
+			if (!LoadConfiguration() || m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				return null;
 
+			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a custom code receiver that uses the Browser inside a native Form.
+			GoogleAuthorizationCodeFlow.Initializer myInitializer = new GoogleAuthorizationCodeFlow.Initializer();
+			myInitializer.ClientSecrets = new ClientSecrets() { ClientId = m_clientId, ClientSecret = m_clientSecret.ReadString() };
+			myInitializer.Scopes = new[] { DriveService.Scope.Drive };
+			GoogleAuthorizationCodeFlow myFlow = new GoogleAuthorizationCodeFlow(myInitializer);
+			//myFlow.HttpClient.Timeout = new TimeSpan(0, 0, 10); // 10s
+			NativeCodeReceiver myCodeReceiver = new NativeCodeReceiver(m_entry.Strings.Get(PwDefs.UserNameField).ReadString(), m_entry.Strings.Get(PwDefs.PasswordField));
+			AuthorizationCodeInstalledApp myAuth = new AuthorizationCodeInstalledApp(myFlow, myCodeReceiver);
+			UserCredential myCredential = null;
+
+			// Try using an existing Refresh Token to get a new Access Token
 			if (m_refreshToken != null && !m_refreshToken.IsEmpty)
 			{
-				state.RefreshToken = m_refreshToken.ReadString();
 				try
 				{
-					if (arg.RefreshToken(state))
-						return state;
+					TokenResponse myTokenResponse = await myAuth.Flow.RefreshTokenAsync("user", m_refreshToken.ReadString(), CancellationToken.None);
+					myCredential = new UserCredential(myFlow, "user", myTokenResponse);
 				}
-				catch (DotNetOpenAuth.Messaging.ProtocolException ex)
+				catch (TokenResponseException ex)
 				{
-					// fetch http status code
-					HttpStatusCode status = 0;
-					if (ex.InnerException is WebException && ((WebException)ex.InnerException).Response is HttpWebResponse)
-						status =((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode;
-
-					// refresh token invalid (because user revoked access)?
-					if (status == HttpStatusCode.BadRequest
-						|| status == HttpStatusCode.Unauthorized
-						|| status == HttpStatusCode.Forbidden)
+					switch (ex.Error.Error)
 					{
-						// invalidate token and let the user authorize again below
-						m_refreshToken = null;
-						state.RefreshToken = String.Empty;
-					}
-					else
-					{
-						throw ex; // sth. else went wrong
+						case "invalid_grant":
+							myCredential = null; // Refresh Token is invalid. Get user authorization below.
+							break;
+						default:
+							throw ex;
 					}
 				}
 			}
 
-			Uri authUri = arg.RequestUserAuthorization(state);
-			GoogleAuthenticateForm form1;
-			if (m_entry != null)
-				form1 = new GoogleAuthenticateForm(authUri, m_entry.Strings.Get(PwDefs.UserNameField).ReadString(), m_entry.Strings.Get(PwDefs.PasswordField));
-			else
-				form1 = new GoogleAuthenticateForm(authUri, string.Empty, null);
-
-			UIUtil.ShowDialogAndDestroy(form1);
-			if (!form1.Success)
-				throw new PlgxException("Authorization failed: " + form1.Code);
-
-			state = arg.ProcessUserAuthorization(form1.Code, state);
-
-			// save the refresh token if new or different
-			if (!String.IsNullOrEmpty(state.RefreshToken) && (m_refreshToken == null || state.RefreshToken != m_refreshToken.ReadString()))
+			// Let the User authorize the access
+			if (myCredential == null || String.IsNullOrEmpty(myCredential.Token.AccessToken))
 			{
-				m_refreshToken = new ProtectedString(true, state.RefreshToken);
-				SaveConfiguration();
+				myCredential = await myAuth.AuthorizeAsync("user", CancellationToken.None);
+
+				// save the (new) Refresh Token
+				if (myCredential != null && !String.IsNullOrEmpty(myCredential.Token.RefreshToken))
+				{
+					m_refreshToken = new ProtectedString(true, myCredential.Token.RefreshToken);
+					SaveConfiguration();
+				}
 			}
 
-			return state;
+			return myCredential;
 		}
 
 		/// <summary>
@@ -631,6 +646,60 @@ namespace GoogleSyncPlugin
 			m_host.Database.Save(new NullStatusLogger());
 
 			return true;
+		}
+	}
+
+	public class NativeCodeReceiver : ICodeReceiver
+	{
+		private Uri m_authorizationUrl = null;
+		private string m_email = string.Empty;
+		private ProtectedString m_passwd = null;
+		private bool m_success = false;
+		private string m_code = "access_denied";
+
+		public string RedirectUri
+		{
+			get { return GoogleAuthConsts.InstalledAppRedirectUri; }
+		}
+
+		public NativeCodeReceiver(string email, ProtectedString passwd)
+		{
+			m_email = email;
+			m_passwd = passwd;
+		}
+
+		public Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
+			CancellationToken taskCancellationToken)
+		{
+			var tcs = new TaskCompletionSource<AuthorizationCodeResponseUrl>();
+
+			if (url is GoogleAuthorizationCodeRequestUrl)
+				((GoogleAuthorizationCodeRequestUrl)url).LoginHint = m_email;
+			m_authorizationUrl = url.Build();
+
+			var t = new Thread(new ThreadStart(RunBrowser));
+			t.SetApartmentState(ApartmentState.STA);
+			t.Start();
+			do
+			{
+				Thread.Yield();
+			} while (t.IsAlive);
+
+			if (m_success)
+				tcs.SetResult(new AuthorizationCodeResponseUrl() { Code = m_code });
+			else
+				tcs.SetResult(new AuthorizationCodeResponseUrl() { Error = m_code });
+
+			return tcs.Task;
+		}
+
+		private void RunBrowser()
+		{
+			GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(m_authorizationUrl, m_email, m_passwd);
+			UIUtil.ShowDialogAndDestroy(form1);
+
+			m_success = form1.Success;
+			m_code = form1.Code;
 		}
 	}
 }
