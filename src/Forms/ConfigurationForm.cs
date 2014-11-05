@@ -24,6 +24,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using KeePassLib;
@@ -102,14 +103,22 @@ namespace GoogleSyncPlugin
 
 		private void btnOk_Click(object sender, EventArgs e)
 		{
-			if (String.IsNullOrEmpty(txtUuid.Text.Trim()) || String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
+			string strUuid = txtUuid.Text.Trim().ToUpper();
+
+			if (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
 			{
 				MessageBox.Show("Please select a Google Account and enter the Google OAuth 2.0 credentials for " + Defs.ProductName + ".", Defs.ProductName);
 				DialogResult = DialogResult.None;
 				return;
 			}
+			else if (!Regex.IsMatch(strUuid, "^[0-9A-F]{32}$"))
+			{
+				MessageBox.Show("The entered UUID is not valid.", Defs.ProductName);
+				DialogResult = DialogResult.None;
+				return;
+			}
 
-			m_uuid = txtUuid.Text.Trim();
+			m_uuid = strUuid;
 			m_clientId = txtClientId.Text.Trim();
 			m_clientSecret = txtClientSecret.Text.Trim();
 			m_autoSync = chkAutoSync.Checked;
