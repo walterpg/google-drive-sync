@@ -105,6 +105,7 @@ namespace GoogleSyncPlugin
 			if (String.IsNullOrEmpty(txtUuid.Text.Trim()) || String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
 			{
 				MessageBox.Show("Please select a Google Account and enter the Google OAuth 2.0 credentials for " + Defs.ProductName + ".", Defs.ProductName);
+				DialogResult = DialogResult.None;
 				return;
 			}
 
@@ -112,13 +113,6 @@ namespace GoogleSyncPlugin
 			m_clientId = txtClientId.Text.Trim();
 			m_clientSecret = txtClientSecret.Text.Trim();
 			m_autoSync = chkAutoSync.Checked;
-
-			this.Close();
-		}
-
-		private void btnCancel_Click(object sender, EventArgs e)
-		{
-			this.Close();
 		}
 
 		private void cbAccount_SelectedIndexChanged(object sender, EventArgs e)
