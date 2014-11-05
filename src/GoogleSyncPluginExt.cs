@@ -533,11 +533,11 @@ namespace GoogleSyncPlugin
 			// find the configured entry
 			PwEntry entry = null;
 			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			if (!String.IsNullOrEmpty(strUuid))
+			try
 			{
-				PwUuid uuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid));
-				entry = m_host.Database.RootGroup.FindEntry(uuid, true);
+				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
 			}
+			catch (ArgumentException) { }
 
 			// find configured entry in account list
 			int idx = -1;
@@ -558,8 +558,12 @@ namespace GoogleSyncPlugin
 
 			m_entry = null;
 			strUuid = form1.Uuid;
-			if (!String.IsNullOrEmpty(strUuid))
+			try
+			{
 				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+			}
+			catch (ArgumentException) { }
+
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
 			m_autoSync = form1.AutoSync;
@@ -582,8 +586,11 @@ namespace GoogleSyncPlugin
 
 			// find configured password entry in db
 			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			if (!String.IsNullOrEmpty(strUuid))
+			try
+			{
 				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+			}
+			catch (ArgumentException) {}
 
 			// read credentials
 			if (m_entry != null)
