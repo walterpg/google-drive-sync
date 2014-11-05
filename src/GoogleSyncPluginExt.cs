@@ -564,6 +564,12 @@ namespace GoogleSyncPlugin
 			}
 			catch (ArgumentException) { }
 
+			if (m_entry == null && !String.IsNullOrEmpty(strUuid))
+			{
+				MessageBox.Show("Password entry with UUID '" + strUuid + "' not found.", Defs.ProductName);
+				return false;
+			}
+
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
 			m_autoSync = form1.AutoSync;
@@ -608,7 +614,7 @@ namespace GoogleSyncPlugin
 				if (AskForConfiguration())
 					SaveConfiguration();
 				else
-					return false; // user cancelled
+					return false; // user cancelled or error
 			}
 
 			return true;
@@ -619,17 +625,22 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private bool SaveConfiguration()
 		{
-			if (!m_host.Database.IsOpen || m_entry == null)
+			if (m_entry == null)
+			{
+				m_autoSync = false;
+				m_host.CustomConfig.SetBool(Defs.ConfigAutoSync, m_autoSync);
+				m_host.CustomConfig.SetString(Defs.ConfigUUID, string.Empty);
+				return true;
+			}
+
+			if (!m_host.Database.IsOpen)
 				return false;
 
 			m_host.CustomConfig.SetBool(Defs.ConfigAutoSync, m_autoSync);
 			m_host.CustomConfig.SetString(Defs.ConfigUUID, m_entry.Uuid.ToHexString());
 
 			if (!String.IsNullOrEmpty(m_clientId))
-			{
-				ProtectedString pstr = new ProtectedString(false, m_clientId);
-				m_entry.Strings.Set(Defs.ConfigClientId, pstr);
-			}
+				m_entry.Strings.Set(Defs.ConfigClientId, new ProtectedString(false, m_clientId));
 			if (m_clientSecret != null)
 				m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
 			if (m_refreshToken != null)

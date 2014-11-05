@@ -105,6 +105,17 @@ namespace GoogleSyncPlugin
 		{
 			string strUuid = txtUuid.Text.Trim().ToUpper();
 
+			if (String.IsNullOrEmpty(strUuid))
+			{
+				DialogResult dlgr = MessageBox.Show("Remove Google Account association from KeePass config?", Defs.ProductName, MessageBoxButtons.YesNoCancel);
+				if (DialogResult.Yes == dlgr)
+					return;
+				else
+				{
+					DialogResult = DialogResult.None;
+					return;
+				}
+			}
 			if (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
 			{
 				MessageBox.Show("Please select a Google Account and enter the Google OAuth 2.0 credentials for " + Defs.ProductName + ".", Defs.ProductName);
