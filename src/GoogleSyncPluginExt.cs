@@ -59,6 +59,14 @@ namespace GoogleSyncPlugin
 		public const string URLGoogleDev = "https://console.developers.google.com/project";
 	}
 
+	[Flags]
+	public enum AutoSyncMode
+	{
+		DISABLED = 0,
+		SAVE = 1,
+		OPEN = 2
+	}
+
 	/// <summary>
 	/// main plugin class
 	/// </summary>
@@ -66,7 +74,7 @@ namespace GoogleSyncPlugin
 	{
 		private IPluginHost m_host = null;
 
-		private bool m_autoSync = false;
+		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
 
 		private PwEntry m_entry = null;
 		private string m_clientId = string.Empty;
@@ -102,7 +110,16 @@ namespace GoogleSyncPlugin
 			if(host == null) return false;
 			m_host = host;
 
-			m_autoSync = m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false);
+			try
+			{
+				m_autoSync = (AutoSyncMode)Enum.Parse(typeof(AutoSyncMode), m_host.CustomConfig.GetString(Defs.ConfigAutoSync, AutoSyncMode.DISABLED.ToString()), true);
+			}
+			catch (Exception)
+			{
+				// support old boolean value (Sync on Save)
+				if (m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false))
+					m_autoSync = AutoSyncMode.SAVE;
+			}
 
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
@@ -174,7 +191,7 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success && m_autoSync)
+			if (e.Success && AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
 			{
 				if (LoadConfiguration())
 					syncWithGoogle(SyncCommand.SYNC);
@@ -188,7 +205,7 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private void OnFileOpened(object sender, FileOpenedEventArgs e)
 		{
-			if (m_autoSync)
+			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
 			{
 				if (LoadConfiguration())
 					syncWithGoogle(SyncCommand.SYNC);
@@ -664,8 +681,8 @@ namespace GoogleSyncPlugin
 		{
 			if (m_entry == null)
 			{
-				m_autoSync = false;
-				m_host.CustomConfig.SetBool(Defs.ConfigAutoSync, m_autoSync);
+				m_autoSync = AutoSyncMode.DISABLED;
+				m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
 				m_host.CustomConfig.SetString(Defs.ConfigUUID, string.Empty);
 				return true;
 			}
@@ -673,7 +690,7 @@ namespace GoogleSyncPlugin
 			if (!m_host.Database.IsOpen)
 				return false;
 
-			m_host.CustomConfig.SetBool(Defs.ConfigAutoSync, m_autoSync);
+			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
 			m_host.CustomConfig.SetString(Defs.ConfigUUID, m_entry.Uuid.ToHexString());
 
 			if (!String.IsNullOrEmpty(m_clientId))

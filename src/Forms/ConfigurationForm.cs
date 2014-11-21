@@ -31,6 +31,8 @@ using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
 
+using GoogleSyncPlugin;
+
 
 namespace GoogleSyncPlugin
 {
@@ -38,12 +40,12 @@ namespace GoogleSyncPlugin
 	{
 		private PwObjectList<PwEntry> m_accounts = null;
 		private int m_accidx = -1;
-		private bool m_autoSync = false;
+		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
 		private string m_uuid = string.Empty;
 		private string m_clientId = string.Empty;
 		private string m_clientSecret = string.Empty;
 
-		public ConfigurationForm(PwObjectList<PwEntry> accounts, int idx, bool autoSync)
+		public ConfigurationForm(PwObjectList<PwEntry> accounts, int idx, AutoSyncMode autoSync)
 		{
 			InitializeComponent();
 
@@ -69,7 +71,7 @@ namespace GoogleSyncPlugin
 			get { return m_clientSecret; }
 		}
 
-		public bool AutoSync
+		public AutoSyncMode AutoSync
 		{
 			get { return m_autoSync; }
 		}
@@ -98,7 +100,7 @@ namespace GoogleSyncPlugin
 					txtClientSecret.Text = pstr.ReadString();
 			}
 			txtUuid.Enabled = m_accidx < 0;
-			chkAutoSync.Checked = m_autoSync;
+			cbAutoSync.SelectedIndex = (int)m_autoSync;
 		}
 
 		private void btnOk_Click(object sender, EventArgs e)
@@ -132,7 +134,7 @@ namespace GoogleSyncPlugin
 			m_uuid = strUuid;
 			m_clientId = txtClientId.Text.Trim();
 			m_clientSecret = txtClientSecret.Text.Trim();
-			m_autoSync = chkAutoSync.Checked;
+			m_autoSync = (AutoSyncMode)cbAutoSync.SelectedIndex;
 		}
 
 		private void cbAccount_SelectedIndexChanged(object sender, EventArgs e)

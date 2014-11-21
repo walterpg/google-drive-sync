@@ -40,10 +40,11 @@
 			this.label5 = new System.Windows.Forms.Label();
 			this.txtUuid = new System.Windows.Forms.TextBox();
 			this.cbAccount = new System.Windows.Forms.ComboBox();
-			this.chkAutoSync = new System.Windows.Forms.CheckBox();
 			this.lnkHelp = new System.Windows.Forms.LinkLabel();
 			this.lblVersion = new System.Windows.Forms.Label();
 			this.lnkHome = new System.Windows.Forms.LinkLabel();
+			this.label1 = new System.Windows.Forms.Label();
+			this.cbAutoSync = new System.Windows.Forms.ComboBox();
 			this.SuspendLayout();
 			// 
 			// txtClientId
@@ -56,10 +57,10 @@
 			// lnkGoogle
 			// 
 			this.lnkGoogle.AutoSize = true;
-			this.lnkGoogle.Location = new System.Drawing.Point(88, 192);
+			this.lnkGoogle.Location = new System.Drawing.Point(88, 207);
 			this.lnkGoogle.Name = "lnkGoogle";
 			this.lnkGoogle.Size = new System.Drawing.Size(134, 13);
-			this.lnkGoogle.TabIndex = 15;
+			this.lnkGoogle.TabIndex = 16;
 			this.lnkGoogle.TabStop = true;
 			this.lnkGoogle.Text = "Google Developer Console";
 			this.lnkGoogle.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGoogle_LinkClicked);
@@ -102,10 +103,10 @@
 			// btnOk
 			// 
 			this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.btnOk.Location = new System.Drawing.Point(296, 187);
+			this.btnOk.Location = new System.Drawing.Point(296, 202);
 			this.btnOk.Name = "btnOk";
 			this.btnOk.Size = new System.Drawing.Size(75, 23);
-			this.btnOk.TabIndex = 11;
+			this.btnOk.TabIndex = 12;
 			this.btnOk.Text = "&OK";
 			this.btnOk.UseVisualStyleBackColor = true;
 			this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
@@ -122,10 +123,10 @@
 			// btnCancel
 			// 
 			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.btnCancel.Location = new System.Drawing.Point(377, 187);
+			this.btnCancel.Location = new System.Drawing.Point(377, 202);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
-			this.btnCancel.TabIndex = 12;
+			this.btnCancel.TabIndex = 13;
 			this.btnCancel.Text = "&Cancel";
 			this.btnCancel.UseVisualStyleBackColor = true;
 			// 
@@ -155,23 +156,13 @@
 			this.cbAccount.TabIndex = 3;
 			this.cbAccount.SelectedIndexChanged += new System.EventHandler(this.cbAccount_SelectedIndexChanged);
 			// 
-			// chkAutoSync
-			// 
-			this.chkAutoSync.AutoSize = true;
-			this.chkAutoSync.Location = new System.Drawing.Point(112, 154);
-			this.chkAutoSync.Name = "chkAutoSync";
-			this.chkAutoSync.Size = new System.Drawing.Size(201, 17);
-			this.chkAutoSync.TabIndex = 10;
-			this.chkAutoSync.Text = "Auto Synchronize Database on Save";
-			this.chkAutoSync.UseVisualStyleBackColor = true;
-			// 
 			// lnkHelp
 			// 
 			this.lnkHelp.AutoSize = true;
-			this.lnkHelp.Location = new System.Drawing.Point(53, 192);
+			this.lnkHelp.Location = new System.Drawing.Point(53, 207);
 			this.lnkHelp.Name = "lnkHelp";
 			this.lnkHelp.Size = new System.Drawing.Size(29, 13);
-			this.lnkHelp.TabIndex = 14;
+			this.lnkHelp.TabIndex = 15;
 			this.lnkHelp.TabStop = true;
 			this.lnkHelp.Text = "Help";
 			this.lnkHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelp_LinkClicked);
@@ -190,23 +181,47 @@
 			// lnkHome
 			// 
 			this.lnkHome.AutoSize = true;
-			this.lnkHome.Location = new System.Drawing.Point(12, 192);
+			this.lnkHome.Location = new System.Drawing.Point(12, 207);
 			this.lnkHome.Name = "lnkHome";
 			this.lnkHome.Size = new System.Drawing.Size(35, 13);
-			this.lnkHome.TabIndex = 13;
+			this.lnkHome.TabIndex = 14;
 			this.lnkHome.TabStop = true;
 			this.lnkHome.Text = "Home";
 			this.lnkHome.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHome_LinkClicked);
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(12, 157);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(59, 13);
+			this.label1.TabIndex = 10;
+			this.label1.Text = "Auto Sync:";
+			// 
+			// cbAutoSync
+			// 
+			this.cbAutoSync.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbAutoSync.FormattingEnabled = true;
+			this.cbAutoSync.Items.AddRange(new object[] {
+            "Disabled",
+            "Save",
+            "Open",
+            "Both"});
+			this.cbAutoSync.Location = new System.Drawing.Point(112, 154);
+			this.cbAutoSync.Name = "cbAutoSync";
+			this.cbAutoSync.Size = new System.Drawing.Size(110, 21);
+			this.cbAutoSync.TabIndex = 11;
 			// 
 			// ConfigurationForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(464, 222);
+			this.ClientSize = new System.Drawing.Size(464, 237);
+			this.Controls.Add(this.cbAutoSync);
+			this.Controls.Add(this.label1);
 			this.Controls.Add(this.lnkHome);
 			this.Controls.Add(this.lblVersion);
 			this.Controls.Add(this.lnkHelp);
-			this.Controls.Add(this.chkAutoSync);
 			this.Controls.Add(this.cbAccount);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.txtUuid);
@@ -244,9 +259,10 @@
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.TextBox txtUuid;
 		private System.Windows.Forms.ComboBox cbAccount;
-		private System.Windows.Forms.CheckBox chkAutoSync;
 		private System.Windows.Forms.LinkLabel lnkHelp;
 		private System.Windows.Forms.Label lblVersion;
 		private System.Windows.Forms.LinkLabel lnkHome;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.ComboBox cbAutoSync;
 	}
 }
