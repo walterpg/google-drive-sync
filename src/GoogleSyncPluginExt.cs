@@ -225,7 +225,8 @@ namespace GoogleSyncPlugin
 				m_host.MainWindow.SetStatusEx(status);
 				m_host.MainWindow.Enabled = false;
 
-				if (!LoadConfiguration() || m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				// abort when user cancelled or didn't provide config
+				if (!GetConfiguration())
 					throw new PlgxException(Defs.ProductName + " aborted!");
 
 				string filePath = m_host.Database.IOConnectionInfo.Path;
@@ -598,18 +599,30 @@ namespace GoogleSyncPlugin
 			}
 			catch (ArgumentException) {}
 
-			// read credentials
-			if (m_entry != null)
-			{
-				ProtectedString pstr = m_entry.Strings.Get(Defs.ConfigClientId);
-				if (pstr != null)
-					m_clientId = pstr.ReadString();
-				m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
-				m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
-			}
+			if (m_entry == null)
+				return false;
+
+			// read OAuth 2.0 credentials
+			ProtectedString pstr = m_entry.Strings.Get(Defs.ConfigClientId);
+			if (pstr != null)
+				m_clientId = pstr.ReadString();
+			m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
+			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
 
 			// something missing?
 			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Load the current configuration or ask for configuration if missing
+		/// </summary>
+		private bool GetConfiguration()
+		{
+			// configuration not complete?
+			if (!LoadConfiguration())
 			{
 				if (AskForConfiguration())
 					SaveConfiguration();
@@ -617,7 +630,8 @@ namespace GoogleSyncPlugin
 					return false; // user cancelled or error
 			}
 
-			return true;
+			// only return true if in fact nothing is missing. AskForConfiguration can also be true when deleting config (empty UUID).
+			return  m_entry != null && !String.IsNullOrEmpty(m_clientId) && m_clientSecret != null && !m_clientSecret.IsEmpty;
 		}
 
 		/// <summary>
