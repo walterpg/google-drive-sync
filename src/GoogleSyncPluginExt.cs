@@ -173,7 +173,12 @@ namespace GoogleSyncPlugin
 		private void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
 			if (e.Success && m_autoSync)
-				syncWithGoogle(SyncCommand.SYNC);
+			{
+				if (LoadConfiguration())
+					syncWithGoogle(SyncCommand.SYNC);
+				else
+					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
+			}
 		}
 
 		/// <summary>
