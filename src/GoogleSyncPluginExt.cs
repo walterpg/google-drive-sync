@@ -141,8 +141,9 @@ namespace GoogleSyncPlugin
 			m_tsmiPopup.DropDownItems.Add(m_tsmiConfigure);
 
 			// We want a notification when the user tried to save the
-			// current database
+			// current database or opened a new one.
 			m_host.MainWindow.FileSaved += OnFileSaved;
+			m_host.MainWindow.FileOpened += OnFileOpened;
 
 			return true; // Initialization successful
 		}
@@ -165,14 +166,29 @@ namespace GoogleSyncPlugin
 
 			// Important! Remove event handlers!
 			m_host.MainWindow.FileSaved -= OnFileSaved;
+			m_host.MainWindow.FileOpened -= OnFileOpened;
 		}
 
 		/// <summary>
-		/// Event handler to implement auto sync
+		/// Event handler to implement auto sync on save
 		/// </summary>
 		private void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
 			if (e.Success && m_autoSync)
+			{
+				if (LoadConfiguration())
+					syncWithGoogle(SyncCommand.SYNC);
+				else
+					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
+			}
+		}
+
+		/// <summary>
+		/// Event handler to implement auto sync on open
+		/// </summary>
+		private void OnFileOpened(object sender, FileOpenedEventArgs e)
+		{
+			if (m_autoSync)
 			{
 				if (LoadConfiguration())
 					syncWithGoogle(SyncCommand.SYNC);
@@ -226,7 +242,8 @@ namespace GoogleSyncPlugin
 			string status = Defs.ProductName + " started. Please wait ...";
 			try
 			{
-				m_host.MainWindow.FileSaved -= OnFileSaved;
+				m_host.MainWindow.FileSaved -= OnFileSaved; // disable to not trigger when saving ourselves
+				m_host.MainWindow.FileOpened -= OnFileOpened; // disable to not trigger when opening ourselves
 				m_host.MainWindow.SetStatusEx(status);
 				m_host.MainWindow.Enabled = false;
 
@@ -284,6 +301,7 @@ namespace GoogleSyncPlugin
 				m_host.MainWindow.SetStatusEx(Defs.ProductName + ": " + status);
 				m_host.MainWindow.Enabled = true;
 				m_host.MainWindow.FileSaved += OnFileSaved;
+				m_host.MainWindow.FileOpened += OnFileOpened;
 			}
 		}
 
