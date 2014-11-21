@@ -48,7 +48,7 @@ namespace GoogleSyncPlugin
 	public static class Defs
 	{
 		public const string ProductName = "Google Sync Plugin";
-		public const string VersionString = "2.0";
+		public const string VersionString = "2.1";
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
 		public const string ConfigClientId = "GoogleSync.ClientID";
