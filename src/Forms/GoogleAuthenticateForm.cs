@@ -44,6 +44,8 @@ namespace GoogleSyncPlugin
 			InitializeComponent();
 
 			m_uri = uri;
+			if (!String.IsNullOrEmpty(email))
+				m_uri = new Uri(m_uri.OriginalString + "&login_hint=" + Uri.EscapeDataString(email));
 			m_email = email;
 			m_passwd = password;
 
