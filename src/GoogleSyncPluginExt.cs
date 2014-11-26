@@ -94,6 +94,20 @@ namespace GoogleSyncPlugin
 			UPLOAD = 3
 		}
 
+		private const string DefaultClientId = "579467001123-ee60b1ghffl38rgdk6pj7gjdjvagi9i7.apps.googleusercontent.com";
+		// pseudosecret (pad is sha256 of DefaultClientId)
+		private XorredBuffer DefaultClientSecret = new XorredBuffer(
+			new byte[] {
+				0x56, 0x26, 0xd7, 0x81, 0xcd, 0x45, 0x8c, 0xd2,
+				0xee, 0x3d, 0x1a, 0x6a, 0x64, 0xec, 0x54, 0x5d,
+				0xa0, 0x36, 0x24, 0x2c, 0xca, 0x27, 0x81, 0xec
+			}, new byte[] {
+				0x10, 0x65, 0x98, 0xec, 0xbd, 0x74, 0xe0, 0xe2,
+				0xda, 0x72, 0x5f, 0x2b, 0x21, 0x85, 0x2d, 0x34,
+				0xf2, 0x78, 0x5e, 0x7e, 0x8b, 0x74, 0xf4, 0xae
+			}
+		);
+
 		/// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
@@ -685,6 +699,13 @@ namespace GoogleSyncPlugin
 			m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
 			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
 
+			// use default OAuth 2.0 credentials
+			if (String.IsNullOrEmpty(m_clientId))
+			{
+				m_clientId = DefaultClientId;
+				m_clientSecret = new ProtectedString(true, DefaultClientSecret);
+			}
+
 			// something missing?
 			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
 				return false;
@@ -729,10 +750,17 @@ namespace GoogleSyncPlugin
 			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
 			m_host.CustomConfig.SetString(Defs.ConfigUUID, m_entry.Uuid.ToHexString());
 
-			if (!String.IsNullOrEmpty(m_clientId))
+			if (m_clientId == DefaultClientId || String.IsNullOrEmpty(m_clientId))
+			{
+				m_entry.Strings.Remove(Defs.ConfigClientId);
+				m_entry.Strings.Remove(Defs.ConfigClientSecret);
+			}
+			else
+			{
 				m_entry.Strings.Set(Defs.ConfigClientId, new ProtectedString(false, m_clientId));
-			if (m_clientSecret != null)
-				m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
+				if (m_clientSecret != null)
+					m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
+			}
 			if (m_refreshToken != null)
 				m_entry.Strings.Set(Defs.ConfigRefreshToken, m_refreshToken);
 

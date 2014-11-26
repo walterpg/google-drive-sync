@@ -100,6 +100,11 @@ namespace GoogleSyncPlugin
 					txtClientSecret.Text = pstr.ReadString();
 			}
 			txtUuid.Enabled = m_accidx < 0;
+
+			chkOAuth.Checked = !String.IsNullOrEmpty(txtClientId.Text) || !String.IsNullOrEmpty(txtClientSecret.Text);
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
+
 			cbAutoSync.SelectedIndex = (int)m_autoSync;
 		}
 
@@ -110,30 +115,31 @@ namespace GoogleSyncPlugin
 			if (String.IsNullOrEmpty(strUuid))
 			{
 				DialogResult dlgr = MessageBox.Show("Remove Google Account association from KeePass config?", Defs.ProductName, MessageBoxButtons.YesNoCancel);
-				if (DialogResult.Yes == dlgr)
-					return;
-				else
-				{
+				if (DialogResult.Yes != dlgr)
 					DialogResult = DialogResult.None;
-					return;
-				}
-			}
-			if (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
-			{
-				MessageBox.Show("Please select a Google Account and enter the Google OAuth 2.0 credentials for " + Defs.ProductName + ".", Defs.ProductName);
-				DialogResult = DialogResult.None;
 				return;
 			}
-			else if (!Regex.IsMatch(strUuid, "^[0-9A-F]{32}$"))
+
+			if (!Regex.IsMatch(strUuid, "^[0-9A-F]{32}$"))
 			{
 				MessageBox.Show("The entered UUID is not valid.", Defs.ProductName);
 				DialogResult = DialogResult.None;
 				return;
 			}
 
+			if (chkOAuth.Checked && (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim())))
+			{
+				MessageBox.Show("Please enter a valid custom Google OAuth 2.0 Client ID and Client Secrect for " + Defs.ProductName + " or use default values.", Defs.ProductName);
+				DialogResult = DialogResult.None;
+				return;
+			}
+
 			m_uuid = strUuid;
-			m_clientId = txtClientId.Text.Trim();
-			m_clientSecret = txtClientSecret.Text.Trim();
+			if (chkOAuth.Checked)
+			{
+				m_clientId = txtClientId.Text.Trim();
+				m_clientSecret = txtClientSecret.Text.Trim();
+			}
 			m_autoSync = (AutoSyncMode)cbAutoSync.SelectedIndex;
 		}
 
@@ -159,6 +165,16 @@ namespace GoogleSyncPlugin
 			{
 				txtUuid.Enabled = true;
 			}
+
+			chkOAuth.Checked = !String.IsNullOrEmpty(txtClientId.Text) || !String.IsNullOrEmpty(txtClientSecret.Text);
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
+		}
+
+		private void chkOAuth_CheckedChanged(object sender, EventArgs e)
+		{
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
 		}
 
 		private void lnkHome_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
