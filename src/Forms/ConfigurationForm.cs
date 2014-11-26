@@ -87,7 +87,11 @@ namespace GoogleSyncPlugin
 				cbAccount.Items.Add(entry.Strings.GetSafe(PwDefs.UserNameField).ReadString() + " - " + entry.Strings.GetSafe(PwDefs.TitleField).ReadString());
 			}
 
-			cbAccount.SelectedIndex = (int)m_accidx + 1;
+			// preselect first account found when not configured
+			//if (m_accidx < 0 && m_accounts.UCount > 0)
+			//	m_accidx = 0;
+
+			cbAccount.SelectedIndex = m_accidx + 1;
 			if (m_accidx >= 0)
 			{
 				PwEntry entry = m_accounts.GetAt((uint)cbAccount.SelectedIndex - 1);
