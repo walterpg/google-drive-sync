@@ -21,8 +21,9 @@ It supports three modes of operation:
 * Download: The remote version of the open database is downloaded replacing
   the open database.
 
-The "Synchronize" mode can be configured to run automatically when the open
-database is saved, a database is opened or both.
+The "Synchronize" mode can be configured to run automatically when an open
+database is saved, a database is opened or both. Databases which have no
+matching configuration will be ignored.
 
 The Plugin matches the remote file by the file name of the open database. The
 remote file can be moved to any folder within the Google Drive, but the file
@@ -64,8 +65,12 @@ Requirements
 The Plugin requires the .NET Framework 4.0 or newer.
 (The .NET Client Profile does not suffice)
 
-The Plugin requires creating a Project with the Google Developers Console to
-obtain OAuth 2.0 credentials to access the Google Drive:
+The Plugin requires OAuth 2.0 credentials to access the Google Drive API.
+Starting with v2.1 it has it's own credentials built in, but still allows you
+to provide your own as with previous versions.
+
+In case you would like to provide your own OAuth 2.0 credentials, you can
+create a Project with the Google Developers Console:
 
 * Go to the Google Developers Console in your Google Account:
   https://console.developers.google.com/project
@@ -76,7 +81,7 @@ obtain OAuth 2.0 credentials to access the Google Drive:
 * Create OAuth 2.0 credentials for an "Installed application" with application
   type "Other". ("APIs & auth" > "Credentials")
 
-You now have the "CLIENT ID" and "CLIENT SECRET" needed below.
+You now have the "CLIENT ID" and "CLIENT SECRET" you may use below.
 
 
 Installation
@@ -93,7 +98,8 @@ Installation
 * Go to "Tools" > "Google Sync Plugin" > "Configuration".
 * Either select your Google Account from the drop-down list or paste the UUID
   into the "KeePass UUID" field.
-* Provide the OAuth 2.0 "CLIENT ID" and "CLIENT SECRET" you created earlier.
+* If you want to provide your own OAuth 2.0 credentials select "Custom OAuth
+  2.0 Credentials" and provide the "CLIENT ID" and "CLIENT SECRET".
 
 The Plugin is now ready to work. On first use Google will ask for your
 consent to access your Google Drive. Make sure you authenticate with the
