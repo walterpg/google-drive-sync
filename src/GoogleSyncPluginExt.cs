@@ -517,8 +517,12 @@ namespace GoogleSyncPlugin
 				{
 					// fetch http status code
 					HttpStatusCode status = 0;
+					String statusDesc = string.Empty;
 					if (ex.InnerException is WebException && ((WebException)ex.InnerException).Response is HttpWebResponse)
-						status =((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode;
+					{
+						status = ((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode;
+						statusDesc = ((HttpWebResponse)((WebException)ex.InnerException).Response).StatusDescription;
+					}
 
 					// refresh token invalid (because user revoked access)?
 					if (status == HttpStatusCode.BadRequest
@@ -528,6 +532,10 @@ namespace GoogleSyncPlugin
 						// invalidate token and let the user authorize again below
 						m_refreshToken = null;
 						state.RefreshToken = String.Empty;
+					}
+					else if (status != 0)
+					{
+						throw new PlgxException("Authorization failed: HTTP staus " + status + " " + statusDesc);
 					}
 					else
 					{
@@ -547,7 +555,35 @@ namespace GoogleSyncPlugin
 			if (!form1.Success)
 				throw new PlgxException("Authorization failed: " + form1.Code);
 
-			state = arg.ProcessUserAuthorization(form1.Code, state);
+			try
+			{
+				state = arg.ProcessUserAuthorization(form1.Code, state);
+			}
+			catch (DotNetOpenAuth.Messaging.ProtocolException ex)
+			{
+				// fetch http status code and msg
+				HttpStatusCode status = 0;
+				String statusDesc = string.Empty;
+				if (ex.InnerException is WebException && ((WebException)ex.InnerException).Response is HttpWebResponse)
+				{
+					status = ((HttpWebResponse)((WebException)ex.InnerException).Response).StatusCode;
+					statusDesc = ((HttpWebResponse)((WebException)ex.InnerException).Response).StatusDescription;
+				}
+
+				if (status == HttpStatusCode.Unauthorized)
+				{
+					// authorization above was successful - so client secret must be invalid
+					throw new PlgxException("Authorization failed: Invalid OAuth 2.0 Client Secret");
+				}
+				else if (status != 0)
+				{
+					throw new PlgxException("Authorization failed: HTTP staus " + status + " " + statusDesc);
+				}
+				else
+				{
+					throw ex; // sth. else went wrong
+				}
+			}
 
 			// save the refresh token if new or different
 			if (!String.IsNullOrEmpty(state.RefreshToken) && (m_refreshToken == null || state.RefreshToken != m_refreshToken.ReadString()))
