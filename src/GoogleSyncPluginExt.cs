@@ -328,7 +328,15 @@ namespace GoogleSyncPlugin
 			}
 			finally
 			{
-				m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
+				try
+				{
+					m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+				}
+				catch (Exception)
+				{
+					// Try-Catch block may be obsolete here. Reset view to RootGroup to be sure with untested KeePass versions anyway.
+					m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
+				}
 				m_host.MainWindow.SetStatusEx(Defs.ProductName + ": " + status);
 				m_host.MainWindow.Enabled = true;
 				m_host.MainWindow.FileSaved += OnFileSaved;
