@@ -208,7 +208,7 @@ namespace GoogleSyncPlugin
 			if (e.Success && AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
 			{
 				if (LoadConfiguration())
-					syncWithGoogle(SyncCommand.SYNC);
+					syncWithGoogle(SyncCommand.SYNC, true);
 				else
 					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
 			}
@@ -222,7 +222,7 @@ namespace GoogleSyncPlugin
 			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
 			{
 				if (LoadConfiguration())
-					syncWithGoogle(SyncCommand.SYNC);
+					syncWithGoogle(SyncCommand.SYNC, true);
 				else
 					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
 			}
@@ -235,7 +235,7 @@ namespace GoogleSyncPlugin
 		{
 			ToolStripItem item = (ToolStripItem)sender;
 			SyncCommand syncCommand = (SyncCommand)Enum.Parse(typeof(SyncCommand), item.Name);
-			syncWithGoogle(syncCommand);
+			syncWithGoogle(syncCommand, false);
 		}
 
 		/// <summary>
@@ -262,7 +262,7 @@ namespace GoogleSyncPlugin
 		/// <summary>
 		/// Sync the current database with Google Drive. Create a new file if it does not already exists
 		/// </summary>
-		private void syncWithGoogle(SyncCommand syncCommand)
+		private void syncWithGoogle(SyncCommand syncCommand, bool autoSync)
 		{
 			if (!m_host.Database.IsOpen)
 			{
@@ -304,12 +304,20 @@ namespace GoogleSyncPlugin
 						status = "File name not found on Google Drive. Please upload or sync with Google Drive first.";
 					}
 					else // upload
+					{
+						if (!autoSync)
+							m_host.Database.Save(new NullStatusLogger());
 						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, contentType, filePath);
+					}
 				}
 				else
 				{
 					if (syncCommand == SyncCommand.UPLOAD)
+					{
+						if (!autoSync)
+							m_host.Database.Save(new NullStatusLogger());
 						status = updateFile(service, file, filePath, contentType);
+					}
 					else
 					{
 						string downloadFilePath = downloadFile(service.Authenticator, file, filePath);
