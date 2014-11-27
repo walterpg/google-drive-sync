@@ -250,7 +250,13 @@ namespace GoogleSyncPlugin
 			}
 
 			if (AskForConfiguration())
+			{
+				// continue to use existing refresh token if present - match / validity will be checked in any case
+				if (m_entry != null)
+					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+
 				SaveConfiguration();
+			}
 		}
 
 		/// <summary>
