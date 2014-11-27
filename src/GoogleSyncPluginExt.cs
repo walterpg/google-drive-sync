@@ -700,7 +700,7 @@ namespace GoogleSyncPlugin
 			m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
 			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
 
-			// use default OAuth 2.0 credentials
+			// use default OAuth 2.0 credentials if missing
 			if (String.IsNullOrEmpty(m_clientId))
 			{
 				m_clientId = DefaultClientId;
@@ -722,14 +722,32 @@ namespace GoogleSyncPlugin
 			// configuration not complete?
 			if (!LoadConfiguration())
 			{
-				if (AskForConfiguration())
-					SaveConfiguration();
-				else
+				if (!AskForConfiguration())
 					return false; // user cancelled or error
+
+				// continue to use existing refresh token if present - match / validity will be checked in any case
+				if (m_entry != null)
+					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+
+				SaveConfiguration();
+
+				// user deleted configuration
+				if (m_entry == null)
+					return false;
+
+				// use default OAuth 2.0 credentials if missing
+				if (String.IsNullOrEmpty(m_clientId))
+				{
+					m_clientId = DefaultClientId;
+					m_clientSecret = new ProtectedString(true, DefaultClientSecret);
+				}
 			}
 
-			// only return true if in fact nothing is missing. AskForConfiguration can also be true when deleting config (empty UUID).
-			return  m_entry != null && !String.IsNullOrEmpty(m_clientId) && m_clientSecret != null && !m_clientSecret.IsEmpty;
+			// only return true if in fact nothing is missing
+			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				return false;
+
+			return true;
 		}
 
 		/// <summary>
