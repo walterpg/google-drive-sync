@@ -805,6 +805,8 @@ namespace GoogleSyncPlugin
 			if (m_refreshToken != null)
 				m_entry.Strings.Set(Defs.ConfigRefreshToken, m_refreshToken);
 
+			// mark entry as modified (important)
+			m_entry.Touch(true);
 			m_host.Database.Save(new NullStatusLogger());
 
 			return true;
