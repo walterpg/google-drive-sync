@@ -647,20 +647,21 @@ namespace GoogleSyncPlugin
 			if (DialogResult.OK != UIUtil.ShowDialogAndDestroy(form1))
 				return false;
 
-			m_entry = null;
+			entry = null;
 			strUuid = form1.Uuid;
 			try
 			{
-				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
 			}
 			catch (ArgumentException) { }
 
-			if (m_entry == null && !String.IsNullOrEmpty(strUuid))
+			if (entry == null && !String.IsNullOrEmpty(strUuid))
 			{
 				MessageBox.Show("Password entry with UUID '" + strUuid + "' not found.", Defs.ProductName);
 				return false;
 			}
 
+			m_entry = entry;
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
 			m_autoSync = form1.AutoSync;
