@@ -18,8 +18,9 @@
 **/
 
 using System;
-using System.Windows.Forms;
 using System.Net;
+using System.Reflection;
+using System.Windows.Forms;
 
 using KeePass;
 using KeePass.UI;
@@ -47,8 +48,28 @@ namespace GoogleSyncPlugin
 {
 	public static class Defs
 	{
-		public const string ProductName = "Google Sync Plugin";
-		public const string VersionString = "2.1";
+		private static string m_productName;
+		private static string m_productVersion;
+		public static string ProductName()
+		{
+			if (m_productName == null)
+			{
+				Assembly assembly = Assembly.GetExecutingAssembly();
+				AssemblyTitleAttribute assemblyTitle = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0] as AssemblyTitleAttribute;
+				m_productName = assemblyTitle.Title;
+				return m_productName;
+			}
+			 return m_productName;
+		}
+		public static string VersionString()
+		{
+			if (m_productVersion == null)
+			{
+				Version version = Assembly.GetExecutingAssembly().GetName().Version;
+				m_productVersion = "v" + version.Major + "." + version.Minor;
+			}
+			return m_productVersion;
+		}
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
 		public const string ConfigClientId = "GoogleSync.ClientID";
@@ -57,6 +78,7 @@ namespace GoogleSyncPlugin
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
 		public const string URLGoogleDev = "https://console.developers.google.com/project";
+		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
 	}
 
 	[Flags]
@@ -109,6 +131,17 @@ namespace GoogleSyncPlugin
 		);
 
 		/// <summary>
+		/// URL of a version information file
+		/// </summary>
+		public override string UpdateUrl
+		{
+			get
+			{
+				return Defs.UpdateUrl;
+			}
+		}
+
+		/// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
 		/// </summary>
@@ -144,7 +177,7 @@ namespace GoogleSyncPlugin
 
 			// Add the popup menu item
 			m_tsmiPopup = new ToolStripMenuItem();
-			m_tsmiPopup.Text = Defs.ProductName;
+			m_tsmiPopup.Text = Defs.ProductName();
 			tsMenu.Add(m_tsmiPopup);
 
 			m_tsmiSync = new ToolStripMenuItem();
@@ -210,7 +243,7 @@ namespace GoogleSyncPlugin
 				if (LoadConfiguration())
 					syncWithGoogle(SyncCommand.SYNC, true);
 				else
-					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
+					ShowMessage("No configuration found. Auto Sync ignored.", true);
 			}
 		}
 
@@ -224,7 +257,7 @@ namespace GoogleSyncPlugin
 				if (LoadConfiguration())
 					syncWithGoogle(SyncCommand.SYNC, true);
 				else
-					m_host.MainWindow.SetStatusEx(Defs.ProductName + ": No configuration found. Auto Sync ignored.");
+					ShowMessage("No configuration found. Auto Sync ignored.", true);
 			}
 		}
 
@@ -245,7 +278,7 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database.", Defs.ProductName);
+				ShowMessage("You first need to open a database.");
 				return;
 			}
 
@@ -266,27 +299,27 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database.", Defs.ProductName);
+				ShowMessage("You first need to open a database.");
 				return;
 			}
 			else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
 			{
-				MessageBox.Show("Only databases stored locally or on a network share are supported.\n" +
-					"Save your database locally or on a network share and try again.", Defs.ProductName);
+				ShowMessage("Only databases stored locally or on a network share are supported.\n" +
+					"Save your database locally or on a network share and try again.");
 				return;
 			}
 
-			string status = Defs.ProductName + " started. Please wait ...";
+			string status = "Please wait ...";
 			try
 			{
 				m_host.MainWindow.FileSaved -= OnFileSaved; // disable to not trigger when saving ourselves
 				m_host.MainWindow.FileOpened -= OnFileOpened; // disable to not trigger when opening ourselves
-				m_host.MainWindow.SetStatusEx(status);
+				ShowMessage(status, true);
 				m_host.MainWindow.Enabled = false;
 
 				// abort when user cancelled or didn't provide config
 				if (!GetConfiguration())
-					throw new PlgxException(Defs.ProductName + " aborted!");
+					throw new PlgxException(Defs.ProductName() + " aborted!");
 
 				string filePath = m_host.Database.IOConnectionInfo.Path;
 				string contentType = "application/x-keepass2";
@@ -338,7 +371,7 @@ namespace GoogleSyncPlugin
 			catch (Exception ex)
 			{
 				status = "ERROR";
-				MessageBox.Show(ex.Message, Defs.ProductName);
+				ShowMessage(ex.Message);
 			}
 			finally
 			{
@@ -351,7 +384,7 @@ namespace GoogleSyncPlugin
 					// Try-Catch block may be obsolete here. Reset view to RootGroup to be sure with untested KeePass versions anyway.
 					m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
 				}
-				m_host.MainWindow.SetStatusEx(Defs.ProductName + ": " + status);
+				ShowMessage(status, true);
 				m_host.MainWindow.Enabled = true;
 				m_host.MainWindow.FileSaved += OnFileSaved;
 				m_host.MainWindow.FileOpened += OnFileOpened;
@@ -398,7 +431,7 @@ namespace GoogleSyncPlugin
 			}
 			else
 			{
-				MessageBox.Show("File download failed: " + response.StatusDescription, Defs.ProductName);
+				ShowMessage("File download failed: " + response.StatusDescription);
 				return null;
 			}
 		}
@@ -679,7 +712,7 @@ namespace GoogleSyncPlugin
 
 			if (entry == null && !String.IsNullOrEmpty(strUuid))
 			{
-				MessageBox.Show("Password entry with UUID '" + strUuid + "' not found.", Defs.ProductName);
+				ShowMessage("Password entry with UUID '" + strUuid + "' not found.");
 				return false;
 			}
 
@@ -810,6 +843,23 @@ namespace GoogleSyncPlugin
 			m_host.Database.Save(new NullStatusLogger());
 
 			return true;
+		}
+
+		/// <summary>
+		/// Show message as an alert or in the status bar
+		/// </summary>
+		/// <param name="msg"></param>
+		/// <param name="isStatusMessage"></param>
+		private void ShowMessage(string msg, bool isStatusMessage = false)
+		{
+			if (isStatusMessage)
+			{
+				m_host.MainWindow.SetStatusEx(Defs.ProductName() + ": " + msg);
+			}
+			else
+			{
+				MessageBox.Show(msg, Defs.ProductName());
+			}
 		}
 	}
 }

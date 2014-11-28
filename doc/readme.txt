@@ -7,7 +7,7 @@ License: GPL version 3 (see gpl.txt)
 Project: http://sourceforge.net/p/kp-googlesync
 
 
-This is a Plugin for KeePass Password Safe >= v2.09. It allows to synchronize
+This is a Plugin for KeePass Password Safe >= v2.18. It allows to synchronize
 the currently open database with a Google Drive Account.
 It supports three modes of operation:
 

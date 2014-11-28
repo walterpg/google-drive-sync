@@ -78,8 +78,8 @@ namespace GoogleSyncPlugin
 
 		private void GoogleOAuthCredentialsForm_Load(object sender, EventArgs e)
 		{
-			lblTitle.Text = Defs.ProductName + " Configuration";
-			lblVersion.Text = "v" + Defs.VersionString;
+			lblTitle.Text = Defs.ProductName() + " Configuration";
+			lblVersion.Text = Defs.VersionString();
 
 			cbAccount.Items.Add("Custom KeePass UUID");
 			foreach (PwEntry entry in m_accounts)
@@ -118,7 +118,7 @@ namespace GoogleSyncPlugin
 
 			if (String.IsNullOrEmpty(strUuid))
 			{
-				DialogResult dlgr = MessageBox.Show("Remove Google Account association from KeePass config?", Defs.ProductName, MessageBoxButtons.YesNoCancel);
+				DialogResult dlgr = MessageBox.Show("Remove Google Account association from KeePass config?", Defs.ProductName(), MessageBoxButtons.YesNoCancel);
 				if (DialogResult.Yes != dlgr)
 					DialogResult = DialogResult.None;
 				return;
@@ -126,14 +126,14 @@ namespace GoogleSyncPlugin
 
 			if (!Regex.IsMatch(strUuid, "^[0-9A-F]{32}$"))
 			{
-				MessageBox.Show("The entered UUID is not valid.", Defs.ProductName);
+				MessageBox.Show("The entered UUID is not valid.", Defs.ProductName());
 				DialogResult = DialogResult.None;
 				return;
 			}
 
 			if (chkOAuth.Checked && (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim())))
 			{
-				MessageBox.Show("Please enter a valid custom Google OAuth 2.0 Client ID and Client Secrect for " + Defs.ProductName + " or use default values.", Defs.ProductName);
+				MessageBox.Show("Please enter a valid custom Google OAuth 2.0 Client ID and Client Secrect for " + Defs.ProductName() + " or use default values.", Defs.ProductName());
 				DialogResult = DialogResult.None;
 				return;
 			}
