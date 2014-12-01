@@ -464,9 +464,12 @@ namespace GoogleSyncPlugin
 		private string syncFile(string downloadFilePath)
 		{
 			IOConnectionInfo connection = IOConnectionInfo.FromPath(downloadFilePath);
-			ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
+			bool? success = ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
 
 			System.IO.File.Delete(downloadFilePath);
+
+			if (!success.HasValue || !(bool)success)
+				throw new PlgxException("Synchronization failed.\nIf passwords are different use upload / download or match the passwords.");
 
 			return "Local file synchronized.";
 		}
