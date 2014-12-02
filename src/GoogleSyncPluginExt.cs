@@ -468,8 +468,12 @@ namespace GoogleSyncPlugin
 
 			System.IO.File.Delete(downloadFilePath);
 
-			if (!success.HasValue || !(bool)success)
-				throw new PlgxException("Synchronization failed.\nIf passwords are different use upload / download or match the passwords.");
+			if (!success.HasValue)
+				throw new PlgxException("Synchronization failed.\n\nYou do not have permission to import. Adjust your KeePass configuration.");
+			if (!(bool)success)
+				throw new PlgxException("Synchronization failed.\n\n" +
+					"If the error was that master keys (passwords) do not match, use Upload / Download commands instead of Sync " +
+					"or change the local master key to match that of the remote database.");
 
 			return "Local file synchronized.";
 		}
