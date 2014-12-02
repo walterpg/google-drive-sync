@@ -59,7 +59,7 @@ namespace GoogleSyncPlugin
 				m_productName = assemblyTitle.Title;
 				return m_productName;
 			}
-			 return m_productName;
+			return m_productName;
 		}
 		public static string VersionString()
 		{
