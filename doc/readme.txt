@@ -129,6 +129,6 @@ Compatibility
 -------------
 
 The Plugin has only been tested with the .NET 4.0 Framework for Windows.
-Due to compatibility issues with the included Google API libraries, the Plugin
-unfortunately does not work with Mono for Linux.
-Compatibility with Mono for other platforms is unknown.
+Linux and Mac OS X are not supported.
+However, the Plugin does seem work limited with Linux:
+http://sourceforge.net/p/kp-googlesync/discussion/general/thread/19cca399/#4df1
