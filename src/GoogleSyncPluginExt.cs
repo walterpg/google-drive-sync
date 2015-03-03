@@ -240,10 +240,12 @@ namespace GoogleSyncPlugin
 		{
 			if (e.Success && AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
 			{
-				if (LoadConfiguration())
-					syncWithGoogle(SyncCommand.SYNC, true);
+				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
+					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
+				else if (!LoadConfiguration())
+					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
 				else
-					ShowMessage("No configuration found. Auto Sync ignored.", true);
+					syncWithGoogle(SyncCommand.SYNC, true);
 			}
 		}
 
@@ -254,10 +256,12 @@ namespace GoogleSyncPlugin
 		{
 			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
 			{
-				if (LoadConfiguration())
-					syncWithGoogle(SyncCommand.SYNC, true);
+				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
+					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
+				else if (!LoadConfiguration())
+					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
 				else
-					ShowMessage("No configuration found. Auto Sync ignored.", true);
+					syncWithGoogle(SyncCommand.SYNC, true);
 			}
 		}
 
