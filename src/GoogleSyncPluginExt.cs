@@ -373,22 +373,12 @@ namespace GoogleSyncPlugin
 				status = "ERROR";
 				ShowMessage(ex.Message);
 			}
-			finally
-			{
-				try
-				{
-					m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
-				}
-				catch (Exception)
-				{
-					// Try-Catch block may be obsolete here. Reset view to RootGroup to be sure with untested KeePass versions anyway.
-					m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
-				}
-				ShowMessage(status, true);
-				m_host.MainWindow.Enabled = true;
-				m_host.MainWindow.FileSaved += OnFileSaved;
-				m_host.MainWindow.FileOpened += OnFileOpened;
-			}
+
+			m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+			ShowMessage(status, true);
+			m_host.MainWindow.Enabled = true;
+			m_host.MainWindow.FileSaved += OnFileSaved;
+			m_host.MainWindow.FileOpened += OnFileOpened;
 		}
 
 		/// <summary>
@@ -553,18 +543,17 @@ namespace GoogleSyncPlugin
 			{
 				status = "Replacing current database failed. File downloaded as '" + System.IO.Path.GetFileName(downloadFilePath) + "'";
 			}
-			finally
+
+			// try to open new (or old in case of error) db
+			try
 			{
-				try
-				{
-					// try to open with current MasterKey ...
-					m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
-				}
-				catch (KeePassLib.Keys.InvalidCompositeKeyException)
-				{
-					// ... MasterKey is different, let user enter the MasterKey
-					m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
-				}
+				// try to open with current MasterKey ...
+				m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
+			}
+			catch (KeePassLib.Keys.InvalidCompositeKeyException)
+			{
+				// ... MasterKey is different, let user enter the MasterKey
+				m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
 			}
 
 			return status;
