@@ -403,8 +403,8 @@ namespace GoogleSyncPlugin
 			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 			if (response.StatusCode == HttpStatusCode.OK)
 			{
-				string downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
-					+ System.IO.Path.GetFileNameWithoutExtension(filePath)
+				string downloadFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath),
+					System.IO.Path.GetFileNameWithoutExtension(filePath))
 					+ DateTime.Now.ToString("_yyyyMMddHHmmss")
 					+ System.IO.Path.GetExtension(filePath);
 
