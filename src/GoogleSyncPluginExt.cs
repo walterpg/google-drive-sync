@@ -77,7 +77,7 @@ namespace GoogleSyncPlugin
 		public const string ConfigRefreshToken = "GoogleSync.RefreshToken";
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
-		public const string URLGoogleDev = "https://console.developers.google.com/project";
+		public const string URLGoogleDev = "https://console.developers.google.com/start";
 		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
 	}
 
