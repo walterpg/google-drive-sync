@@ -1,7 +1,7 @@
 Googly Sync Plugin for KeePass Password Safe
 ============================================
 
-Version: 2.1.2 (December 2014)
+Version: 2.1.2 (August 2015)
 Authors: Danyal (DesignsInnovate), Paul Voegler
 License: GPL version 3 (see gpl.txt)
 Project: http://sourceforge.net/p/kp-googlesync
