@@ -74,26 +74,12 @@ namespace GoogleSyncPlugin
 			if (e.Url.AbsolutePath.Equals("/ServiceLogin"))
 			{
 				HtmlElement elEmail = webBrowser1.Document.GetElementById("Email");
-				if (elEmail != null && m_email != null && !String.IsNullOrEmpty(m_email.Trim()))
-				{
+				if (elEmail != null && String.IsNullOrEmpty(elEmail.GetAttribute("value")) && m_email != null && !String.IsNullOrEmpty(m_email))
 					elEmail.SetAttribute("value", m_email);
-					HtmlElement elPasswd = webBrowser1.Document.GetElementById("Passwd");
-					if (elPasswd != null && m_passwd != null && !m_passwd.IsEmpty)
-					{
-						elPasswd.SetAttribute("value", m_passwd.ReadString());
-						HtmlElement elSignIn = webBrowser1.Document.GetElementById("signIn");
-						if (elSignIn != null)
-							elSignIn.Focus();
-					}
-					else if (elPasswd != null)
-					{
-						elPasswd.Focus();
-					}
-				}
-				else if (elEmail != null)
-				{
-					elEmail.Focus();
-				}
+
+				HtmlElement elPasswd = webBrowser1.Document.GetElementById("Passwd");
+				if (elPasswd != null && String.IsNullOrEmpty(elPasswd.GetAttribute("value")) && m_passwd != null && !m_passwd.IsEmpty)
+					elPasswd.SetAttribute("value", m_passwd.ReadString());
 			}
 			else if (title.Contains("code=") || title.Contains("error="))
 			{
