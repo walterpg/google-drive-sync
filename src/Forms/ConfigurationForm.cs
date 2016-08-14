@@ -24,11 +24,14 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
+
+using GoogleSyncPlugin;
 
 
 namespace GoogleSyncPlugin
@@ -37,12 +40,12 @@ namespace GoogleSyncPlugin
 	{
 		private PwObjectList<PwEntry> m_accounts = null;
 		private int m_accidx = -1;
-		private bool m_autoSync = false;
+		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
 		private string m_uuid = string.Empty;
 		private string m_clientId = string.Empty;
 		private string m_clientSecret = string.Empty;
 
-		public ConfigurationForm(PwObjectList<PwEntry> accounts, int idx, bool autoSync)
+		public ConfigurationForm(PwObjectList<PwEntry> accounts, int idx, AutoSyncMode autoSync)
 		{
 			InitializeComponent();
 
@@ -68,15 +71,15 @@ namespace GoogleSyncPlugin
 			get { return m_clientSecret; }
 		}
 
-		public bool AutoSync
+		public AutoSyncMode AutoSync
 		{
 			get { return m_autoSync; }
 		}
 
 		private void GoogleOAuthCredentialsForm_Load(object sender, EventArgs e)
 		{
-			lblTitle.Text = Defs.ProductName + " Configuration";
-			lblVersion.Text = "v" + Defs.VersionString;
+			lblTitle.Text = Defs.ProductName() + " Configuration";
+			lblVersion.Text = Defs.VersionString();
 
 			cbAccount.Items.Add("Custom KeePass UUID");
 			foreach (PwEntry entry in m_accounts)
@@ -84,7 +87,11 @@ namespace GoogleSyncPlugin
 				cbAccount.Items.Add(entry.Strings.GetSafe(PwDefs.UserNameField).ReadString() + " - " + entry.Strings.GetSafe(PwDefs.TitleField).ReadString());
 			}
 
-			cbAccount.SelectedIndex = (int)m_accidx + 1;
+			// preselect first account found when not configured
+			//if (m_accidx < 0 && m_accounts.UCount > 0)
+			//	m_accidx = 0;
+
+			cbAccount.SelectedIndex = m_accidx + 1;
 			if (m_accidx >= 0)
 			{
 				PwEntry entry = m_accounts.GetAt((uint)cbAccount.SelectedIndex - 1);
@@ -97,28 +104,47 @@ namespace GoogleSyncPlugin
 					txtClientSecret.Text = pstr.ReadString();
 			}
 			txtUuid.Enabled = m_accidx < 0;
-			chkAutoSync.Checked = m_autoSync;
+
+			chkOAuth.Checked = !String.IsNullOrEmpty(txtClientId.Text) || !String.IsNullOrEmpty(txtClientSecret.Text);
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
+
+			cbAutoSync.SelectedIndex = (int)m_autoSync;
 		}
 
 		private void btnOk_Click(object sender, EventArgs e)
 		{
-			if (String.IsNullOrEmpty(txtUuid.Text.Trim()) || String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim()))
+			string strUuid = txtUuid.Text.Trim().ToUpper();
+
+			if (String.IsNullOrEmpty(strUuid))
 			{
-				MessageBox.Show("Please select a Google Account and enter the Google OAuth 2.0 credentials for " + Defs.ProductName + ".", Defs.ProductName);
+				DialogResult dlgr = MessageBox.Show("Remove Google Account association from KeePass config?", Defs.ProductName(), MessageBoxButtons.YesNoCancel);
+				if (DialogResult.Yes != dlgr)
+					DialogResult = DialogResult.None;
 				return;
 			}
 
-			m_uuid = txtUuid.Text.Trim();
-			m_clientId = txtClientId.Text.Trim();
-			m_clientSecret = txtClientSecret.Text.Trim();
-			m_autoSync = chkAutoSync.Checked;
+			if (!Regex.IsMatch(strUuid, "^[0-9A-F]{32}$"))
+			{
+				MessageBox.Show("The entered UUID is not valid.", Defs.ProductName());
+				DialogResult = DialogResult.None;
+				return;
+			}
 
-			this.Close();
-		}
+			if (chkOAuth.Checked && (String.IsNullOrEmpty(txtClientId.Text.Trim()) || String.IsNullOrEmpty(txtClientSecret.Text.Trim())))
+			{
+				MessageBox.Show("Please enter a valid custom Google OAuth 2.0 Client ID and Client Secrect for " + Defs.ProductName() + " or use default values.", Defs.ProductName());
+				DialogResult = DialogResult.None;
+				return;
+			}
 
-		private void btnCancel_Click(object sender, EventArgs e)
-		{
-			this.Close();
+			m_uuid = strUuid;
+			if (chkOAuth.Checked)
+			{
+				m_clientId = txtClientId.Text.Trim();
+				m_clientSecret = txtClientSecret.Text.Trim();
+			}
+			m_autoSync = (AutoSyncMode)cbAutoSync.SelectedIndex;
 		}
 
 		private void cbAccount_SelectedIndexChanged(object sender, EventArgs e)
@@ -143,6 +169,16 @@ namespace GoogleSyncPlugin
 			{
 				txtUuid.Enabled = true;
 			}
+
+			chkOAuth.Checked = !String.IsNullOrEmpty(txtClientId.Text) || !String.IsNullOrEmpty(txtClientSecret.Text);
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
+		}
+
+		private void chkOAuth_CheckedChanged(object sender, EventArgs e)
+		{
+			txtClientId.Enabled = chkOAuth.Checked;
+			txtClientSecret.Enabled = chkOAuth.Checked;
 		}
 
 		private void lnkHome_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

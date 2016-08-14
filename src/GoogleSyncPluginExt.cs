@@ -18,12 +18,11 @@
 **/
 
 using System;
-using System.Windows.Forms;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Windows.Forms;
 
-using KeePass;
 using KeePass.UI;
 using KeePass.Plugins;
 using KeePass.Forms;
@@ -35,9 +34,7 @@ using KeePassLib.Serialization;
 using KeePassLib.Security;
 using KeePassLib.Collections;
 
-using Google;
 using Google.Apis.Services;
-using Google.Apis.Upload;
 using Google.Apis.Download;
 using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
@@ -51,8 +48,28 @@ namespace GoogleSyncPlugin
 {
 	public static class Defs
 	{
-		public const string ProductName = "Google Sync Plugin";
-		public const string VersionString = "2.0";
+		private static string m_productName;
+		private static string m_productVersion;
+		public static string ProductName()
+		{
+			if (m_productName == null)
+			{
+				Assembly assembly = Assembly.GetExecutingAssembly();
+				AssemblyTitleAttribute assemblyTitle = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0] as AssemblyTitleAttribute;
+				m_productName = assemblyTitle.Title;
+				return m_productName;
+			}
+			return m_productName;
+		}
+		public static string VersionString()
+		{
+			if (m_productVersion == null)
+			{
+				Version version = Assembly.GetExecutingAssembly().GetName().Version;
+				m_productVersion = "v" + version.Major + "." + version.Minor;
+			}
+			return m_productVersion;
+		}
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
 		public const string ConfigClientId = "GoogleSync.ClientID";
@@ -60,7 +77,16 @@ namespace GoogleSyncPlugin
 		public const string ConfigRefreshToken = "GoogleSync.RefreshToken";
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
-		public const string URLGoogleDev = "https://console.developers.google.com/project";
+		public const string URLGoogleDev = "https://console.developers.google.com/start";
+		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
+	}
+
+	[Flags]
+	public enum AutoSyncMode
+	{
+		DISABLED = 0,
+		SAVE = 1,
+		OPEN = 2
 	}
 
 	/// <summary>
@@ -70,7 +96,7 @@ namespace GoogleSyncPlugin
 	{
 		private IPluginHost m_host = null;
 
-		private bool m_autoSync = false;
+		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
 
 		private PwEntry m_entry = null;
 		private string m_clientId = string.Empty;
@@ -90,6 +116,31 @@ namespace GoogleSyncPlugin
 			UPLOAD = 3
 		}
 
+		private const string DefaultClientId = "579467001123-ee60b1ghffl38rgdk6pj7gjdjvagi9i7.apps.googleusercontent.com";
+		// pseudosecret (pad is sha256 of DefaultClientId)
+		private XorredBuffer DefaultClientSecret = new XorredBuffer(
+			new byte[] {
+				0x56, 0x26, 0xd7, 0x81, 0xcd, 0x45, 0x8c, 0xd2,
+				0xee, 0x3d, 0x1a, 0x6a, 0x64, 0xec, 0x54, 0x5d,
+				0xa0, 0x36, 0x24, 0x2c, 0xca, 0x27, 0x81, 0xec
+			}, new byte[] {
+				0x10, 0x65, 0x98, 0xec, 0xbd, 0x74, 0xe0, 0xe2,
+				0xda, 0x72, 0x5f, 0x2b, 0x21, 0x85, 0x2d, 0x34,
+				0xf2, 0x78, 0x5e, 0x7e, 0x8b, 0x74, 0xf4, 0xae
+			}
+		);
+
+		/// <summary>
+		/// URL of a version information file
+		/// </summary>
+		public override string UpdateUrl
+		{
+			get
+			{
+				return Defs.UpdateUrl;
+			}
+		}
+
 		/// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
@@ -106,7 +157,16 @@ namespace GoogleSyncPlugin
 			if(host == null) return false;
 			m_host = host;
 
-			m_autoSync = m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false);
+			try
+			{
+				m_autoSync = (AutoSyncMode)Enum.Parse(typeof(AutoSyncMode), m_host.CustomConfig.GetString(Defs.ConfigAutoSync, AutoSyncMode.DISABLED.ToString()), true);
+			}
+			catch (Exception)
+			{
+				// support old boolean value (Sync on Save)
+				if (m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false))
+					m_autoSync = AutoSyncMode.SAVE;
+			}
 
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
@@ -117,7 +177,7 @@ namespace GoogleSyncPlugin
 
 			// Add the popup menu item
 			m_tsmiPopup = new ToolStripMenuItem();
-			m_tsmiPopup.Text = Defs.ProductName;
+			m_tsmiPopup.Text = Defs.ProductName();
 			tsMenu.Add(m_tsmiPopup);
 
 			m_tsmiSync = new ToolStripMenuItem();
@@ -145,8 +205,9 @@ namespace GoogleSyncPlugin
 			m_tsmiPopup.DropDownItems.Add(m_tsmiConfigure);
 
 			// We want a notification when the user tried to save the
-			// current database
+			// current database or opened a new one.
 			m_host.MainWindow.FileSaved += OnFileSaved;
+			m_host.MainWindow.FileOpened += OnFileOpened;
 
 			return true; // Initialization successful
 		}
@@ -169,15 +230,39 @@ namespace GoogleSyncPlugin
 
 			// Important! Remove event handlers!
 			m_host.MainWindow.FileSaved -= OnFileSaved;
+			m_host.MainWindow.FileOpened -= OnFileOpened;
 		}
 
 		/// <summary>
-		/// Event handler to implement auto sync
+		/// Event handler to implement auto sync on save
 		/// </summary>
 		private void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success && m_autoSync)
-				syncWithGoogle(SyncCommand.SYNC);
+			if (e.Success && AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
+			{
+				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
+					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
+				else if (!LoadConfiguration())
+					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
+				else
+					syncWithGoogle(SyncCommand.SYNC, true);
+			}
+		}
+
+		/// <summary>
+		/// Event handler to implement auto sync on open
+		/// </summary>
+		private void OnFileOpened(object sender, FileOpenedEventArgs e)
+		{
+			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
+			{
+				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
+					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
+				else if (!LoadConfiguration())
+					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
+				else
+					syncWithGoogle(SyncCommand.SYNC, true);
+			}
 		}
 
 		/// <summary>
@@ -187,7 +272,7 @@ namespace GoogleSyncPlugin
 		{
 			ToolStripItem item = (ToolStripItem)sender;
 			SyncCommand syncCommand = (SyncCommand)Enum.Parse(typeof(SyncCommand), item.Name);
-			syncWithGoogle(syncCommand);
+			syncWithGoogle(syncCommand, false);
 		}
 
 		/// <summary>
@@ -197,37 +282,48 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database.", Defs.ProductName);
+				ShowMessage("You first need to open a database.");
 				return;
 			}
 
 			if (AskForConfiguration())
+			{
+				// continue to use existing refresh token if present - match / validity will be checked in any case
+				if (m_entry != null)
+					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+
 				SaveConfiguration();
+			}
 		}
 
 		/// <summary>
 		/// Sync the current database with Google Drive. Create a new file if it does not already exists
 		/// </summary>
-		private async void syncWithGoogle(SyncCommand syncCommand)
+		private async void syncWithGoogle(SyncCommand syncCommand, bool autoSync)
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				MessageBox.Show("You first need to open a database.", Defs.ProductName);
+				ShowMessage("You first need to open a database.");
 				return;
 			}
 			else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
 			{
-				MessageBox.Show("Only databases stored locally or on a network share are supported.\n" +
-					"Save your database locally or on a network share and try again.", Defs.ProductName);
+				ShowMessage("Only databases stored locally or on a network share are supported.\n" +
+					"Save your database locally or on a network share and try again.");
 				return;
 			}
 
-			string status = Defs.ProductName + " started. Please wait ...";
+			string status = "Please wait ...";
 			try
 			{
-				m_host.MainWindow.FileSaved -= OnFileSaved;
-				m_host.MainWindow.SetStatusEx(status);
+				m_host.MainWindow.FileSaved -= OnFileSaved; // disable to not trigger when saving ourselves
+				m_host.MainWindow.FileOpened -= OnFileOpened; // disable to not trigger when opening ourselves
+				ShowMessage(status, true);
 				m_host.MainWindow.Enabled = false;
+
+				// abort when user cancelled or didn't provide config
+				if (!GetConfiguration())
+					throw new PlgxException(Defs.ProductName() + " aborted!");
 
 				// Get Access Token / Authorization
 				UserCredential myCredential = await GetAuthorization();
@@ -236,7 +332,7 @@ namespace GoogleSyncPlugin
 				DriveService service = new DriveService(new BaseClientService.Initializer()
 				{
 					HttpClientInitializer = myCredential,
-					ApplicationName = Defs.ProductName
+					ApplicationName = Defs.ProductName()
 				});
 
 				string filePath = m_host.Database.IOConnectionInfo.Path;
@@ -250,12 +346,20 @@ namespace GoogleSyncPlugin
 						status = "File name not found on Google Drive. Please upload or sync with Google Drive first.";
 					}
 					else // upload
+					{
+						if (!autoSync)
+							m_host.Database.Save(new NullStatusLogger());
 						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, contentType, filePath);
+					}
 				}
 				else
 				{
 					if (syncCommand == SyncCommand.UPLOAD)
+					{
+						if (!autoSync)
+							m_host.Database.Save(new NullStatusLogger());
 						status = updateFile(service, file, filePath, contentType);
+					}
 					else
 					{
 						string downloadFilePath = await downloadFile(service, file, filePath);
@@ -305,20 +409,19 @@ namespace GoogleSyncPlugin
 				}
 
 				status = "ERROR";
-				MessageBox.Show(msg, Defs.ProductName);
+				ShowMessage(msg);
 			}
 			catch (Exception ex)
 			{
 				status = "ERROR";
-				MessageBox.Show(ex.Message, Defs.ProductName);
+				ShowMessage(ex.Message);
 			}
-			finally
-			{
-				m_host.MainWindow.UpdateUI(false, null, true, m_host.Database.RootGroup, true, null, false);
-				m_host.MainWindow.SetStatusEx(Defs.ProductName + ": " + status);
-				m_host.MainWindow.Enabled = true;
-				m_host.MainWindow.FileSaved += OnFileSaved;
-			}
+
+			m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+			ShowMessage(status, true);
+			m_host.MainWindow.Enabled = true;
+			m_host.MainWindow.FileSaved += OnFileSaved;
+			m_host.MainWindow.FileOpened += OnFileOpened;
 		}
 
 		/// <summary>
@@ -333,12 +436,12 @@ namespace GoogleSyncPlugin
 			if (file == null || String.IsNullOrEmpty(file.DownloadUrl) || String.IsNullOrEmpty(filePath))
 				return null;
 
-			var downloader = new MediaDownloader(service);
-
-			string downloadFilePath = System.IO.Path.GetDirectoryName(filePath) + "\\"
-				+ System.IO.Path.GetFileNameWithoutExtension(filePath)
+			string downloadFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath),
+				System.IO.Path.GetFileNameWithoutExtension(filePath))
 				+ DateTime.Now.ToString("_yyyyMMddHHmmss")
 				+ System.IO.Path.GetExtension(filePath);
+
+			var downloader = new MediaDownloader(service);
 
 			using (var fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
 			{
@@ -346,7 +449,7 @@ namespace GoogleSyncPlugin
 				if (progress.Status == DownloadStatus.Completed)
 					return downloadFilePath;
 				else
-					return string.Empty;
+					return null;
 			}
 		}
 
@@ -378,9 +481,16 @@ namespace GoogleSyncPlugin
 		private string syncFile(string downloadFilePath)
 		{
 			IOConnectionInfo connection = IOConnectionInfo.FromPath(downloadFilePath);
-			ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
+			bool? success = ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
 
 			System.IO.File.Delete(downloadFilePath);
+
+			if (!success.HasValue)
+				throw new PlgxException("Synchronization failed.\n\nYou do not have permission to import. Adjust your KeePass configuration.");
+			if (!(bool)success)
+				throw new PlgxException("Synchronization failed.\n\n" +
+					"If the error was that master keys (passwords) do not match, use Upload / Download commands instead of Sync " +
+					"or change the local master key to match that of the remote database.");
 
 			return "Local file synchronized.";
 		}
@@ -413,7 +523,7 @@ namespace GoogleSyncPlugin
 		/// <param name="description">File description</param>
 		/// <param name="title">File title</param>
 		/// <param name="mimeType">File MIME ype</param>
-		/// <param name="contentType">File conrent type</param>
+		/// <param name="contentType">File content type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
 		private string uploadFile(DriveService service, string description, string title, string mimeType, string contentType, string filePath)
@@ -460,18 +570,17 @@ namespace GoogleSyncPlugin
 			{
 				status = "Replacing current database failed. File downloaded as '" + System.IO.Path.GetFileName(downloadFilePath) + "'";
 			}
-			finally
+
+			// try to open new (or old in case of error) db
+			try
 			{
-				try
-				{
-					// try to open with current MasterKey ...
-					m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
-				}
-				catch (KeePassLib.Keys.InvalidCompositeKeyException)
-				{
-					// ... MasterKey is different, let user enter the MasterKey
-					m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
-				}
+				// try to open with current MasterKey ...
+				m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
+			}
+			catch (KeePassLib.Keys.InvalidCompositeKeyException)
+			{
+				// ... MasterKey is different, let user enter the MasterKey
+				m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
 			}
 
 			return status;
@@ -483,7 +592,7 @@ namespace GoogleSyncPlugin
 		/// <returns>The UserCredentials with Access Token and Refresh Token</returns>
 		private async Task<UserCredential> GetAuthorization()
 		{
-			if (!LoadConfiguration() || m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+			if (!LoadConfiguration())
 				return null;
 
 			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a custom code receiver that uses the Browser inside a native Form.
@@ -522,8 +631,8 @@ namespace GoogleSyncPlugin
 			{
 				myCredential = await myAuth.AuthorizeAsync("user", CancellationToken.None);
 
-				// save the (new) Refresh Token
-				if (myCredential != null && !String.IsNullOrEmpty(myCredential.Token.RefreshToken))
+				// save the refresh token if new or different
+				if (myCredential != null && !String.IsNullOrEmpty(myCredential.Token.RefreshToken) && (m_refreshToken == null || myCredential.Token.RefreshToken != m_refreshToken.ReadString()))
 				{
 					m_refreshToken = new ProtectedString(true, myCredential.Token.RefreshToken);
 					SaveConfiguration();
@@ -548,11 +657,11 @@ namespace GoogleSyncPlugin
 			// find the configured entry
 			PwEntry entry = null;
 			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			if (!String.IsNullOrEmpty(strUuid))
+			try
 			{
-				PwUuid uuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid));
-				entry = m_host.Database.RootGroup.FindEntry(uuid, true);
+				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
 			}
+			catch (ArgumentException) { }
 
 			// find configured entry in account list
 			int idx = -1;
@@ -571,10 +680,21 @@ namespace GoogleSyncPlugin
 			if (DialogResult.OK != UIUtil.ShowDialogAndDestroy(form1))
 				return false;
 
-			m_entry = null;
+			entry = null;
 			strUuid = form1.Uuid;
-			if (!String.IsNullOrEmpty(strUuid))
-				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+			try
+			{
+				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+			}
+			catch (ArgumentException) { }
+
+			if (entry == null && !String.IsNullOrEmpty(strUuid))
+			{
+				ShowMessage("Password entry with UUID '" + strUuid + "' not found.");
+				return false;
+			}
+
+			m_entry = entry;
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
 			m_autoSync = form1.AutoSync;
@@ -597,27 +717,68 @@ namespace GoogleSyncPlugin
 
 			// find configured password entry in db
 			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			if (!String.IsNullOrEmpty(strUuid))
-				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
-
-			// read credentials
-			if (m_entry != null)
+			try
 			{
-				ProtectedString pstr = m_entry.Strings.Get(Defs.ConfigClientId);
-				if (pstr != null)
-					m_clientId = pstr.ReadString();
-				m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
-				m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+			}
+			catch (ArgumentException) {}
+
+			if (m_entry == null)
+				return false;
+
+			// read OAuth 2.0 credentials
+			ProtectedString pstr = m_entry.Strings.Get(Defs.ConfigClientId);
+			if (pstr != null)
+				m_clientId = pstr.ReadString();
+			m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
+			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+
+			// use default OAuth 2.0 credentials if missing
+			if (String.IsNullOrEmpty(m_clientId))
+			{
+				m_clientId = DefaultClientId;
+				m_clientSecret = new ProtectedString(true, DefaultClientSecret);
 			}
 
 			// something missing?
 			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Load the current configuration or ask for configuration if missing
+		/// </summary>
+		private bool GetConfiguration()
+		{
+			// configuration not complete?
+			if (!LoadConfiguration())
 			{
-				if (AskForConfiguration())
-					SaveConfiguration();
-				else
-					return false; // user cancelled
+				if (!AskForConfiguration())
+					return false; // user cancelled or error
+
+				// continue to use existing refresh token if present - match / validity will be checked in any case
+				if (m_entry != null)
+					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+
+				SaveConfiguration();
+
+				// user deleted configuration
+				if (m_entry == null)
+					return false;
+
+				// use default OAuth 2.0 credentials if missing
+				if (String.IsNullOrEmpty(m_clientId))
+				{
+					m_clientId = DefaultClientId;
+					m_clientSecret = new ProtectedString(true, DefaultClientSecret);
+				}
 			}
+
+			// only return true if in fact nothing is missing
+			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
+				return false;
 
 			return true;
 		}
@@ -627,25 +788,56 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private bool SaveConfiguration()
 		{
-			if (!m_host.Database.IsOpen || m_entry == null)
+			if (m_entry == null)
+			{
+				m_autoSync = AutoSyncMode.DISABLED;
+				m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
+				m_host.CustomConfig.SetString(Defs.ConfigUUID, string.Empty);
+				return true;
+			}
+
+			if (!m_host.Database.IsOpen)
 				return false;
 
-			m_host.CustomConfig.SetBool(Defs.ConfigAutoSync, m_autoSync);
+			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
 			m_host.CustomConfig.SetString(Defs.ConfigUUID, m_entry.Uuid.ToHexString());
 
-			if (!String.IsNullOrEmpty(m_clientId))
+			if (m_clientId == DefaultClientId || String.IsNullOrEmpty(m_clientId))
 			{
-				ProtectedString pstr = new ProtectedString(false, m_clientId);
-				m_entry.Strings.Set(Defs.ConfigClientId, pstr);
+				m_entry.Strings.Remove(Defs.ConfigClientId);
+				m_entry.Strings.Remove(Defs.ConfigClientSecret);
 			}
-			if (m_clientSecret != null)
-				m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
+			else
+			{
+				m_entry.Strings.Set(Defs.ConfigClientId, new ProtectedString(false, m_clientId));
+				if (m_clientSecret != null)
+					m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
+			}
 			if (m_refreshToken != null)
 				m_entry.Strings.Set(Defs.ConfigRefreshToken, m_refreshToken);
 
+			// mark entry as modified (important)
+			m_entry.Touch(true);
 			m_host.Database.Save(new NullStatusLogger());
 
 			return true;
+		}
+
+		/// <summary>
+		/// Show message as an alert or in the status bar
+		/// </summary>
+		/// <param name="msg"></param>
+		/// <param name="isStatusMessage"></param>
+		private void ShowMessage(string msg, bool isStatusMessage = false)
+		{
+			if (isStatusMessage)
+			{
+				m_host.MainWindow.SetStatusEx(Defs.ProductName() + ": " + msg);
+			}
+			else
+			{
+				MessageBox.Show(msg, Defs.ProductName());
+			}
 		}
 	}
 
