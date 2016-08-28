@@ -463,7 +463,7 @@ namespace GoogleSyncPlugin
 		{
 			string filename = System.IO.Path.GetFileName(filepath);
 			FilesResource.ListRequest req = service.Files.List();
-			req.Q = "title='" + filename.Replace("'", "\\'") + "' and trashed=false";
+			req.Q = "name='" + filename.Replace("'", "\\'") + "' and trashed=false";
 			FileList files = req.Execute();
 			if (files.Files.Count < 1)
 				return null;
@@ -521,18 +521,18 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		/// <param name="service">DriveService</param>
 		/// <param name="description">File description</param>
-		/// <param name="title">File title</param>
+		/// <param name="fileName">File name</param>
 		/// <param name="mimeType">File MIME ype</param>
 		/// <param name="contentType">File content type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
-		private string uploadFile(DriveService service, string description, string title, string mimeType, string contentType, string filePath)
+		private string uploadFile(DriveService service, string description, string fileName, string mimeType, string contentType, string filePath)
 		{
 			File temp = new File();
-			if (string.IsNullOrEmpty(title))
+			if (string.IsNullOrEmpty(fileName))
 				temp.Name = System.IO.Path.GetFileName(filePath);
 			else
-				temp.Name = title;
+				temp.Name = fileName;
 			temp.Description = description;
 			temp.MimeType = mimeType;
 
