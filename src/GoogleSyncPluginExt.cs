@@ -587,7 +587,7 @@ namespace GoogleSyncPlugin
 		}
 
 		/// <summary>
-		/// Get Access Token from Google OAuth 2.0 API v1.9
+		/// Get Access Token from Google OAuth 2.0 API
 		/// </summary>
 		/// <returns>The UserCredentials with Access Token and Refresh Token</returns>
 		private async Task<UserCredential> GetAuthorization()
