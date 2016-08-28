@@ -36,8 +36,8 @@ using KeePassLib.Collections;
 
 using Google.Apis.Services;
 using Google.Apis.Download;
-using Google.Apis.Drive.v2;
-using Google.Apis.Drive.v2.Data;
+using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -433,7 +433,7 @@ namespace GoogleSyncPlugin
 		/// <returns>File's path if successful, null or empty otherwise.</returns>
 		private async Task<string> downloadFile(DriveService service, File file, string filePath)
 		{
-			if (file == null || String.IsNullOrEmpty(file.DownloadUrl) || String.IsNullOrEmpty(filePath))
+			if (file == null || String.IsNullOrEmpty(file.WebContentLink) || String.IsNullOrEmpty(filePath))
 				return null;
 
 			string downloadFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath),
@@ -445,7 +445,7 @@ namespace GoogleSyncPlugin
 
 			using (var fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
 			{
-				var progress = await downloader.DownloadAsync(file.DownloadUrl, fileStream);
+				var progress = await downloader.DownloadAsync(file.WebContentLink, fileStream);
 				if (progress.Status == DownloadStatus.Completed)
 					return downloadFilePath;
 				else
@@ -465,10 +465,10 @@ namespace GoogleSyncPlugin
 			FilesResource.ListRequest req = service.Files.List();
 			req.Q = "title='" + filename.Replace("'", "\\'") + "' and trashed=false";
 			FileList files = req.Execute();
-			if (files.Items.Count < 1)
+			if (files.Files.Count < 1)
 				return null;
-			else if (files.Items.Count == 1)
-				return files.Items[0];
+			else if (files.Files.Count == 1)
+				return files.Files[0];
 
 			throw new PlgxException("More than one file name '" + filename + "' found on Google Drive. Please make sure the file name is unique across all folders.");
 		}
@@ -513,7 +513,7 @@ namespace GoogleSyncPlugin
 
 			System.IO.File.SetLastWriteTime(filePath, DateTime.Now);
 
-			return string.Format("File on Google Drive updated. Name: {0}, ID: {1}", file.Title, file.Id);
+			return string.Format("File on Google Drive updated. Name: {0}, ID: {1}", file.Name, file.Id);
 		}
 
 		/// <summary>
@@ -530,20 +530,20 @@ namespace GoogleSyncPlugin
 		{
 			File temp = new File();
 			if (string.IsNullOrEmpty(title))
-				temp.Title = System.IO.Path.GetFileName(filePath);
+				temp.Name = System.IO.Path.GetFileName(filePath);
 			else
-				temp.Title = title;
+				temp.Name = title;
 			temp.Description = description;
 			temp.MimeType = mimeType;
 
 			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
-			FilesResource.InsertMediaUpload request = service.Files.Insert(temp, stream, contentType);
+			FilesResource.CreateMediaUpload request = service.Files.Create(temp, stream, contentType);
 			request.Upload();
 
 			File file = request.ResponseBody;
-			return string.Format("File uploaded to Google Drive. Name: {0}, ID: {1}", file.Title, file.Id);
+			return string.Format("File uploaded to Google Drive. Name: {0}, ID: {1}", file.Name, file.Id);
 		}
 
 		/// <summary>
