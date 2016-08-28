@@ -865,7 +865,7 @@ namespace GoogleSyncPlugin
 		{
 			var tcs = new TaskCompletionSource<AuthorizationCodeResponseUrl>();
 
-			if (url is GoogleAuthorizationCodeRequestUrl)
+			if (url is GoogleAuthorizationCodeRequestUrl && !String.IsNullOrEmpty(m_email))
 				((GoogleAuthorizationCodeRequestUrl)url).LoginHint = m_email;
 			m_authorizationUrl = url.Build();
 
