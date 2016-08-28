@@ -171,11 +171,11 @@
 			// lblVersion
 			// 
 			this.lblVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblVersion.Location = new System.Drawing.Point(377, 13);
+			this.lblVersion.Location = new System.Drawing.Point(296, 13);
 			this.lblVersion.Name = "lblVersion";
-			this.lblVersion.Size = new System.Drawing.Size(75, 16);
+			this.lblVersion.Size = new System.Drawing.Size(156, 16);
 			this.lblVersion.TabIndex = 1;
-			this.lblVersion.Text = "v2.1";
+			this.lblVersion.Text = "v3.0.0.0";
 			this.lblVersion.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			this.lblVersion.DoubleClick += new System.EventHandler(this.lblVersion_DoubleClick);
 			// 

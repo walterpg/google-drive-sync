@@ -1,7 +1,7 @@
 /**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright (C) 2012-2014  DesignsInnovate
- * Copyright (C) 2014  Paul Voegler
+ * Copyright (C) 2012-2016  DesignsInnovate
+ * Copyright (C) 2014-2016  Paul Voegler
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ namespace GoogleSyncPlugin
 			if (m_productVersion == null)
 			{
 				Version version = Assembly.GetExecutingAssembly().GetName().Version;
-				m_productVersion = "v" + version.Major + "." + version.Minor;
+				m_productVersion = "v" + version.Major + "." + version.Minor + "." + version.Build + "." + version.Revision;
 			}
 			return m_productVersion;
 		}
