@@ -362,7 +362,7 @@ namespace GoogleSyncPlugin
 					}
 					else
 					{
-						string downloadFilePath = await downloadFile(service, file, filePath);
+						string downloadFilePath = downloadFile(service, file, filePath);
 						if (!String.IsNullOrEmpty(downloadFilePath))
 						{
 							if (syncCommand == SyncCommand.DOWNLOAD)
@@ -431,9 +431,9 @@ namespace GoogleSyncPlugin
 		/// <param name="file">The Google Drive File instance</param>
 		/// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
 		/// <returns>File's path if successful, null or empty otherwise.</returns>
-		private async Task<string> downloadFile(DriveService service, File file, string filePath)
+		private string downloadFile(DriveService service, File file, string filePath)
 		{
-			if (file == null || String.IsNullOrEmpty(file.WebContentLink) || String.IsNullOrEmpty(filePath))
+			if (file == null || String.IsNullOrEmpty(file.Id) || String.IsNullOrEmpty(filePath))
 				return null;
 
 			string downloadFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath),
@@ -441,16 +441,13 @@ namespace GoogleSyncPlugin
 				+ DateTime.Now.ToString("_yyyyMMddHHmmss")
 				+ System.IO.Path.GetExtension(filePath);
 
-			var downloader = new MediaDownloader(service);
-
-			using (var fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+			FilesResource.GetRequest request = service.Files.Get(file.Id);
+			using (System.IO.FileStream fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
 			{
-				var progress = await downloader.DownloadAsync(file.WebContentLink, fileStream);
-				if (progress.Status == DownloadStatus.Completed)
-					return downloadFilePath;
-				else
-					return null;
+				request.Download(fileStream);
 			}
+
+			return downloadFilePath;
 		}
 
 		/// <summary>
