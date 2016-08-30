@@ -553,7 +553,7 @@ namespace GoogleSyncPlugin
 			string status = string.Empty;
 			string tempFilePath = currentFilePath + ".gsyncbak";
 
-			var pwKey = m_host.Database.MasterKey;
+			KeePassLib.Keys.CompositeKey pwKey = m_host.Database.MasterKey;
 			m_host.Database.Close();
 
 			try
@@ -860,13 +860,13 @@ namespace GoogleSyncPlugin
 		public Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
 			CancellationToken taskCancellationToken)
 		{
-			var tcs = new TaskCompletionSource<AuthorizationCodeResponseUrl>();
+			TaskCompletionSource<AuthorizationCodeResponseUrl> tcs = new TaskCompletionSource<AuthorizationCodeResponseUrl>();
 
 			if (url is GoogleAuthorizationCodeRequestUrl && !String.IsNullOrEmpty(m_email))
 				((GoogleAuthorizationCodeRequestUrl)url).LoginHint = m_email;
 			m_authorizationUrl = url.Build();
 
-			var t = new Thread(new ThreadStart(RunBrowser));
+			Thread t = new Thread(new ThreadStart(RunBrowser));
 			t.SetApartmentState(ApartmentState.STA);
 			t.Start();
 			do
