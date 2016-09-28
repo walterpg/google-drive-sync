@@ -1,7 +1,7 @@
 Googly Sync Plugin for KeePass Password Safe
 ============================================
 
-Version: 2.1.2 (August 2015)
+Version: 3.0.0 (October 2016)
 Authors: Danyal (DesignsInnovate), Paul Voegler
 License: GPL version 3 (see gpl.txt)
 Project: http://sourceforge.net/p/kp-googlesync
@@ -65,7 +65,7 @@ settings and revoke the API access:
 Requirements
 ------------
 
-The Plugin requires the .NET Framework 4.0
+The Plugin requires the .NET Framework 4.5
 (the .NET Client Profile does not suffice).
 
 The Plugin requires OAuth 2.0 credentials to access the Google Drive API.
@@ -139,7 +139,7 @@ creates temporary files on the host system.
 Compatibility
 -------------
 
-The Plugin has only been tested with the .NET 4.0 Framework for Windows.
+The Plugin has only been tested with the .NET 4.5 Framework for Windows.
 Linux and Mac OS X are not supported.
 However, the Plugin does seem to work limited with Linux:
 http://sourceforge.net/p/kp-googlesync/discussion/general/thread/19cca399/#4df1
