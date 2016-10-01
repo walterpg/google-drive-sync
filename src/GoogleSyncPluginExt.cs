@@ -35,7 +35,7 @@ using KeePassLib.Security;
 using KeePassLib.Collections;
 
 using Google.Apis.Services;
-using Google.Apis.Download;
+using Google.Apis.Upload;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Auth.OAuth2;
@@ -505,8 +505,13 @@ namespace GoogleSyncPlugin
 			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
-			FilesResource.UpdateMediaUpload request = service.Files.Update(file, file.Id, stream, contentType);
-			request.Upload();
+			File temp = new File();
+			FilesResource.UpdateMediaUpload request = service.Files.Update(temp, file.Id, stream, contentType);
+			IUploadProgress progress = request.Upload();
+			if (progress.Exception != null)
+			{
+				throw progress.Exception;
+			}
 
 			System.IO.File.SetLastWriteTime(filePath, DateTime.Now);
 
@@ -537,7 +542,11 @@ namespace GoogleSyncPlugin
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
 
 			FilesResource.CreateMediaUpload request = service.Files.Create(temp, stream, contentType);
-			request.Upload();
+			IUploadProgress progress = request.Upload();
+			if (progress.Exception != null)
+			{
+				throw progress.Exception;
+			}
 
 			File file = request.ResponseBody;
 			return string.Format("File uploaded to Google Drive. Name: {0}, ID: {1}", file.Name, file.Id);
