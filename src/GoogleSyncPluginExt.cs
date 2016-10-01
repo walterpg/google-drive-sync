@@ -349,7 +349,7 @@ namespace GoogleSyncPlugin
 					{
 						if (!autoSync)
 							m_host.Database.Save(new NullStatusLogger());
-						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, contentType, filePath);
+						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, filePath);
 					}
 				}
 				else
@@ -524,11 +524,10 @@ namespace GoogleSyncPlugin
 		/// <param name="service">DriveService</param>
 		/// <param name="description">File description</param>
 		/// <param name="fileName">File name</param>
-		/// <param name="mimeType">File MIME ype</param>
 		/// <param name="contentType">File content type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
-		private string uploadFile(DriveService service, string description, string fileName, string mimeType, string contentType, string filePath)
+		private string uploadFile(DriveService service, string description, string fileName, string contentType, string filePath)
 		{
 			File temp = new File();
 			if (string.IsNullOrEmpty(fileName))
@@ -536,7 +535,7 @@ namespace GoogleSyncPlugin
 			else
 				temp.Name = fileName;
 			temp.Description = description;
-			temp.MimeType = mimeType;
+			temp.MimeType = contentType;
 
 			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
 			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
