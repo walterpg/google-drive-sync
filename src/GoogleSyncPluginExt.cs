@@ -74,6 +74,9 @@ namespace GoogleSyncPlugin
 		public const string ConfigClientId = "GoogleSync.ClientID";
 		public const string ConfigClientSecret = "GoogleSync.ClientSecret";
 		public const string ConfigRefreshToken = "GoogleSync.RefreshToken";
+		public const string ConfigActiveAccount = "GoogleSync.ActiveAccount";
+		public const string ConfigActiveAccountTrue = ConfigActiveAccount + ".TRUE";
+		public const string ConfigActiveAccountFalse = ConfigActiveAccount + ".FALSE";
 		public const string AccountSearchString = "accounts.google.com";
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
@@ -163,7 +166,7 @@ namespace GoogleSyncPlugin
 			}
 			catch (Exception)
 			{
-				// support old boolean value (Sync on Save)
+				// support old boolean value (Sync on Save) (may be removed in later versions)
 				if (m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false))
 					m_autoSync = AutoSyncMode.SAVE;
 			}
@@ -640,6 +643,42 @@ namespace GoogleSyncPlugin
 		}
 
 		/// <summary>
+		/// Find active configured Google Accounts
+		/// Should only return one account
+		/// </summary>
+		private PwObjectList<PwEntry> FindActiveAccounts()
+		{
+			if (!m_host.Database.IsOpen)
+				return null;
+
+			PwObjectList<PwEntry> accounts = new PwObjectList<PwEntry>();
+
+			SearchParameters sp = new SearchParameters();
+			sp.SearchString = Defs.ConfigActiveAccountTrue;
+			sp.ComparisonMode = StringComparison.Ordinal;
+			sp.RespectEntrySearchingDisabled = false;
+			sp.SearchInGroupNames = false;
+			sp.SearchInNotes = false;
+			sp.SearchInOther = true;
+			sp.SearchInPasswords = false;
+			sp.SearchInTags = false;
+			sp.SearchInTitles = false;
+			sp.SearchInUrls = false;
+			sp.SearchInUserNames = false;
+			sp.SearchInUuids = false;
+			m_host.Database.RootGroup.SearchEntries(sp, accounts);
+
+			for (int idx = 0; idx < accounts.UCount; idx++)
+			{
+				PwEntry entry = accounts.GetAt((uint)idx);
+				if (!(entry.Strings.Exists(Defs.ConfigActiveAccount) && entry.Strings.Get(Defs.ConfigActiveAccount).ReadString().Equals(Defs.ConfigActiveAccountTrue)))
+					accounts.RemoveAt((uint)idx--);
+			}
+
+			return accounts;
+		}
+
+		/// <summary>
 		/// Show the configuration form
 		/// </summary>
 		private bool AskForConfiguration()
@@ -664,14 +703,24 @@ namespace GoogleSyncPlugin
 			PwObjectList<PwEntry> accounts = new PwObjectList<PwEntry>();
 			m_host.Database.RootGroup.SearchEntries(sp, accounts);
 
-			// find the configured entry
+			// find the active account
+			string strUuid = null;
 			PwEntry entry = null;
-			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			try
+			PwObjectList<PwEntry> activeAccounts = FindActiveAccounts();
+			if (activeAccounts != null && activeAccounts.UCount == 1)
 			{
-				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+				entry = activeAccounts.GetAt(0);
 			}
-			catch (ArgumentException) { }
+			else
+			{
+				// alternatively try to find the active account in the config file (old configuration) (may be removed in later versions)
+				strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
+				try
+				{
+					entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+				}
+				catch (ArgumentException) { }
+			}
 
 			// find configured entry in account list
 			int idx = -1;
@@ -726,13 +775,22 @@ namespace GoogleSyncPlugin
 			if (!m_host.Database.IsOpen)
 				return false;
 
-			// find configured password entry in db
-			string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-			try
+			// find the active account
+			PwObjectList<PwEntry> accounts = FindActiveAccounts();
+			if (accounts != null && accounts.UCount == 1)
 			{
-				m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+				m_entry = accounts.GetAt(0);
 			}
-			catch (ArgumentException) {}
+			else
+			{
+				// alternatively try to find the active account in the config file (old configuration) (may be removed in later versions)
+				string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
+				try
+				{
+					m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+				}
+				catch (ArgumentException) { }
+			}
 
 			if (m_entry == null)
 				return false;
@@ -795,19 +853,30 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private bool SaveConfiguration()
 		{
-			if (m_entry == null)
-			{
-				m_autoSync = AutoSyncMode.DISABLED;
-				m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
-				m_host.CustomConfig.SetString(Defs.ConfigUUID, string.Empty);
-				return true;
-			}
+			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
+
+			// remove old uuid config (may be removed in later versions)
+			if (m_host.CustomConfig.GetString(Defs.ConfigUUID) != null)
+				m_host.CustomConfig.SetString(Defs.ConfigUUID, null);
 
 			if (!m_host.Database.IsOpen)
 				return false;
 
-			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
-			m_host.CustomConfig.SetString(Defs.ConfigUUID, m_entry.Uuid.ToHexString());
+			// disable all currently active accounts but the selected (if any)
+			PwObjectList<PwEntry> accounts = FindActiveAccounts();
+			foreach (PwEntry entry in accounts)
+			{
+				if (!entry.Equals(m_entry) && entry.Strings.Exists(Defs.ConfigActiveAccount))
+				{
+					entry.Strings.Set(Defs.ConfigActiveAccount, new ProtectedString(false, Defs.ConfigActiveAccountFalse));
+					entry.Touch(true);
+				}
+			}
+
+			if (m_entry == null)
+				return true;
+
+			m_entry.Strings.Set(Defs.ConfigActiveAccount, new ProtectedString(false, Defs.ConfigActiveAccountTrue));
 
 			if (m_clientId == DefaultClientId || String.IsNullOrEmpty(m_clientId))
 			{
