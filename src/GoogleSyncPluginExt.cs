@@ -57,7 +57,6 @@ namespace GoogleSyncPlugin
 				Assembly assembly = Assembly.GetExecutingAssembly();
 				AssemblyTitleAttribute assemblyTitle = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0] as AssemblyTitleAttribute;
 				m_productName = assemblyTitle.Title;
-				return m_productName;
 			}
 			return m_productName;
 		}
@@ -512,8 +511,6 @@ namespace GoogleSyncPlugin
 			{
 				throw progress.Exception;
 			}
-
-			System.IO.File.SetLastWriteTime(filePath, DateTime.Now);
 
 			return string.Format("File on Google Drive updated. Name: {0}, ID: {1}", file.Name, file.Id);
 		}
