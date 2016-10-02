@@ -286,13 +286,7 @@ namespace GoogleSyncPlugin
 			}
 
 			if (AskForConfiguration())
-			{
-				// continue to use existing refresh token if present - match / validity will be checked in any case
-				if (m_entry != null)
-					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
-
 				SaveConfiguration();
-			}
 		}
 
 		/// <summary>
@@ -699,6 +693,7 @@ namespace GoogleSyncPlugin
 			m_entry = entry;
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
+			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
 			m_autoSync = form1.AutoSync;
 
 			return true;
@@ -759,10 +754,6 @@ namespace GoogleSyncPlugin
 			{
 				if (!AskForConfiguration())
 					return false; // user cancelled or error
-
-				// continue to use existing refresh token if present - match / validity will be checked in any case
-				if (m_entry != null)
-					m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
 
 				SaveConfiguration();
 
