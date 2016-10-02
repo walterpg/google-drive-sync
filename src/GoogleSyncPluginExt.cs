@@ -74,6 +74,7 @@ namespace GoogleSyncPlugin
 		public const string ConfigClientId = "GoogleSync.ClientID";
 		public const string ConfigClientSecret = "GoogleSync.ClientSecret";
 		public const string ConfigRefreshToken = "GoogleSync.RefreshToken";
+		public const string AccountSearchString = "accounts.google.com";
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
 		public const string URLGoogleDev = "https://console.developers.google.com/start";
@@ -643,10 +644,23 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		private bool AskForConfiguration()
 		{
+			if (!m_host.Database.IsOpen)
+				return false;
+
 			// find google accounts
 			SearchParameters sp = new SearchParameters();
+			sp.SearchString = Defs.AccountSearchString;
+			sp.ComparisonMode = StringComparison.OrdinalIgnoreCase;
+			sp.RespectEntrySearchingDisabled = false;
+			sp.SearchInGroupNames = false;
+			sp.SearchInNotes = false;
+			sp.SearchInOther = false;
+			sp.SearchInPasswords = false;
+			sp.SearchInTags = false;
+			sp.SearchInTitles = true;
 			sp.SearchInUrls = true;
-			sp.SearchString = "accounts.google.com";
+			sp.SearchInUserNames = false;
+			sp.SearchInUuids = false;
 			PwObjectList<PwEntry> accounts = new PwObjectList<PwEntry>();
 			m_host.Database.RootGroup.SearchEntries(sp, accounts);
 
