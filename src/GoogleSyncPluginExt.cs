@@ -296,7 +296,7 @@ namespace GoogleSyncPlugin
 		/// <summary>
 		/// Sync the current database with Google Drive. Create a new file if it does not already exists
 		/// </summary>
-		private async void syncWithGoogle(SyncCommand syncCommand, bool autoSync)
+		private void syncWithGoogle(SyncCommand syncCommand, bool autoSync)
 		{
 			if (!m_host.Database.IsOpen)
 			{
@@ -323,7 +323,10 @@ namespace GoogleSyncPlugin
 					throw new PlgxException(Defs.ProductName() + " aborted!");
 
 				// Get Access Token / Authorization
-				UserCredential myCredential = await GetAuthorization();
+				// Invoke async method GetAuthorization from thread pool to have no context to marshal back to
+				// and thus making this call synchroneous without running into potential deadlocks.
+				// Needed so that KeePass can't close the db or lock the workspace before we are done syncing
+				UserCredential myCredential = Task.Run(() => GetAuthorization()).Result;
 
 				// Create a new Google Drive API Service
 				DriveService service = new DriveService(new BaseClientService.Initializer()
