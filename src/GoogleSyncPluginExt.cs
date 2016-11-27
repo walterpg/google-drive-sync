@@ -746,6 +746,7 @@ namespace GoogleSyncPlugin
 			strUuid = form1.Uuid;
 			try
 			{
+				// will throw ArgumentException when Uuid is empty and association shall be removed
 				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
 			}
 			catch (ArgumentException) { }
@@ -759,7 +760,7 @@ namespace GoogleSyncPlugin
 			m_entry = entry;
 			m_clientId = form1.ClientId;
 			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
-			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
+			m_refreshToken = (m_entry != null) ? m_entry.Strings.Get(Defs.ConfigRefreshToken) : null;
 			m_autoSync = form1.AutoSync;
 
 			return true;
