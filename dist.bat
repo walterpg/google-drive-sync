@@ -1,7 +1,8 @@
 @echo off
 
-set keepassexe=src\bin\release\KeePass.exe
-set zipexe=c:\Progra~1\7-Zip\7z.exe
+set keepassexe=..\..\KeePassPortable-2.35\KeePass.exe
+set zipexe="C:\Program Files\7-Zip\7z.exe"
+set zipcommand=a
 
 rem END CONFIGURATION
 
@@ -38,9 +39,8 @@ rd /s /q .\build\GoogleSyncPlugin\bin
 rd /s /q .\build\GoogleSyncPlugin\obj
 rd /s /q .\build\GoogleSyncPlugin\packages
 del /q .\build\GoogleSyncPlugin\*.user
-del /q .\build\GoogleSyncPlugin\*.suo
 
-.\build\KeePass.exe --plgx-create %~dp0build\GoogleSyncPlugin --plgx-prereq-kp:2.18 --plgx-prereq-net:4.5
+.\build\KeePass.exe --plgx-create %~dp0build\GoogleSyncPlugin --plgx-prereq-kp:2.35 --plgx-prereq-net:4.5
 
 del /q .\build\GoogleSyncPlugin.zip
-%zipexe% a .\build\GoogleSyncPlugin.zip .\build\GoogleSyncPlugin.plgx doc\*.*
+%zipexe% %zipcommand% .\build\GoogleSyncPlugin.zip .\build\GoogleSyncPlugin.plgx doc\*.*

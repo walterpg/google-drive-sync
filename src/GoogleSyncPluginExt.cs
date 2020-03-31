@@ -1,7 +1,8 @@
 /**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright (C) 2012-2016  DesignsInnovate
- * Copyright (C) 2014-2016  Paul Voegler
+ * Copyright(C) 2012-2016  DesignsInnovate
+ * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,32 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Windows.Forms;
-
-using KeePass.UI;
-using KeePass.Plugins;
-using KeePass.Forms;
-using KeePass.DataExchange;
-
-using KeePassLib;
-using KeePassLib.Interfaces;
-using KeePassLib.Serialization;
-using KeePassLib.Security;
-using KeePassLib.Collections;
-
-using Google.Apis.Services;
-using Google.Apis.Upload;
-using Google.Apis.Drive.v3;
-using Google.Apis.Drive.v3.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Download;
+using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using KeePass;
+using KeePass.DataExchange;
+using KeePass.Forms;
+using KeePass.Plugins;
+using KeePass.UI;
+using KeePassLib;
+using KeePassLib.Cryptography;
+using KeePassLib.Delegates;
+using KeePassLib.Interfaces;
+using KeePassLib.Security;
+using KeePassLib.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
+using File = System.IO.File;
+using GDriveFile = Google.Apis.Drive.v3.Data.File;
 
 namespace GoogleSyncPlugin
 {
@@ -50,38 +63,79 @@ namespace GoogleSyncPlugin
 	{
 		private static string m_productName;
 		private static string m_productVersion;
-		public static string ProductName()
+		private static ProtectedString m_emptyEx;
+
+		public static string ProductName
 		{
-			if (m_productName == null)
+			get
 			{
-				Assembly assembly = Assembly.GetExecutingAssembly();
-				AssemblyTitleAttribute assemblyTitle = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0] as AssemblyTitleAttribute;
-				m_productName = assemblyTitle.Title;
+				if (m_productName == null)
+				{
+					Assembly assembly = Assembly.GetExecutingAssembly();
+					object[] attrs = assembly.GetCustomAttributes(
+						typeof(AssemblyTitleAttribute), false);
+					AssemblyTitleAttribute assemblyTitle;
+					assemblyTitle = attrs[0] as AssemblyTitleAttribute;
+					m_productName = assemblyTitle.Title;
+				}
+				return m_productName;
 			}
-			return m_productName;
 		}
-		public static string VersionString()
+
+		public static string Version
 		{
-			if (m_productVersion == null)
+			get
 			{
-				Version version = Assembly.GetExecutingAssembly().GetName().Version;
-				m_productVersion = "v" + version.Major + "." + version.Minor + "." + version.Build + "." + version.Revision;
+				if (m_productVersion == null)
+				{
+					Version version = Assembly.GetExecutingAssembly().GetName().Version;
+					m_productVersion = "v" + version.ToString(4);
+				}
+				return m_productVersion;
 			}
-			return m_productVersion;
 		}
+
+		// ProtectedString.EmptyEx is not available until after the release we
+		// are currently targeting (2.35).
+		public static ProtectedString PsEmptyEx
+		{
+			get
+			{
+				if (m_emptyEx == null)
+				{
+					m_emptyEx = new ProtectedString(true, new byte[0]);
+				}
+				return m_emptyEx;
+			}
+		}
+
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
-		public const string ConfigClientId = "GoogleSync.ClientID";
-		public const string ConfigClientSecret = "GoogleSync.ClientSecret";
-		public const string ConfigRefreshToken = "GoogleSync.RefreshToken";
-		public const string ConfigActiveAccount = "GoogleSync.ActiveAccount";
-		public const string ConfigActiveAccountTrue = ConfigActiveAccount + ".TRUE";
-		public const string ConfigActiveAccountFalse = ConfigActiveAccount + ".FALSE";
+		public const string ConfigDefaultAppFolder = "GoogleSync.DefaultAppFolder";
+		public const string ConfigDefaultAppFolderColor = "GoogleSync.DefaultAppFolderColor";
+		public const string ConfigDriveScope = "GoogleSync.DriveApiScope";
+		public const string ConfigDefaultClientId = "GoogleSync.DefaultClientId";
+		public const string ConfigDefaultClientSecret = "GoogleSync.DefaultClientSecret";
+		public const string EntryClientId = "GoogleSync.ClientID";
+		public const string EntryClientSecret = "GoogleSync.ClientSecret";
+		public const string EntryRefreshToken = "GoogleSync.RefreshToken";
+		public const string EntryActiveAccount = "GoogleSync.ActiveAccount";
+		public const string EntryActiveAccountTrue = EntryActiveAccount + ".TRUE";
+		public const string EntryActiveAccountFalse = EntryActiveAccount + ".FALSE";
+		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
+		public const string EntryDriveScope = ConfigDriveScope;
 		public const string AccountSearchString = "accounts.google.com";
 		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
 		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
 		public const string URLGoogleDev = "https://console.developers.google.com/start";
 		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
+		public const string URLSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
+		public const string GsyncBackupExt = ".gsyncbak";
+		public const string AppDefaultFolderName = "KeePass Google Sync";
+		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
+		public const string FolderMimeType = "application/vnd.google-apps.folder";
+
+		public const int DefaultDotNetFileBufferSize = 4096;
 	}
 
 	[Flags]
@@ -95,16 +149,17 @@ namespace GoogleSyncPlugin
 	/// <summary>
 	/// main plugin class
 	/// </summary>
-	public sealed class GoogleSyncPluginExt : Plugin
+	public sealed class GoogleSyncPluginExt : Plugin, IDriveServiceProvider
 	{
 		private IPluginHost m_host = null;
 
 		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
 
-		private PwEntry m_entry = null;
-		private string m_clientId = string.Empty;
-		private ProtectedString m_clientSecret = null;
-		private ProtectedString m_refreshToken = null;
+		private string m_defaultFolder = null;
+		private GoogleColor m_defaultFolderColor = null;
+		private string m_defaultDriveScope = null;
+		private string m_defaultClientId = string.Empty;
+		private ProtectedString m_defaultClientSecret = Defs.PsEmptyEx;
 
 		private ToolStripSeparator m_tsSeparator = null;
 		private ToolStripMenuItem m_tsmiPopup = null;
@@ -112,6 +167,13 @@ namespace GoogleSyncPlugin
 		private ToolStripMenuItem m_tsmiUpload = null;
 		private ToolStripMenuItem m_tsmiDownload = null;
 		private ToolStripMenuItem m_tsmiConfigure = null;
+
+		GDriveFile.ContentHintsData m_contentInfo;
+
+		// For UI status updates.
+		volatile ResumableUpload<GDriveFile, GDriveFile> m_currentUpload = null;
+		volatile GDriveFile m_currentDownload = null;
+
 		private enum SyncCommand
 		{
 			DOWNLOAD = 1,
@@ -120,18 +182,7 @@ namespace GoogleSyncPlugin
 		}
 
 		private const string DefaultClientId = "579467001123-ee60b1ghffl38rgdk6pj7gjdjvagi9i7.apps.googleusercontent.com";
-		// pseudosecret (pad is sha256 of DefaultClientId)
-		private XorredBuffer DefaultClientSecret = new XorredBuffer(
-			new byte[] {
-				0x56, 0x26, 0xd7, 0x81, 0xcd, 0x45, 0x8c, 0xd2,
-				0xee, 0x3d, 0x1a, 0x6a, 0x64, 0xec, 0x54, 0x5d,
-				0xa0, 0x36, 0x24, 0x2c, 0xca, 0x27, 0x81, 0xec
-			}, new byte[] {
-				0x10, 0x65, 0x98, 0xec, 0xbd, 0x74, 0xe0, 0xe2,
-				0xda, 0x72, 0x5f, 0x2b, 0x21, 0x85, 0x2d, 0x34,
-				0xf2, 0x78, 0x5e, 0x7e, 0x8b, 0x74, 0xf4, 0xae
-			}
-		);
+		private XorredBuffer DefaultClientSecret;
 
 		/// <summary>
 		/// URL of a version information file
@@ -157,53 +208,111 @@ namespace GoogleSyncPlugin
 		/// <c>Terminate</c> function of your plugin).</returns>
 		public override bool Initialize(IPluginHost host)
 		{
-			if(host == null) return false;
-			m_host = host;
+			if (host == null)
+			{
+				return false;
+			}
 
-			try
+			// pseudosecret (pad is sha256 of DefaultClientId)
+			DefaultClientSecret = new XorredBuffer(
+			   new byte[] {
+					0x56, 0x26, 0xd7, 0x81, 0xcd, 0x45, 0x8c, 0xd2,
+					0xee, 0x3d, 0x1a, 0x6a, 0x64, 0xec, 0x54, 0x5d,
+					0xa0, 0x36, 0x24, 0x2c, 0xca, 0x27, 0x81, 0xec
+			   }, new byte[] {
+					0x10, 0x65, 0x98, 0xec, 0xbd, 0x74, 0xe0, 0xe2,
+					0xda, 0x72, 0x5f, 0x2b, 0x21, 0x85, 0x2d, 0x34,
+					0xf2, 0x78, 0x5e, 0x7e, 0x8b, 0x74, 0xf4, 0xae
+			   }
+		    );
+
+			m_host = host;
+			string syncOption = m_host.GetConfig(Defs.ConfigAutoSync,
+											AutoSyncMode.DISABLED.ToString());
+			if (!Enum.TryParse(syncOption, out m_autoSync))
 			{
-				m_autoSync = (AutoSyncMode)Enum.Parse(typeof(AutoSyncMode), m_host.CustomConfig.GetString(Defs.ConfigAutoSync, AutoSyncMode.DISABLED.ToString()), true);
-			}
-			catch (Exception)
-			{
-				// support old boolean value (Sync on Save) (may be removed in later versions)
-				if (m_host.CustomConfig.GetBool(Defs.ConfigAutoSync, false))
+				// Support obsolete Sync on Save confg.
+				if (m_host.GetConfig(Defs.ConfigAutoSync, false))
+				{
 					m_autoSync = AutoSyncMode.SAVE;
+				}
+				else
+				{
+					m_autoSync = AutoSyncMode.DISABLED;
+				}
 			}
+
+			// The default setting is to use the My Drive root folder.
+			m_defaultFolder = m_host.GetConfig(Defs.ConfigDefaultAppFolder,
+									Defs.AppDefaultFolderName);
+			string encodedColor = m_host.GetConfig(Defs.ConfigDefaultAppFolderColor);
+			m_defaultFolderColor = !string.IsNullOrEmpty(encodedColor) ?
+				GoogleColor.DeserializeFromString(encodedColor) : null;
+
+			// The default setting is to use the less restrictive API scope.
+			m_defaultDriveScope = m_host.GetConfig(Defs.ConfigDriveScope,
+									DriveService.Scope.DriveFile);
+
+			// Default is no OAuth 2.0 credentials.
+			m_defaultClientId = m_host.GetConfig(Defs.ConfigDefaultClientId,
+												string.Empty);
+			string secretVal = m_host.GetConfig(Defs.ConfigDefaultClientSecret,
+												string.Empty);
+			m_defaultClientSecret = new ProtectedString(true, secretVal);
 
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
+
+			m_contentInfo = null;
 
 			// Add a separator at the bottom
 			m_tsSeparator = new ToolStripSeparator();
 			tsMenu.Add(m_tsSeparator);
 
 			// Add the popup menu item
-			m_tsmiPopup = new ToolStripMenuItem();
-			m_tsmiPopup.Text = Defs.ProductName();
+			m_tsmiPopup = new ToolStripMenuItem
+			{
+				Text = Defs.ProductName,
+				Image = Resources.GetBitmap("google_signin_light")
+			};
 			tsMenu.Add(m_tsmiPopup);
 
-			m_tsmiSync = new ToolStripMenuItem();
-			m_tsmiSync.Name = SyncCommand.SYNC.ToString();
-			m_tsmiSync.Text = "Sync with Google Drive";
+			m_tsmiSync = new ToolStripMenuItem
+			{
+				Name = "Sync",
+				Tag = SyncCommand.SYNC,
+				Text = Resources.GetString("MenuLabel_Sync"),
+				Image = Resources.GetBitmap("round_sync_black_18dp")
+			};
 			m_tsmiSync.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiSync);
 
-			m_tsmiUpload = new ToolStripMenuItem();
-			m_tsmiUpload.Name = SyncCommand.UPLOAD.ToString();
-			m_tsmiUpload.Text = "Upload to Google Drive";
+			m_tsmiUpload = new ToolStripMenuItem
+			{
+				Name = "Upload",
+				Tag = SyncCommand.UPLOAD,
+				Text = Resources.GetString("MenuLabel_Upload"),
+				Image = Resources.GetBitmap("round_cloud_upload_black_18dp")
+			};
 			m_tsmiUpload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiUpload);
 
-			m_tsmiDownload = new ToolStripMenuItem();
-			m_tsmiDownload.Name = SyncCommand.DOWNLOAD.ToString();
-			m_tsmiDownload.Text = "Download from Google Drive";
+			m_tsmiDownload = new ToolStripMenuItem
+			{
+				Name = "Download",
+				Tag = SyncCommand.DOWNLOAD,
+				Text = Resources.GetString("MenuLabel_Download"),
+				Image = Resources.GetBitmap("round_cloud_download_black_18dp")
+			};
 			m_tsmiDownload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiDownload);
 
-			m_tsmiConfigure = new ToolStripMenuItem();
-			m_tsmiConfigure.Name = "CONFIG";
-			m_tsmiConfigure.Text = "Configuration...";
+			m_tsmiConfigure = new ToolStripMenuItem
+			{
+				Name = "CONFIG",
+				Text = Resources.GetString("MenuLabel_Config"),
+				Image = Resources.GetBitmap("round_settings_black_18dp")
+			};
 			m_tsmiConfigure.Click += OnConfigure;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiConfigure);
 
@@ -225,57 +334,115 @@ namespace GoogleSyncPlugin
 		{
 			// Remove all of our menu items
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
+			tsMenu.Remove(m_tsmiPopup);
 			tsMenu.Remove(m_tsSeparator);
 			tsMenu.Remove(m_tsmiSync);
 			tsMenu.Remove(m_tsmiUpload);
 			tsMenu.Remove(m_tsmiDownload);
 			tsMenu.Remove(m_tsmiConfigure);
 
-			// Important! Remove event handlers!
+			m_tsmiPopup.Dispose();
+			m_tsSeparator.Dispose();
+			m_tsmiSync.Dispose();
+			m_tsmiUpload.Dispose();
+			m_tsmiDownload.Dispose();
+			m_tsmiConfigure.Dispose();
+
+			m_tsmiPopup = null;
+			m_tsSeparator = null;
+			m_tsmiSync = null;
+			m_tsmiUpload = null;
+			m_tsmiDownload = null;
+			m_tsmiConfigure = null;
+
 			m_host.MainWindow.FileSaved -= OnFileSaved;
 			m_host.MainWindow.FileOpened -= OnFileOpened;
+
+			// $$BUG XorredBuffer is not IDisposable until >v2.35,
+			// so we are fooling C#5.0 here.
+			object unknown = DefaultClientSecret;
+			IDisposable disposable = unknown as IDisposable;
+			using (disposable) { }
+		}
+
+		// File thumbnail image.
+		private GDriveFile.ContentHintsData ContentHints
+		{
+			get
+			{
+				if (m_contentInfo != null)
+				{
+					return m_contentInfo;
+				}
+
+				// GDrive requires this be sent with every upload/update
+				// for binary files, so build it here once.
+				using (MemoryStream stream = Resources.GetImageStream(
+														"keepass_thumbnail",
+														ImageFormat.Png))
+				using (BinaryReader reader = new BinaryReader(stream))
+				{
+					m_contentInfo = new GDriveFile.ContentHintsData()
+					{
+						Thumbnail = new GDriveFile.ContentHintsData.ThumbnailData()
+						{
+							MimeType = "image/png",
+							Image = reader.ReadBytes((int)stream.Length)
+										.ToUrlSafeBase64()
+						}
+					};
+				}
+				return m_contentInfo;
+			}
+		}
+
+		private async Task SyncOnOpenOrSaveCmd()
+		{
+			if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
+			{
+				ShowMessage(Resources.GetString("Msg_AutoSyncIgnore"), true);
+			}
+			else if (LoadConfiguration() == null)
+			{
+				ShowMessage(Resources.GetString("Msg_NoAutoSyncConfig"), true);
+			}
+			else
+			{
+				await ConfigAndSyncWithGoogle(SyncCommand.SYNC, true);
+			}
 		}
 
 		/// <summary>
 		/// Event handler to implement auto sync on save
 		/// </summary>
-		private void OnFileSaved(object sender, FileSavedEventArgs e)
+		private async void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success && AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
+			if (e.Success && 
+				AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
 			{
-				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
-					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
-				else if (!LoadConfiguration())
-					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
-				else
-					syncWithGoogle(SyncCommand.SYNC, true);
+				await SyncOnOpenOrSaveCmd();
 			}
 		}
 
 		/// <summary>
 		/// Event handler to implement auto sync on open
 		/// </summary>
-		private void OnFileOpened(object sender, FileOpenedEventArgs e)
+		private async void OnFileOpened(object sender, FileOpenedEventArgs e)
 		{
 			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
 			{
-				if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
-					ShowMessage("Shift Key pressed. Auto Sync ignored.", true);
-				else if (!LoadConfiguration())
-					ShowMessage("No valid configuration found. Auto Sync ignored.", true);
-				else
-					syncWithGoogle(SyncCommand.SYNC, true);
+				await SyncOnOpenOrSaveCmd();
 			}
 		}
 
 		/// <summary>
 		/// Event handler for sync menu entries
 		/// </summary>
-		private void OnSyncWithGoogle(object sender, EventArgs e)
+		private async void OnSyncWithGoogle(object sender, EventArgs e)
 		{
 			ToolStripItem item = (ToolStripItem)sender;
-			SyncCommand syncCommand = (SyncCommand)Enum.Parse(typeof(SyncCommand), item.Name);
-			syncWithGoogle(syncCommand, false);
+			SyncCommand syncCommand = (SyncCommand)item.Tag;
+			await ConfigAndSyncWithGoogle(syncCommand, false);
 		}
 
 		/// <summary>
@@ -285,211 +452,488 @@ namespace GoogleSyncPlugin
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				ShowMessage("You first need to open a database.");
+				ShowMessage(Resources.GetString("Msg_FirstOpenDb"));
+			}
+			else
+			{
+				EntryConfiguration config = AskForConfiguration();
+				if (config != null)
+				{
+					SaveConfiguration(config);
+				}
+			}
+		}
+
+		void NotifyTokenError(TokenResponseException ex)
+		{
+			string msg;
+			switch (ex.Error.Error)
+			{
+				case "access_denied":
+					msg = Resources.GetString("Err_TokenAccessDenied");
+					break;
+				case "invalid_request":
+					msg = Resources.GetString("Err_TokenInvalidReq");
+					break;
+				case "invalid_client":
+					msg = Resources.GetString("Err_TokenInvalidClient");
+					break;
+				case "invalid_grant":
+					msg = Resources.GetString("Err_TokenInvalidGrant");
+					break;
+				case "unauthorized_client":
+					msg = Resources.GetString("Err_TokenUnauthClient");
+					break;
+				case "unsupported_grant_type":
+					msg = Resources.GetString("Err_TokenUnsupportedGrant");
+					break;
+				case "invalid_scope":
+					msg = Resources.GetString("Err_TokenInvalidScope");
+					break;
+				case "user_cancelled":
+					msg = Resources.GetFormat("Msg_UserCancelledOpFmt", Defs.ProductName);
+					ShowMessage(msg, true);
+					return;
+				default:
+					msg = ex.Message;
+					break;
+			}
+			ShowMessage(msg);
+		}
+
+		private void SaveDatabase()
+		{
+			if (!m_host.Database.Modified)
+			{
 				return;
 			}
 
-			if (AskForConfiguration())
-				SaveConfiguration();
+			MainForm window = m_host.MainWindow;
+			if (window.InvokeRequired)
+			{
+				window.Invoke(new MethodInvoker(() => SaveDatabase()));
+				return;
+			}
+			ShowWarningsLogger logger = window.CreateShowWarningsLogger();
+			string status = Resources.GetString("Msg_SavingDatabase");
+			try
+			{
+				logger.StartLogging(status, true);
+				m_host.Database.Save(logger);
+			}
+			finally
+			{
+				status = Resources.GetString("Msg_DatabaseSaved");
+				logger.SetText(status, LogStatusType.Info);
+				logger.EndLogging();
+			}
 		}
 
 		/// <summary>
-		/// Sync the current database with Google Drive. Create a new file if it does not already exists
+		/// Authenticate and authorize the drive service and invoke a user
+		/// function. Obtain and update authorization details from/to the
+		/// current configuration.
 		/// </summary>
-		private void syncWithGoogle(SyncCommand syncCommand, bool autoSync)
+		public async Task<string> ConfigAndUseDriveService(
+						Func<DriveService, string, Task<string>> use)
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				ShowMessage("You first need to open a database.");
-				return;
+				return Resources.GetString("Msg_FirstOpenDb");
 			}
 			else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
 			{
-				ShowMessage("Only databases stored locally or on a network share are supported.\n" +
-					"Save your database locally or on a network share and try again.");
-				return;
+				return Resources.GetString("Msg_LocalDbOnly");
 			}
 
-			string status = "Please wait ...";
+			// Ensure the configuration with auth data.
+			EntryConfiguration config = GetConfiguration();
+			if (config == null)
+			{
+				return Resources.GetFormat("Msg_ProductAbortedFmt",
+											Defs.ProductName);
+			}
+
+			// Save reference to current token.
+			ProtectedString RefreshToken = config.RefreshToken;
+
+			// Invoke service user.
+			string status = await UseDriveService(config, use);
+
+			// Update the configuration if necessary.
+			if (status != "ERROR" &&
+				(RefreshToken == null ||
+				 !RefreshToken.OrdinalEquals(config.RefreshToken, true)))
+			{
+				// An access token was granted.
+				// If there is no saved token, or the saved token is
+				// different than the granted token, save it to the
+				// database entry.
+				string status2 = Resources.GetString("Msg_SaveUserAuth");
+				ShowMessage(status2, true);
+
+
+				// Traditionally, the plugin's indicator for "use default 
+				// clientId" is empty strings for clientId & secret.  Maintain
+				// that compatibility point.
+				if (DefaultClientId == config.ClientId &&
+					 new ProtectedString(true, DefaultClientSecret)
+						.OrdinalEquals(config.ClientSecret, true))
+				{
+					config.ClientId = string.Empty;
+					config.ClientSecret = null;
+				}
+
+				config.CommitChangesIfAny();
+				SaveConfiguration(config);
+			}
+			return status;
+		}
+
+		public async Task<string> UseDriveService(SyncConfiguration authData,
+						Func<DriveService, string, Task<string>> use)
+		{
+			string status;
 			try
 			{
-				m_host.MainWindow.FileSaved -= OnFileSaved; // disable to not trigger when saving ourselves
-				m_host.MainWindow.FileOpened -= OnFileOpened; // disable to not trigger when opening ourselves
-				ShowMessage(status, true);
-				m_host.MainWindow.Enabled = false;
+				Tuple<UserCredential, ProtectedString> credAndToken;
+				credAndToken = await Task.Run(() => GetAuthorization(m_host, authData));
+				if (credAndToken.Item2 != null)
+				{
+					// Save the new refresh token.
+					authData.RefreshToken = credAndToken.Item2;
+				}
 
-				// abort when user cancelled or didn't provide config
-				if (!GetConfiguration())
-					throw new PlgxException(Defs.ProductName() + " aborted!");
-
-				// Get Access Token / Authorization
-				// Invoke async method GetAuthorization from thread pool to have no context to marshal back to
-				// and thus making this call synchroneous without running into potential deadlocks.
-				// Needed so that KeePass can't close the db or lock the workspace before we are done syncing
-				UserCredential myCredential = Task.Run(() => GetAuthorization()).Result;
-
-				// Create a new Google Drive API Service
+				// Create the drive service and call the caller.
 				DriveService service = new DriveService(new BaseClientService.Initializer()
 				{
-					HttpClientInitializer = myCredential,
-					ApplicationName = Defs.ProductName()
+					HttpClientInitializer = credAndToken.Item1,
+					ApplicationName = Defs.ProductName
 				});
-
-				string filePath = m_host.Database.IOConnectionInfo.Path;
-				string contentType = "application/x-keepass2";
-
-				File file = getFile(service, filePath);
-				if (file == null)
-				{
-					if (syncCommand == SyncCommand.DOWNLOAD)
-					{
-						status = "File name not found on Google Drive. Please upload or sync with Google Drive first.";
-					}
-					else // upload
-					{
-						if (!autoSync)
-							m_host.Database.Save(new NullStatusLogger());
-						status = uploadFile(service, "KeePass Password Safe Database", string.Empty, contentType, filePath);
-					}
-				}
-				else
-				{
-					if (syncCommand == SyncCommand.UPLOAD)
-					{
-						if (!autoSync)
-							m_host.Database.Save(new NullStatusLogger());
-						status = updateFile(service, file, filePath, contentType);
-					}
-					else
-					{
-						string downloadFilePath = downloadFile(service, file, filePath);
-						if (!String.IsNullOrEmpty(downloadFilePath))
-						{
-							if (syncCommand == SyncCommand.DOWNLOAD)
-								status = replaceDatabase(filePath, downloadFilePath);
-							else // sync
-								status = String.Format("{0} {1}",
-									syncFile(downloadFilePath),
-									updateFile(service, file, filePath, contentType));
-						}
-						else
-							status = "File could not be downloaded.";
-					}
-				}
+				status = await use(service, authData.ActiveFolder);
 			}
 			catch (TokenResponseException ex)
 			{
-				string msg = string.Empty;
-				switch (ex.Error.Error)
-				{
-					case "access_denied":
-						msg = "Access authorization request denied.";
-						break;
-					case "invalid_request":
-						msg = "Either Client ID or Client Secret is missing.";
-						break;
-					case "invalid_client":
-						msg = "Either Client ID or Client Secret is invalid.";
-						break;
-					case "invalid_grant":
-						msg = "The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.";
-						break;
-					case "unauthorized_client":
-						msg = "The authenticated client is not authorized to use this authorization grant type.";
-						break;
-					case "unsupported_grant_type":
-						msg = "The authorization grant type is not supported by the authorization server.";
-						break;
-					case "invalid_scope":
-						msg = "The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.";
-						break;
-					default:
-						msg = ex.Message;
-						break;
-				}
-
 				status = "ERROR";
-				ShowMessage(msg);
+				NotifyTokenError(ex);
+			}
+			catch (AggregateException ex)
+			{
+				status = "ERROR";
+				foreach (Exception inner in ex.InnerExceptions)
+				{
+					TokenResponseException tokenExc = inner as TokenResponseException;
+					if (tokenExc != null)
+					{
+						NotifyTokenError(tokenExc);
+					}
+					else
+					{
+						ShowMessage(inner.Message);
+					}
+				}
 			}
 			catch (Exception ex)
 			{
 				status = "ERROR";
 				ShowMessage(ex.Message);
 			}
-
-			m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
-			ShowMessage(status, true);
-			m_host.MainWindow.Enabled = true;
-			m_host.MainWindow.FileSaved += OnFileSaved;
-			m_host.MainWindow.FileOpened += OnFileOpened;
+			return status;
 		}
 
 		/// <summary>
-		/// Download a file and return a string with its content.
+		/// Configure if necessary, then execute synchronization of the current
+		/// database with Google Drive. Create a new file if it does not already
+		/// exist.
+		/// </summary>
+		private async Task ConfigAndSyncWithGoogle(SyncCommand syncCommand,
+			bool autoSync)
+		{
+			// Suspend these events temporarily in case the configuration
+			// needs to be saved.
+			m_host.MainWindow.FileSaved -= OnFileSaved;
+			m_host.MainWindow.FileOpened -= OnFileOpened;
+			m_host.MainWindow.Enabled = false;
+
+			try
+			{
+				await ConfigAndSyncUnsafe(syncCommand, autoSync);
+			}
+			finally
+			{
+				m_host.MainWindow.Enabled = true;
+				m_host.MainWindow.FileSaved += OnFileSaved;
+				m_host.MainWindow.FileOpened += OnFileOpened;
+			}
+		}
+
+		private async Task ConfigAndSyncUnsafe(SyncCommand sync, bool autoSync)
+		{
+			string status = Resources.GetString("Msg_PleaseWaitEllipsis");
+			ShowMessage(status, true);
+
+			status = await ConfigAndUseDriveService(async (service, targetFolder) =>
+			{
+				string filePath = m_host.Database.IOConnectionInfo.Path;
+				string contentType = "application/x-keepass2";
+				status = null;
+
+				GDriveFile folder = await GetFolder(service, targetFolder);
+				GDriveFile file = await GetFile(service, folder, filePath);
+				if (file == null)
+				{
+					if (sync == SyncCommand.DOWNLOAD)
+					{
+						status = Resources.GetString("Msg_GDriveFileNotFound");
+					}
+					else // upload
+					{
+						if (!autoSync)
+						{
+							SaveDatabase();
+						}
+						status = await UploadFile(service, folder,
+							Resources.GetString("Descr_KpDbFile"),
+							string.Empty, contentType, filePath,
+							ContentHints);
+					}
+				}
+				else
+				{
+					if (sync == SyncCommand.UPLOAD)
+					{
+						if (!autoSync)
+						{
+							SaveDatabase();
+						}
+						status = Resources.GetFormat("Msg_ReplaceFileFmt", file.Name);
+						ShowMessage(status, true);
+						status = await UpdateFile(service, file,
+							filePath, contentType, ContentHints);
+					}
+					else
+					{
+						string fileCopy = await DownloadCopy(service, file, filePath);
+						if (!string.IsNullOrEmpty(fileCopy))
+						{
+							if (sync == SyncCommand.DOWNLOAD)
+							{
+								status = await ReplaceDatabase(filePath, fileCopy);
+							}
+							else
+							{
+								string syncStatus = SyncFromThenDeleteFile(fileCopy);
+								status = Resources.GetString("Msg_UploadingSync");
+								ShowMessage(status, true);
+								status = String.Format("{0} {1}", syncStatus,
+									await UpdateFile(service, file, filePath,
+													contentType, ContentHints));
+							}
+						}
+						else
+						{
+							status = Resources.GetString("Msg_FileNotDownloaded");
+						}
+					}
+				}
+				return status;
+			});
+
+			m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+			if (!string.IsNullOrEmpty(status) &&
+				status != "ERROR")
+			{
+				ShowMessage(status, true);
+			}
+		}
+
+		/// <summary>
+		/// Download the Drive file and save to a file adjacent to database but
+		/// with a unique name.
 		/// </summary>
 		/// <param name="service">The Google Drive service</param>
 		/// <param name="file">The Google Drive File instance</param>
 		/// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
 		/// <returns>File's path if successful, null or empty otherwise.</returns>
-		private string downloadFile(DriveService service, File file, string filePath)
+		private async Task<string> DownloadCopy(DriveService service,
+			GDriveFile file, string filePath)
 		{
-			if (file == null || String.IsNullOrEmpty(file.Id) || String.IsNullOrEmpty(filePath))
-				return null;
-
-			string downloadFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath),
-				System.IO.Path.GetFileNameWithoutExtension(filePath))
-				+ DateTime.Now.ToString("_yyyyMMddHHmmss")
-				+ System.IO.Path.GetExtension(filePath);
-
-			FilesResource.GetRequest request = service.Files.Get(file.Id);
-			using (System.IO.FileStream fileStream = new System.IO.FileStream(downloadFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+			if (file == null || String.IsNullOrEmpty(file.Id) ||
+				string.IsNullOrEmpty(filePath))
 			{
-				request.Download(fileStream);
+				return null;
 			}
 
+			string status = Resources.GetFormat("Msg_DownloadFileFmt", file.Name);
+			ShowMessage(status, true);
+
+			FilesResource.GetRequest request = service.Files.Get(file.Id);
+			request.MediaDownloader.ProgressChanged += DownloadProgressChanged;
+			request.MediaDownloader.ChunkSize = Defs.DefaultDotNetFileBufferSize;
+			string downloadFilePath = Path.GetTempFileName();
+			using (FileStream fileStream = new FileStream(downloadFilePath, 
+					FileMode.Create, FileAccess.Write, FileShare.None,
+					Defs.DefaultDotNetFileBufferSize, true))
+			{
+				try
+				{
+					m_currentDownload = file;
+					await request.DownloadAsync(fileStream);
+				}
+				finally
+				{
+					m_currentDownload = null;
+				}
+			}
 			return downloadFilePath;
+		}
+
+		private void DownloadProgressChanged(IDownloadProgress obj)
+		{
+			MainForm window = m_host.MainWindow;
+			if (window.InvokeRequired)
+			{
+				window.BeginInvoke(new MethodInvoker(() =>
+				{
+					DownloadProgressChanged(obj);
+				}));
+				return;
+			}
+			ToolStripProgressBar progBar = window.MainProgressBar;
+			switch (obj.Status)
+			{
+				case DownloadStatus.Downloading:
+					GDriveFile dnload = m_currentDownload;
+					progBar.Minimum = 0;
+					progBar.Maximum = dnload == null || !dnload.Size.HasValue ? int.MaxValue :
+						(int)Math.Min((long)int.MaxValue, dnload.Size.Value);
+					progBar.Value = (int)Math.Min((long)progBar.Maximum, obj.BytesDownloaded);
+					progBar.Visible = true;
+					break;
+				case DownloadStatus.Completed:
+					progBar.Value = progBar.Maximum;
+					Thread.Sleep(10);
+					progBar.Visible = false;
+					break;
+				case DownloadStatus.Failed:
+					progBar.Visible = false;
+					break;
+			}
+		}
+
+		private async Task<GDriveFile> GetFolder(DriveService service, string folderName)
+		{
+			if (string.IsNullOrEmpty(folderName))
+			{
+				return new GDriveFile()
+				{
+					Id = "root" // alias for root folder in v3
+				};
+			}
+
+			string status;
+			status = Resources.GetFormat("Msg_RetrievingFolderFmt",
+													folderName);
+			ShowMessage(status, true);
+
+			// Only look for root-level folders.
+			FilesResource.ListRequest req = service.Files.List();
+			req.Q = "mimeType='" + Defs.FolderMimeType + "' and name='" +
+					folderName.Replace("'", "\\'") + 
+					"' and 'root' in parents and trashed=false";
+			FileList appFolders = await req.ExecuteAsync();
+			if (appFolders.Files.Count == 1)
+			{
+				return appFolders.Files[0];
+			}
+			if (appFolders.Files.Count > 1)
+			{
+				status = Resources.GetFormat("Exc_MultipleFoldersFmt",
+									appFolders.Files[0].Name);
+				throw new PlgxException(status);
+			}
+
+			// Create the app folder within our scope.
+			GDriveFile folderMetadata = new GDriveFile()
+			{
+				Name = folderName,
+				MimeType = Defs.FolderMimeType
+			};
+			if (m_defaultFolderColor != null)
+			{
+				folderMetadata.FolderColorRgb = m_defaultFolderColor.HtmlHexString;
+			}
+			FilesResource.CreateRequest folderCreate;
+			folderCreate = service.Files.Create(folderMetadata);
+			folderCreate.Fields = "id";
+			return await folderCreate.ExecuteAsync();
 		}
 
 		/// <summary>
 		/// Get File from Google Drive
 		/// </summary>
 		/// <param name="service">DriveService</param>
+		/// <param name="folder">Folder containing file (may be null).</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return Google File</returns>
-		private File getFile(DriveService service, string filepath)
+		private async Task<GDriveFile> GetFile(DriveService service,
+			GDriveFile folder, string filepath)
 		{
-			string filename = System.IO.Path.GetFileName(filepath);
-			FilesResource.ListRequest req = service.Files.List();
-			req.Q = "name='" + filename.Replace("'", "\\'") + "' and trashed=false";
-			FileList files = req.Execute();
-			if (files.Files.Count < 1)
-				return null;
-			else if (files.Files.Count == 1)
-				return files.Files[0];
+			string filename = Path.GetFileName(filepath);
+			string status = Resources.GetFormat("Msg_RetrievingGDriveFileFmt", filename);
+			ShowMessage(status, true);
 
-			throw new PlgxException("More than one file name '" + filename + "' found on Google Drive. Please make sure the file name is unique across all folders.");
+			FilesResource.ListRequest req = service.Files.List();
+			req.Q = "name='" + filename.Replace("'", "\\'") + "' and '" + 
+				folder.Id + "' in parents and trashed=false";
+			req.Fields = "files(id,name,size)";
+			FileList filesObj = await req.ExecuteAsync();
+
+			IEnumerable<GDriveFile> files = filesObj.Files;
+			if (!files.Any())
+			{
+				return null;
+			}
+			else if (files.Count() > 1)
+			{
+				status = Resources.GetFormat("Exc_MultipleGDriveFilesFmt", filename);
+				throw new PlgxException(status);
+			}
+			return files.First();
 		}
 
 		/// <summary>
-		/// Sync Google Drive File with currently open Database file
+		/// Sync given File with currently open Database file
 		/// </summary>
-		/// <param name="downloadFilePath">Full path of database file to sync with</param>
+		/// <param name="tempFilePath">Full path of database file to sync with</param>
 		/// <returns>Return status of the update</returns>
-		private string syncFile(string downloadFilePath)
+		private string SyncFromThenDeleteFile(string tempFilePath)
 		{
-			IOConnectionInfo connection = IOConnectionInfo.FromPath(downloadFilePath);
-			bool? success = ImportUtil.Synchronize(m_host.Database, m_host.MainWindow, connection, true, m_host.MainWindow);
+			string status = Resources.GetString("Msg_Synchronizing");
+			ShowMessage(status, true);
 
-			System.IO.File.Delete(downloadFilePath);
+			IOConnectionInfo connection = IOConnectionInfo.FromPath(tempFilePath);
+
+			Form fParent = m_host.MainWindow;
+			IUIOperations uiOps = m_host.MainWindow;
+			bool? success = ImportUtil.Synchronize(m_host.Database, uiOps,
+												connection, true, fParent);
+
+			// Delete the file.
+			Task.Run(() =>
+			{
+				File.Delete(tempFilePath);
+			});
 
 			if (!success.HasValue)
-				throw new PlgxException("Synchronization failed.\n\nYou do not have permission to import. Adjust your KeePass configuration.");
-			if (!(bool)success)
-				throw new PlgxException("Synchronization failed.\n\n" +
-					"If the error was that master keys (passwords) do not match, use Upload / Download commands instead of Sync " +
-					"or change the local master key to match that of the remote database.");
-
-			return "Local file synchronized.";
+			{
+				throw new PlgxException(Resources.GetString("Exc_NoImportPermission"));
+			}
+			if (!success.Value)
+			{
+				throw new PlgxException(Resources.GetString("Exc_SyncFailureOther"));
+			}
+			return Resources.GetString("Msg_LocalSyncComplete");
 		}
 
 		/// <summary>
@@ -500,20 +944,21 @@ namespace GoogleSyncPlugin
 		/// <param name="filePath">Full path of the current database file</param>
 		/// <param name="contentType">Content type of the Database file</param>
 		/// <returns>Return status of the update</returns>
-		private string updateFile(DriveService service, File file, string filePath, string contentType)
+		private async Task<string> UpdateFile(DriveService service,
+			GDriveFile file, string filePath, string contentType,
+			GDriveFile.ContentHintsData thumbnailImage)
 		{
-			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
-			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-
-			File temp = new File();
-			FilesResource.UpdateMediaUpload request = service.Files.Update(temp, file.Id, stream, contentType);
-			IUploadProgress progress = request.Upload();
-			if (progress.Exception != null)
+			GDriveFile temp = new GDriveFile()
 			{
-				throw progress.Exception;
-			}
+				// "Thumbnails are invalidated each time the content of the 
+				// file changes..."
+				ContentHints = thumbnailImage
+			};
+			GDriveFile updatedFile = await UploadFileImpl(
+				s => service.Files.Update(temp, file.Id, s, contentType),
+				filePath);
 
-			return string.Format("File on Google Drive updated. Name: {0}, ID: {1}", file.Name, file.Id);
+			return Resources.GetFormat("Msg_FileUpdatedFmt", updatedFile.Name, updatedFile.Id);
 		}
 
 		/// <summary>
@@ -525,28 +970,85 @@ namespace GoogleSyncPlugin
 		/// <param name="contentType">File content type</param>
 		/// <param name="filepath">Full path of the current database file</param>
 		/// <returns>Return status of the upload</returns>
-		private string uploadFile(DriveService service, string description, string fileName, string contentType, string filePath)
+		private async Task<string> UploadFile(DriveService service, GDriveFile folder,
+			string description, string fileName, string contentType, string filePath,
+			GDriveFile.ContentHintsData thumbnailImage)
 		{
-			File temp = new File();
-			if (string.IsNullOrEmpty(fileName))
-				temp.Name = System.IO.Path.GetFileName(filePath);
-			else
-				temp.Name = fileName;
-			temp.Description = description;
-			temp.MimeType = contentType;
-
-			byte[] byteArray = System.IO.File.ReadAllBytes(filePath);
-			System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-
-			FilesResource.CreateMediaUpload request = service.Files.Create(temp, stream, contentType);
-			IUploadProgress progress = request.Upload();
-			if (progress.Exception != null)
+			GDriveFile temp = new GDriveFile()
 			{
-				throw progress.Exception;
-			}
+				Description = description,
+				MimeType = contentType,
+				Name = string.IsNullOrEmpty(fileName) ?
+					Path.GetFileName(filePath) : fileName,
+				Parents = new List<string>(new[] { folder.Id }),
+				ContentHints = thumbnailImage
+			};
 
-			File file = request.ResponseBody;
-			return string.Format("File uploaded to Google Drive. Name: {0}, ID: {1}", file.Name, file.Id);
+			string message = Resources.GetFormat("Msg_UploadingFileFmt", temp.Name);
+			ShowMessage(message, true);
+
+			GDriveFile file = await UploadFileImpl(
+				s => service.Files.Create(temp, s, contentType),
+				filePath);
+
+			return Resources.GetFormat("Msg_FileUploadedFmt", file.Name, file.Id);
+		}
+
+		private async Task<GDriveFile> UploadFileImpl(
+			Func<Stream, ResumableUpload<GDriveFile, GDriveFile>> uploadFactory,
+			string filePath)
+		{
+			using (FileStream stream = new FileStream(filePath,
+					FileMode.Open, FileAccess.Read,
+					FileShare.Read, Defs.DefaultDotNetFileBufferSize, true))
+			{
+				m_currentUpload = uploadFactory(stream);
+				m_currentUpload.ChunkSize = Math.Max(Defs.DefaultDotNetFileBufferSize,
+					FilesResource.CreateMediaUpload.MinimumChunkSize);
+				m_currentUpload.ProgressChanged += UploadProgressChanged;
+				IUploadProgress progress = await m_currentUpload.UploadAsync();
+				ResumableUpload<GDriveFile, GDriveFile> request = m_currentUpload;
+				m_currentUpload = null;
+				if (progress.Exception != null)
+				{
+					throw progress.Exception;
+				}
+				return request.ResponseBody;
+			}
+		}
+
+		private void UploadProgressChanged(IUploadProgress obj)
+		{
+			MainForm window = m_host.MainWindow;
+			if (window.InvokeRequired)
+			{
+				window.BeginInvoke(new MethodInvoker(() =>
+				{
+					UploadProgressChanged(obj);
+				}));
+				return;
+			}
+			ToolStripProgressBar progBar = window.MainProgressBar;
+			switch (obj.Status)
+			{
+				case UploadStatus.Starting:
+				case UploadStatus.Uploading:
+					ResumableUpload<GDriveFile, GDriveFile> upload = m_currentUpload;
+					progBar.Minimum = 0;
+					progBar.Maximum = upload == null ? int.MaxValue :
+						(int) Math.Min((long)int.MaxValue, upload.ContentStream.Length);
+					progBar.Value = (int) Math.Min((long)progBar.Maximum, obj.BytesSent);
+					progBar.Visible = true;
+					break;
+				case UploadStatus.Completed:
+					progBar.Value = progBar.Maximum;
+					Thread.Sleep(10);
+					progBar.Visible = false;
+					break;
+				case UploadStatus.Failed:
+					progBar.Visible = false;
+					break;
+			}
 		}
 
 		/// <summary>
@@ -554,424 +1056,789 @@ namespace GoogleSyncPlugin
 		/// </summary>
 		/// <param name="downloadFilePath">Full path of the new database file</param>
 		/// <returns>Status of the replacement</returns>
-		private string replaceDatabase(string currentFilePath, string downloadFilePath)
+		private async Task<string> ReplaceDatabase(string currentFilePath, string downloadFilePath)
 		{
-			string status = string.Empty;
-			string tempFilePath = currentFilePath + ".gsyncbak";
+			string tempFilePath = currentFilePath + Defs.GsyncBackupExt;
+
+			string status = Resources.GetString("Msg_TempClose");
+			ShowMessage(status, true);
 
 			KeePassLib.Keys.CompositeKey pwKey = m_host.Database.MasterKey;
 			m_host.Database.Close();
 
-			try
-			{
-				System.IO.File.Move(currentFilePath, tempFilePath);
-				System.IO.File.Move(downloadFilePath, currentFilePath);
-				System.IO.File.Delete(tempFilePath);
-				status = "File downloaded replacing current database '" + System.IO.Path.GetFileName(currentFilePath) + "'";
-			}
-			catch (Exception)
-			{
-				status = "Replacing current database failed. File downloaded as '" + System.IO.Path.GetFileName(downloadFilePath) + "'";
-			}
+			status = Resources.GetString("Msg_ReplacingFile");
+			ShowMessage(status, true);
 
-			// try to open new (or old in case of error) db
+			string returnStatus = await Task.Run(() =>
+			{
+				try
+				{
+					File.Move(currentFilePath, tempFilePath);
+					File.Move(downloadFilePath, currentFilePath);
+					File.Delete(tempFilePath);
+					return Resources.GetFormat("Msg_ReplaceDbStatusFmt",
+								Path.GetFileName(currentFilePath));
+				}
+				catch
+				{
+					return Resources.GetFormat("Msg_ReplaceDbFailedFmt",
+								Path.GetFileName(downloadFilePath));
+				}
+			});
+
+			status = Resources.GetString("Msg_ReopenDatabase");
+			ShowMessage(status, true);
+
 			try
 			{
-				// try to open with current MasterKey ...
-				m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath), pwKey, new NullStatusLogger());
+				// Re-open the database with the prior key.
+				m_host.Database.Open(IOConnectionInfo.FromPath(currentFilePath),
+										pwKey, new NullStatusLogger());
 			}
 			catch (KeePassLib.Keys.InvalidCompositeKeyException)
 			{
-				// ... MasterKey is different, let user enter the MasterKey
-				m_host.MainWindow.OpenDatabase(IOConnectionInfo.FromPath(currentFilePath), null, true);
+				// The key is different in the downloaded file, so allow user
+				// to open it via dialog.
+				m_host.MainWindow.OpenDatabase(
+					IOConnectionInfo.FromPath(currentFilePath), null, true);
 			}
 
-			return status;
+			return returnStatus;
 		}
 
 		/// <summary>
 		/// Get Access Token from Google OAuth 2.0 API
 		/// </summary>
-		/// <returns>The UserCredentials with Access Token and Refresh Token</returns>
-		private async Task<UserCredential> GetAuthorization()
+		/// <returns>The Sign-in credentials (access token) and the refresh token</returns>
+		private static async Task<Tuple<UserCredential, ProtectedString>> 
+			GetAuthorization(IPluginHost host, SyncConfiguration config)
 		{
-			if (!LoadConfiguration())
-				return null;
-
-			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a custom code receiver that uses the Browser inside a native Form.
-			GoogleAuthorizationCodeFlow.Initializer myInitializer = new GoogleAuthorizationCodeFlow.Initializer();
-			myInitializer.ClientSecrets = new ClientSecrets() { ClientId = m_clientId, ClientSecret = m_clientSecret.ReadString() };
-			myInitializer.Scopes = new[] { DriveService.Scope.Drive };
-			GoogleAuthorizationCodeFlow myFlow = new GoogleAuthorizationCodeFlow(myInitializer);
-			//myFlow.HttpClient.Timeout = new TimeSpan(0, 0, 10); // 10s
-			NativeCodeReceiver myCodeReceiver = new NativeCodeReceiver(m_entry.Strings.Get(PwDefs.UserNameField).ReadString(), m_entry.Strings.Get(PwDefs.PasswordField));
-			AuthorizationCodeInstalledApp myAuth = new AuthorizationCodeInstalledApp(myFlow, myCodeReceiver);
-			UserCredential myCredential = null;
-
-			// Try using an existing Refresh Token to get a new Access Token
-			if (m_refreshToken != null && !m_refreshToken.IsEmpty)
+			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a
+			// custom code receiver that uses the system browser to 
+			// authenticate the Google user and/or authorize the use of the
+			// API by this program.
+			GoogleAuthorizationCodeFlow.Initializer init;
+			init = new GoogleAuthorizationCodeFlow.Initializer
 			{
+				ClientSecrets = new ClientSecrets()
+				{
+					ClientId = config.ClientId,
+					ClientSecret = config.ClientSecret.ReadString().Trim()
+				},
+				Scopes = new[] { config.DriveScope }
+			};
+			GoogleAuthorizationCodeFlow codeFlow = new GoogleAuthorizationCodeFlow(init);
+			NativeCodeReceiver codeReceiver = new NativeCodeReceiver(host, config);
+			AuthorizationCodeInstalledApp authCode;
+			authCode = new AuthorizationCodeInstalledApp(codeFlow, codeReceiver);
+			UserCredential credential = null;
+
+			string status;
+			if (config.RefreshToken != null && !config.RefreshToken.IsEmpty)
+			{
+				// Try using an existing Refresh Token to get a new Access Token
+				status = Resources.GetString("Msg_RefreshTokenAuth");
+				host.ShowMessage(status, true);
+
 				try
 				{
-					TokenResponse myTokenResponse = await myAuth.Flow.RefreshTokenAsync("user", m_refreshToken.ReadString(), CancellationToken.None);
-					myCredential = new UserCredential(myFlow, "user", myTokenResponse);
+					TokenResponse token;
+					string refreshString = config.RefreshToken.ReadString();
+					token = await authCode.Flow.RefreshTokenAsync("user",
+														refreshString,
+														CancellationToken.None);
+					credential = new UserCredential(codeFlow, "user", token);
 				}
 				catch (TokenResponseException ex)
 				{
 					switch (ex.Error.Error)
 					{
 						case "invalid_grant":
-							myCredential = null; // Refresh Token is invalid. Get user authorization below.
+							// Refresh Token is invalid. Get user authorization
+							// below.
+							credential = null;
 							break;
 						default:
-							throw ex;
+							throw;
 					}
 				}
 			}
 
-			// Let the User authorize the access
-			if (myCredential == null || String.IsNullOrEmpty(myCredential.Token.AccessToken))
+			ProtectedString newToken = null;
+			if (credential == null ||
+				string.IsNullOrEmpty(credential.Token.AccessToken))
 			{
-				myCredential = await myAuth.AuthorizeAsync("user", CancellationToken.None);
+				// There is no saved authorization, so get the user to
+				// authorize the access to Drive.
 
-				// save the refresh token if new or different
-				if (myCredential != null && !String.IsNullOrEmpty(myCredential.Token.RefreshToken) && (m_refreshToken == null || myCredential.Token.RefreshToken != m_refreshToken.ReadString()))
+				status = Resources.GetString("Msg_UserAuth");
+				host.ShowMessage(status, true);
+
+				credential = await authCode.AuthorizeAsync("user",
+												CancellationToken.None);
+
+				if (credential != null &&
+					!string.IsNullOrEmpty(credential.Token.RefreshToken) &&
+					(config.RefreshToken == null || 
+					 credential.Token.RefreshToken != config.RefreshToken.ReadString()))
 				{
-					m_refreshToken = new ProtectedString(true, myCredential.Token.RefreshToken);
-					SaveConfiguration();
+					newToken = new ProtectedString(true, credential.Token.RefreshToken);
 				}
 			}
-
-			return myCredential;
+			return Tuple.Create(credential, newToken);
 		}
 
 		/// <summary>
-		/// Find active configured Google Accounts
-		/// Should only return one account
+		/// Find active configured Google Accounts, avoiding the recycle bin.
+		/// (Should only return one account.)
 		/// </summary>
-		private PwObjectList<PwEntry> FindActiveAccounts()
+		private IEnumerable<EntryConfiguration> FindActiveAccounts()
 		{
 			if (!m_host.Database.IsOpen)
-				return null;
-
-			PwObjectList<PwEntry> accounts = new PwObjectList<PwEntry>();
-
-			SearchParameters sp = new SearchParameters();
-			sp.SearchString = Defs.ConfigActiveAccountTrue;
-			sp.ComparisonMode = StringComparison.Ordinal;
-			sp.RespectEntrySearchingDisabled = false;
-			sp.SearchInGroupNames = false;
-			sp.SearchInNotes = false;
-			sp.SearchInOther = true;
-			sp.SearchInPasswords = false;
-			sp.SearchInTags = false;
-			sp.SearchInTitles = false;
-			sp.SearchInUrls = false;
-			sp.SearchInUserNames = false;
-			sp.SearchInUuids = false;
-			m_host.Database.RootGroup.SearchEntries(sp, accounts);
-
-			for (int idx = 0; idx < accounts.UCount; idx++)
 			{
-				PwEntry entry = accounts.GetAt((uint)idx);
-				if (!(entry.Strings.Exists(Defs.ConfigActiveAccount) && entry.Strings.Get(Defs.ConfigActiveAccount).ReadString().Equals(Defs.ConfigActiveAccountTrue)))
-					accounts.RemoveAt((uint)idx--);
+				return Enumerable.Empty<EntryConfiguration>();
 			}
 
+			List<EntryConfiguration> accounts = new List<EntryConfiguration>();
+			PwUuid recycler = m_host.Database.RecycleBinUuid;
+			m_host.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder,
+				null,
+				e =>
+				{
+					if (e.ParentGroup.Uuid.Equals(recycler))
+					{
+						// Ignore anything in the recycle bin.
+						return true;
+					}
+					EntryConfiguration entry = new EntryConfiguration(e);
+					if (entry.ActiveAccount.GetValueOrDefault(false))
+					{
+						accounts.Add(entry);
+					}
+					return true;
+				});
 			return accounts;
+		}
+
+		// Tile over the main forms when StartPosition == Manual.
+		internal static DialogResult ShowModalDialogAndDestroy(Form f)
+		{
+			if (Program.MainForm.InvokeRequired ||
+				f.InvokeRequired != Program.MainForm.InvokeRequired)
+			{
+				Debug.Fail("must create form and call this method on the UI thread");
+				return DialogResult.Abort;
+			}
+
+			f.Load += (o, e) =>
+			{
+				if (f.StartPosition != FormStartPosition.Manual)
+				{
+					return;
+				}
+				Form main = f.Owner;
+				int cOtherForms = main.OwnedForms
+								.Except(new[] { f })
+								.Count();
+				int offset = cOtherForms * 38;
+				Point p = new Point(
+					main.Left+main.Width/2 -f.Width/2 +offset,
+					main.Top +main.Height/2-f.Height/2+offset);
+				f.Location = p;
+			};
+
+			DialogResult dr = f.ShowDialog(Program.MainForm);
+			UIUtil.DestroyForm(f);
+			return dr;
+		}
+
+		async Task<IEnumerable<Color>> GetColors(SyncConfiguration authData)
+		{
+			SyncConfiguration originalAuthData = null;
+			if (string.IsNullOrEmpty(authData.ClientId) &&
+				Defs.PsEmptyEx.OrdinalEquals(authData.ClientSecret, true))
+			{
+				originalAuthData = authData;
+				authData = new TransientConfiguration(authData)
+				{
+					ClientId = DefaultClientId,
+					ClientSecret = new ProtectedString(true, DefaultClientSecret)
+				};
+			}
+
+			int[] palette = new int[0];
+
+			string status;
+			status = await UseDriveService(authData, async (service, appfolder) =>
+			{
+				AboutResource aboutResource = new AboutResource(service);
+				AboutResource.GetRequest req = aboutResource.Get();
+				req.Fields = "folderColorPalette";
+				About rsc = await req.ExecuteAsync();
+				palette = rsc.FolderColorPalette.Cast<string>()
+								.Select(s => s.Substring(1))
+								.Select(s => int.Parse(s, System.Globalization.NumberStyles.HexNumber))
+								.ToArray();
+				return Resources.GetString("Msg_FolderColorsRetrieved");
+			});
+
+			ShowMessage(status, true);
+
+			if (originalAuthData != null &&
+				(authData.RefreshToken == null || originalAuthData.RefreshToken == null ||
+				 !authData.RefreshToken.OrdinalEquals(originalAuthData.RefreshToken, true)))
+			{
+				// Copy new refresh token for caller.
+				originalAuthData.RefreshToken = authData.RefreshToken;
+			}
+
+			return palette.Select(i => Color.FromArgb((int)(0xFF000000|(uint)i)));
 		}
 
 		/// <summary>
 		/// Show the configuration form
 		/// </summary>
-		private bool AskForConfiguration()
+		private EntryConfiguration AskForConfiguration()
 		{
 			if (!m_host.Database.IsOpen)
-				return false;
-
-			// find google accounts
-			SearchParameters sp = new SearchParameters();
-			sp.SearchString = Defs.AccountSearchString;
-			sp.ComparisonMode = StringComparison.OrdinalIgnoreCase;
-			sp.RespectEntrySearchingDisabled = false;
-			sp.SearchInGroupNames = false;
-			sp.SearchInNotes = false;
-			sp.SearchInOther = false;
-			sp.SearchInPasswords = false;
-			sp.SearchInTags = false;
-			sp.SearchInTitles = true;
-			sp.SearchInUrls = true;
-			sp.SearchInUserNames = false;
-			sp.SearchInUuids = false;
-			PwObjectList<PwEntry> accounts = new PwObjectList<PwEntry>();
-			m_host.Database.RootGroup.SearchEntries(sp, accounts);
-
-			// find the active account
-			string strUuid = null;
-			PwEntry entry = null;
-			PwObjectList<PwEntry> activeAccounts = FindActiveAccounts();
-			if (activeAccounts != null && activeAccounts.UCount == 1)
 			{
-				entry = activeAccounts.GetAt(0);
+				return null;
 			}
-			else
+
+			// Plugin entries, this and legacy, have the google accounts
+			// url fragment in their URL field (and apparently, legacy entries
+			// might also have this in the title field).  Get a list of all
+			// such entries to populate the accounts drop-down in the dialog.
+			// Later, respect the very obsolete PwUuid-based configuration
+			// option used in very old clients.
+			List<EntryConfiguration> acctList = new List<EntryConfiguration>();
+			PwGroup root = m_host.Database.RootGroup;
+			PwUuid recyclerID = m_host.Database.RecycleBinUuid;
+			root.TraverseTree(TraversalMethod.PreOrder, null, e =>
 			{
-				// alternatively try to find the active account in the config file (old configuration) (may be removed in later versions)
-				strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
-				try
+				if (e.ParentGroup.Uuid.Equals(recyclerID))
 				{
-					entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+					return true;
 				}
-				catch (ArgumentException) { }
-			}
-
-			// find configured entry in account list
-			int idx = -1;
-			if (entry != null)
-			{
-				idx = accounts.IndexOf(entry);
-				// add configured entry to account list if not already present
-				if (idx < 0)
+				if (-1 != e.Strings.ReadSafe(PwDefs.UrlField)
+								.IndexOf(Defs.AccountSearchString,
+									StringComparison.OrdinalIgnoreCase))
 				{
-					accounts.Insert(0, entry);
-					idx = 0;
+					acctList.Add(new EntryConfiguration(e));
 				}
-			}
+				else if(-1 != e.Strings.ReadSafe(PwDefs.TitleField)
+								.IndexOf(Defs.AccountSearchString,
+									StringComparison.OrdinalIgnoreCase))
+				{
+					acctList.Add(new EntryConfiguration(e));
+				}
+				return true;
+			});
 
-			ConfigurationForm form1 = new ConfigurationForm(accounts, idx, m_autoSync);
-			if (DialogResult.OK != UIUtil.ShowDialogAndDestroy(form1))
-				return false;
-
-			entry = null;
-			strUuid = form1.Uuid;
-			try
+			// Create a "presentation" object for dialog data binding.
+			ConfigurationFormData options;
+			options = new ConfigurationFormData(acctList, GetColors)
 			{
-				// will throw ArgumentException when Uuid is empty and association shall be removed
-				entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
-			}
-			catch (ArgumentException) { }
-
-			if (entry == null && !String.IsNullOrEmpty(strUuid))
+				AutoSync = m_autoSync,
+				DefaultApiScope = m_defaultDriveScope,
+				DefaultClientId = m_defaultClientId,
+				DefaultClientSecret = m_defaultClientSecret,
+				DefaultUseLegacyClientId = 
+					SyncConfiguration.IsDefaultOauthCredential(
+													m_defaultClientId,
+													m_defaultClientSecret),
+				DefaultAppFolder = m_defaultFolder,
+				DefaultAppFolderColor = m_defaultFolderColor
+			};
+			ConfigurationForm optionsForm = new ConfigurationForm(options)
 			{
-				ShowMessage("Password entry with UUID '" + strUuid + "' not found.");
-				return false;
+				DatabaseFileName = 
+					Path.GetFileName(m_host.Database.IOConnectionInfo.Path)
+			};
+			using (options)
+			using (optionsForm)
+			{
+				// Find an "active account".
+				IEnumerable<EntryConfiguration> activeAccounts;
+				activeAccounts = FindActiveAccounts();
+				string strUuid = null;
+				EntryConfiguration entryConfig;
+				if (activeAccounts.Any())
+				{
+					entryConfig = activeAccounts.First();
+				}
+				else
+				{
+					try
+					{
+						// Attempt to use long-deprecated UUID config.
+						strUuid = m_host.GetConfig(Defs.ConfigUUID);
+						if (!string.IsNullOrEmpty(strUuid))
+						{
+							PwEntry entry = m_host.Database.RootGroup.FindEntry(
+													strUuid.ToPwUuid(), true);
+							entryConfig = new EntryConfiguration(entry);
+						}
+						else
+						{
+							entryConfig = null;
+						}
+					}
+					catch (ArgumentException)
+					{
+						entryConfig = null;
+					}
+				}
+
+				// If all of the above did not find an account, offer to create
+				// a new entry for the plugin config.
+				PluginEntryFactory entryFactory = null;
+				if (entryConfig == null)
+				{
+					if (MessageBox.Show(
+							Resources.GetFormat("Msg_NoAcct",
+								Defs.AccountSearchString),
+							Defs.ProductName,
+							MessageBoxButtons.YesNo,
+							MessageBoxIcon.Warning) != DialogResult.Yes)
+					{
+						return null;
+					}
+					entryFactory = GetEntryFactory();
+					entryConfig = new EntryConfiguration(entryFactory.Entry);
+				}
+
+				// Look for the active entry in account list, and if not found,
+				// add it to the front.
+				if (!acctList.Any(es => es.Entry == entryConfig.Entry))
+				{
+					acctList.Insert(0, entryConfig);
+				}
+
+				// Show the configuration dialog.
+				if (DialogResult.OK != ShowModalDialogAndDestroy(optionsForm))
+				{
+					return null;
+				}
+
+				// Update global options.
+				m_defaultFolder = options.DefaultAppFolder;
+				m_defaultFolderColor = options.DefaultAppFolderColor;
+				m_defaultDriveScope = options.DefaultApiScope;
+				m_defaultClientId = options.DefaultClientId;
+				m_defaultClientSecret = options.DefaultClientSecret;
+				m_autoSync = options.AutoSync;
+
+				// Update the chosen config entry.
+				entryConfig = options.SelectedAccountShadow;
+				entryConfig.CommitChangesIfAny();
+				if (entryFactory != null &&
+					entryConfig.Entry == entryFactory.Entry)
+				{
+					// An entry was created above, but it isn't in the
+					// database yet...put it there now.
+					PluginEntryFactory.Import(m_host, entryFactory);
+				}
+				return entryConfig;
+			}
+		}
+
+		private PluginEntryFactory GetEntryFactory()
+		{
+			// Search KeePass for pre-existing entry titles.
+			string searchString = Defs.ProductName;
+			EntryHandler checkEntry = delegate(PwEntry e)
+			{
+				return -1 == e.Strings.ReadSafe(PwDefs.TitleField)
+							.IndexOf(searchString,
+								StringComparison.OrdinalIgnoreCase);
+			};
+			int cDup = 2;
+			PwGroup root = m_host.Database.RootGroup;
+			while (!root.TraverseTree(TraversalMethod.PreOrder,
+							null, checkEntry))
+			{
+				searchString = string.Format("{0}-{1}", Defs.ProductName, cDup++);
 			}
 
-			m_entry = entry;
-			m_clientId = form1.ClientId;
-			m_clientSecret = new ProtectedString(true, form1.ClientSecrect);
-			m_refreshToken = (m_entry != null) ? m_entry.Strings.Get(Defs.ConfigRefreshToken) : null;
-			m_autoSync = form1.AutoSync;
-
-			return true;
+			// Return entry creator with unused title.
+			return PluginEntryFactory.Create(searchString,
+												m_defaultDriveScope,
+												m_defaultClientId,
+												m_defaultClientSecret,
+												m_defaultFolder);
 		}
 
 		/// <summary>
 		/// Load the current configuration
 		/// </summary>
-		private bool LoadConfiguration()
+		private EntryConfiguration LoadConfiguration()
 		{
-			m_entry = null;
-			m_clientId = string.Empty;
-			m_clientSecret = null;
-			m_refreshToken = null;
+			EntryConfiguration entryConfig = null;
 
 			if (!m_host.Database.IsOpen)
-				return false;
-
-			// find the active account
-			PwObjectList<PwEntry> accounts = FindActiveAccounts();
-			if (accounts != null && accounts.UCount == 1)
 			{
-				m_entry = accounts.GetAt(0);
+				return entryConfig;
+			}
+
+			// Find the active account.
+			IEnumerable<EntryConfiguration> accounts = FindActiveAccounts();
+			if (accounts.Any())
+			{
+				entryConfig = accounts.First();
 			}
 			else
 			{
-				// alternatively try to find the active account in the config file (old configuration) (may be removed in later versions)
-				string strUuid = m_host.CustomConfig.GetString(Defs.ConfigUUID);
 				try
 				{
-					m_entry = m_host.Database.RootGroup.FindEntry(new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(strUuid)), true);
+					// Attempt to use long-obsolete UUID config.
+					string strUuid = m_host.GetConfig(Defs.ConfigUUID);
+					if (!string.IsNullOrEmpty(strUuid))
+					{
+						PwEntry entry = m_host.Database.RootGroup.FindEntry(
+												strUuid.ToPwUuid(), true);
+						entryConfig = new EntryConfiguration(entry);
+					}
 				}
-				catch (ArgumentException) { }
-			}
-
-			if (m_entry == null)
-				return false;
-
-			// read OAuth 2.0 credentials
-			ProtectedString pstr = m_entry.Strings.Get(Defs.ConfigClientId);
-			if (pstr != null)
-				m_clientId = pstr.ReadString();
-			m_clientSecret = m_entry.Strings.Get(Defs.ConfigClientSecret);
-			m_refreshToken = m_entry.Strings.Get(Defs.ConfigRefreshToken);
-
-			// use default OAuth 2.0 credentials if missing
-			if (String.IsNullOrEmpty(m_clientId))
-			{
-				m_clientId = DefaultClientId;
-				m_clientSecret = new ProtectedString(true, DefaultClientSecret);
-			}
-
-			// something missing?
-			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
-				return false;
-
-			return true;
-		}
-
-		/// <summary>
-		/// Load the current configuration or ask for configuration if missing
-		/// </summary>
-		private bool GetConfiguration()
-		{
-			// configuration not complete?
-			if (!LoadConfiguration())
-			{
-				if (!AskForConfiguration())
-					return false; // user cancelled or error
-
-				SaveConfiguration();
-
-				// user deleted configuration
-				if (m_entry == null)
-					return false;
-
-				// use default OAuth 2.0 credentials if missing
-				if (String.IsNullOrEmpty(m_clientId))
+				catch (ArgumentException) 
 				{
-					m_clientId = DefaultClientId;
-					m_clientSecret = new ProtectedString(true, DefaultClientSecret);
+					// Bad config, etc.
+					entryConfig = null;
 				}
 			}
 
-			// only return true if in fact nothing is missing
-			if (m_entry == null || String.IsNullOrEmpty(m_clientId) || m_clientSecret == null || m_clientSecret.IsEmpty)
-				return false;
+			if (entryConfig != null && entryConfig.IsMissingOauthCredentials)
+			{
+				entryConfig.ClientId = DefaultClientId;
+				entryConfig.ClientSecret =
+					new ProtectedString(true, DefaultClientSecret);
+			}
 
-			return true;
+			return entryConfig;
 		}
 
 		/// <summary>
-		/// Save the current configuration
+		/// Load saved configuration or if missing query user for it.
 		/// </summary>
-		private bool SaveConfiguration()
+		private EntryConfiguration GetConfiguration()
 		{
-			m_host.CustomConfig.SetString(Defs.ConfigAutoSync, m_autoSync.ToString());
-
-			// remove old uuid config (may be removed in later versions)
-			if (m_host.CustomConfig.GetString(Defs.ConfigUUID) != null)
-				m_host.CustomConfig.SetString(Defs.ConfigUUID, null);
-
-			if (!m_host.Database.IsOpen)
-				return false;
-
-			// disable all currently active accounts but the selected (if any)
-			PwObjectList<PwEntry> accounts = FindActiveAccounts();
-			foreach (PwEntry entry in accounts)
+			EntryConfiguration config = LoadConfiguration();
+			if (config == null)
 			{
-				if (!entry.Equals(m_entry) && entry.Strings.Exists(Defs.ConfigActiveAccount))
+				config = AskForConfiguration();
+				if (config != null)
 				{
-					entry.Strings.Set(Defs.ConfigActiveAccount, new ProtectedString(false, Defs.ConfigActiveAccountFalse));
-					entry.Touch(true);
+					SaveConfiguration(config);
+
+					// Use default OAuth 2.0 credentials if missing.
+					if (config.IsMissingOauthCredentials)
+					{
+						config.ClientId = DefaultClientId;
+						config.ClientSecret = new ProtectedString(true,
+													DefaultClientSecret);
+					}
 				}
 			}
+			return config;
+		}
 
-			if (m_entry == null)
-				return true;
+		/// <summary>
+		/// Save the current configuration as "active".
+		/// </summary>
+		private bool SaveConfiguration(EntryConfiguration entryConfig)
+		{
+			// Save global config to app config.
+			m_host.SetConfig(Defs.ConfigAutoSync, m_autoSync.ToString());
+			m_host.SetConfig(Defs.ConfigDefaultAppFolder, m_defaultFolder);
+			m_host.SetConfig(Defs.ConfigDefaultAppFolderColor, 
+				m_defaultFolderColor == null ? null :
+				GoogleColor.SerializeToString(m_defaultFolderColor));
+			m_host.SetConfig(Defs.ConfigDriveScope, m_defaultDriveScope);
+			m_host.SetConfig(Defs.ConfigDefaultClientId, m_defaultClientId);
+			m_host.SetConfig(Defs.ConfigDefaultClientSecret,
+				m_defaultClientSecret == null ? string.Empty :
+				m_defaultClientSecret.ReadString());
 
-			m_entry.Strings.Set(Defs.ConfigActiveAccount, new ProtectedString(false, Defs.ConfigActiveAccountTrue));
-
-			if (m_clientId == DefaultClientId || String.IsNullOrEmpty(m_clientId))
+			if (!m_host.Database.IsOpen || entryConfig == null)
 			{
-				m_entry.Strings.Remove(Defs.ConfigClientId);
-				m_entry.Strings.Remove(Defs.ConfigClientSecret);
+				return false;
 			}
-			else
-			{
-				m_entry.Strings.Set(Defs.ConfigClientId, new ProtectedString(false, m_clientId));
-				if (m_clientSecret != null)
-					m_entry.Strings.Set(Defs.ConfigClientSecret, m_clientSecret);
-			}
-			if (m_refreshToken != null)
-				m_entry.Strings.Set(Defs.ConfigRefreshToken, m_refreshToken);
 
-			// mark entry as modified (important)
-			m_entry.Touch(true);
-			m_host.Database.Save(new NullStatusLogger());
+			// Disable all currently active accounts but the selected (if any)
+			IEnumerable<EntryConfiguration> accounts = FindActiveAccounts();
+			foreach (EntryConfiguration entry in accounts)
+			{
+				if (!object.ReferenceEquals(entry.Entry, entryConfig.Entry) && 
+					entry.ActiveAccount.GetValueOrDefault(false))
+				{
+					entry.ActiveAccount = null;
+					entry.CommitChangesIfAny();
+					m_host.Database.Modified = entry.ChangesCommitted;
+				}
+			}
+			entryConfig.ActiveAccount = true;
+			entryConfig.CommitChangesIfAny();
+
+			m_host.Database.Modified = entryConfig.ChangesCommitted ||
+											m_host.Database.Modified;
+
+			SaveDatabase();
+
+			if (m_host.GetConfig(Defs.ConfigUUID) != null)
+			{
+				// Remove deprecated uuiid setting now that the new-style
+				// setting ares saved to the database.
+				m_host.SetConfig(Defs.ConfigUUID, null);
+			}
 
 			return true;
 		}
 
-		/// <summary>
-		/// Show message as an alert or in the status bar
-		/// </summary>
-		/// <param name="msg"></param>
-		/// <param name="isStatusMessage"></param>
 		private void ShowMessage(string msg, bool isStatusMessage = false)
 		{
-			if (isStatusMessage)
-			{
-				m_host.MainWindow.SetStatusEx(Defs.ProductName() + ": " + msg);
-			}
-			else
-			{
-				MessageBox.Show(msg, Defs.ProductName());
-			}
+			m_host.ShowMessage(msg, isStatusMessage);
 		}
 	}
 
 	public class NativeCodeReceiver : ICodeReceiver
 	{
-		private Uri m_authorizationUrl = null;
-		private string m_email = string.Empty;
-		private ProtectedString m_passwd = null;
-		private bool m_success = false;
-		private string m_code = "access_denied";
+		private readonly SyncConfiguration m_entry;
+		private readonly IPluginHost m_host;
+		private string m_code, m_state, m_redirectUri;
+		HttpListener m_listener;
 
 		public string RedirectUri
 		{
-			get { return GoogleAuthConsts.InstalledAppRedirectUri; }
+			get
+			{
+				if (m_redirectUri == null)
+				{
+					try
+					{
+						m_redirectUri = string.Format("{0}:{1}/",
+									GoogleAuthConsts.LocalhostRedirectUri,
+									GetRandomUnusedPort());
+
+						// Create and start the listener now so less likely
+						// to lose the port.
+						m_listener = new HttpListener();
+						m_listener.Prefixes.Add(m_redirectUri);
+						m_listener.Start();
+						Debug.WriteLine(string.Format("Listening for '{0}'...",
+														RedirectUri));
+					}
+					catch (Exception e)
+					{
+						using (m_listener) { }
+						m_code = e.ToString();
+						m_listener = null;
+					}
+				}
+				return m_redirectUri;
+			}
 		}
 
-		public NativeCodeReceiver(string email, ProtectedString passwd)
+		public NativeCodeReceiver(IPluginHost host, SyncConfiguration entry)
 		{
-			m_email = email;
-			m_passwd = passwd;
+			m_entry = entry;
+			m_host = host;
+			m_listener = null;
+			m_state = null;
+			m_code = "access_denied";
 		}
 
-		public Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(AuthorizationCodeRequestUrl url,
+		public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(
+			AuthorizationCodeRequestUrl url,
 			CancellationToken taskCancellationToken)
 		{
-			TaskCompletionSource<AuthorizationCodeResponseUrl> tcs = new TaskCompletionSource<AuthorizationCodeResponseUrl>();
-
-			if (url is GoogleAuthorizationCodeRequestUrl && !String.IsNullOrEmpty(m_email))
-				((GoogleAuthorizationCodeRequestUrl)url).LoginHint = m_email;
-			m_authorizationUrl = url.Build();
-
-			Thread t = new Thread(new ThreadStart(RunBrowser));
-			t.SetApartmentState(ApartmentState.STA);
-			t.Start();
-			do
+			// No matter what else, dispose the HTTP listener in this call.
+			return await Task.Run(() =>
 			{
-				Thread.Yield();
-			} while (t.IsAlive);
+				using (m_listener)
+				{
+					if (m_listener == null)
+					{
+						return new AuthorizationCodeResponseUrl()
+						{
+							Error = m_code
+						};
+					}
 
-			if (m_success)
-				tcs.SetResult(new AuthorizationCodeResponseUrl() { Code = m_code });
-			else
-				tcs.SetResult(new AuthorizationCodeResponseUrl() { Error = m_code });
+					string email = m_entry.LoginHint;
+					if (url is GoogleAuthorizationCodeRequestUrl &&
+						!string.IsNullOrEmpty(email))
+					{
+						((GoogleAuthorizationCodeRequestUrl)url).LoginHint = email;
+					}
 
-			return tcs.Task;
+					// Invoke the browser-based sign-in flow, and handle response.
+					if (SignIn(url))
+					{
+						return new AuthorizationCodeResponseUrl()
+						{
+							Code = m_code,
+							State = m_state
+						};
+					}
+					else
+					{
+						return new AuthorizationCodeResponseUrl()
+						{
+							Error = m_code
+						};
+					}
+				}
+			});
 		}
 
-		private void RunBrowser()
+		// ref http://stackoverflow.com/a/3978040
+		public static int GetRandomUnusedPort()
 		{
-			GoogleAuthenticateForm form1 = new GoogleAuthenticateForm(m_authorizationUrl, m_email, m_passwd);
-			UIUtil.ShowDialogAndDestroy(form1);
+			TcpListener portGrabber;
+			portGrabber = new TcpListener(IPAddress.Loopback, 0);
+			portGrabber.Start();
+			int port = ((IPEndPoint)portGrabber.LocalEndpoint).Port;
+			portGrabber.Stop();
+			return port;
+		}
 
-			m_success = form1.Success;
-			m_code = form1.Code;
+		/// <summary>
+		/// Returns URI-safe RNG data with a given input length.
+		/// </summary>
+		/// <param name="length">Number of bytes to encode.
+		/// </param>
+		/// <returns></returns>
+		public static string RandomDataBase64url(uint length)
+		{
+			byte[] bytes;
+			bytes = CryptoRandom.Instance.GetRandomBytes(length);
+			return bytes.ToUrlSafeBase64();
+		}
+
+		HttpListenerContext DisplayFormAndAwaitAuth()
+		{
+			HttpListenerContext context = null;
+			if (m_listener == null)
+			{
+				return context;
+			}
+
+			// Create and display the form on the KeePass UI thread.
+			if (m_host.MainWindow.InvokeRequired)
+			{
+				m_host.MainWindow.Invoke(new MethodInvoker(() =>
+				{
+					context = DisplayFormAndAwaitAuth();
+				}));
+			}
+			else
+			{
+				using (AuthWaitOrCancel form = new AuthWaitOrCancel(m_host,
+													m_entry as EntryConfiguration))
+				{
+					Task t = new Task(async () =>
+					{
+						try
+						{
+							// Wait for user to ponder scary warning about
+							// using unverified apps, hopefully resulting in
+							// OAuth authentication/authorization response via
+							// the redirect.
+							context = await m_listener.GetContextAsync();
+						}
+						catch (ObjectDisposedException)
+						{
+							// This can happen when the user cancels and the
+							// listener is disposed.
+							context = null;
+						}
+
+						// Close the waiter dialog if not already gone.
+						if (!form.IsDisposed)
+						{
+							form.Invoke(new MethodInvoker(form.Close));
+						}
+
+						// Bring main KeePass window back.  
+						Form window = m_host.MainWindow;
+						window.BeginInvoke(new MethodInvoker(window.Activate));
+					});
+					form.Shown += (o, e) => t.Start();
+					GoogleSyncPluginExt.ShowModalDialogAndDestroy(form);
+				}
+			}
+			return context;
+		}
+
+		/// <summary>
+		/// Authenticate user and authorize this application with browser-based
+		/// sign-on.
+		/// </summary>
+		/// <returns><code>true</code> or <code>false</code> based on authentication
+		/// result.</returns>
+		private bool SignIn(AuthorizationCodeRequestUrl url)
+		{
+			// Generate OAuth request state value and set redirect.
+			url.RedirectUri = RedirectUri;
+			url.State = RandomDataBase64url(32);
+
+			// Open browser via Windows URL doc handler.
+			Process.Start(url.Build().ToString());
+
+			// Show a dialog to direct user's attention to the browser, and
+			// to offer a way to get out of this if the browser is somehow
+			// munged or the user is distracted/discouraged.
+			HttpListenerContext context = DisplayFormAndAwaitAuth();
+			if (context == null)
+			{
+				m_code = "user_cancelled";
+				return false;
+			}
+
+			// Send acknowledgement response to the browser user.
+			string responseString;
+			responseString = Resources.GetString("Html_AuthResponseString");
+			byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+			HttpListenerResponse response = context.Response;
+			response.KeepAlive = false;
+			response.ContentLength64 = buffer.Length;
+			using (Stream responseOutput = response.OutputStream)
+			{
+				// Don't use non-blocking here so that m_listener doesn't
+				// dispose before we push out the response.
+				responseOutput.Write(buffer, 0, buffer.Length);
+				Debug.WriteLine("Browser acknowledged.");
+			}
+
+			// Check for error response.
+			string error = context.Request.QueryString.Get("error");
+			if (error != null)
+			{
+				Debug.WriteLine(string.Format("OAuth response error: {0}.", error));
+				return false;
+			}
+
+			// Response must have a code and state.
+			m_code = context.Request.QueryString.Get("code");
+			m_state = context.Request.QueryString.Get("state");
+			if (m_code == null || m_state == null)
+			{
+				Debug.WriteLine(string.Format("Unexpected response: {0}",
+					context.Request.QueryString));
+				return false;
+			}
+
+			// Compare response state to expected value validating that the request url
+			// sent above resulted in this authorization response.
+			if (m_state != url.State)
+			{
+				Debug.WriteLine(string.Format("Response with unexpected state ({0}).",
+					m_state));
+				return false;
+			}
+
+			Debug.WriteLine(string.Format("Authorization code: {0}.", m_code));
+			return true;
 		}
 	}
 }

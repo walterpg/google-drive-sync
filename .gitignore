@@ -59,6 +59,9 @@ ipch/
 *.vsp
 *.vspx
 
+# Visual Studio 2019
+.vs/
+
 # Guidance Automation Toolkit
 *.gpState
 

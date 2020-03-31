@@ -18,25 +18,20 @@
 */
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Resources;
 using System.Runtime.InteropServices;
 
-// General assembly properties
 [assembly: AssemblyTitle("Google Sync Plugin")]
-[assembly: AssemblyDescription("Sync database with Google Drive")]
+[assembly: AssemblyDescription("Sync KeePass database with Google Drive")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DesignsInnovate")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright © 2016 DesignsInnovate")]
+[assembly: AssemblyCopyright("Copyright © 2020 DesignsInnovate")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-// COM settings
+[assembly: NeutralResourcesLanguage("en")]
 [assembly: ComVisible(false)]
-
-// Assembly GUID
 [assembly: Guid("966575FC-0771-438d-B406-27C2E231F902")]
 
-// Assembly version information
-[assembly: AssemblyVersion("3.0.1.0")]
-[assembly: AssemblyFileVersion("3.0.1.0")]
+[assembly: AssemblyVersion("3.1.0.0")]
+[assembly: AssemblyFileVersion("3.1.0.0")]

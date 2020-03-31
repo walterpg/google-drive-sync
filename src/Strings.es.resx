@@ -1,0 +1,442 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Btn_CopyPassword" xml:space="preserve">
+    <value>Copiar contraseña</value>
+  </data>
+  <data name="Btn_CopyUser" xml:space="preserve">
+    <value>Copiar usuario</value>
+  </data>
+  <data name="Btn_DlgCancel" xml:space="preserve">
+    <value>&amp;Cancelar</value>
+  </data>
+  <data name="Btn_DlgOK" xml:space="preserve">
+    <value>&amp;OK</value>
+  </data>
+  <data name="Descr_KpDbFile" xml:space="preserve">
+    <value>Base de datos segura de contraseña de KeePass</value>
+  </data>
+  <data name="Err_LoadConfigurationFailed" xml:space="preserve">
+    <value>Se produjo un error al cargar la configuración del complemento.</value>
+  </data>
+  <data name="Err_TokenAccessDenied" xml:space="preserve">
+    <value>Solicitud de autorización de acceso denegada.</value>
+  </data>
+  <data name="Err_TokenInvalidClient" xml:space="preserve">
+    <value>La identificación del cliente o el secreto del cliente no es válido.</value>
+  </data>
+  <data name="Err_TokenInvalidGrant" xml:space="preserve">
+    <value>La concesión de autorización proporcionada (por ejemplo, código de autorización, credenciales del propietario del recurso) o token de actualización no es válida, caducó, se revocó, no coincide con el URI de redireccionamiento utilizado en la solicitud de autorización o se emitió a otro cliente.</value>
+  </data>
+  <data name="Err_TokenInvalidReq" xml:space="preserve">
+    <value>Falta la identificación del cliente o el secreto del cliente.</value>
+  </data>
+  <data name="Err_TokenInvalidScope" xml:space="preserve">
+    <value>El alcance solicitado es inválido, desconocido, malformado o excede el alcance otorgado por el propietario del recurso.</value>
+  </data>
+  <data name="Err_TokenUnauthClient" xml:space="preserve">
+    <value>El cliente autenticado no está autorizado para usar este tipo de autorización.</value>
+  </data>
+  <data name="Err_TokenUnsupportedGrant" xml:space="preserve">
+    <value>El tipo de concesión de autorización no es compatible con el servidor de autorización.</value>
+  </data>
+  <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
+    <value>Se encontraron varias carpetas llamadas '{0}'.
+
+El nombre de la carpeta debe ser único.</value>
+  </data>
+  <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
+    <value>Se encontró más de un archivo llamado '{0}'. Esto puede ocurrir cuando los archivos son copiados / creados por otro programa, o usando diferentes credenciales de autorización. Deberá resolver este conflicto manualmente (por ejemplo, examinar los últimos tiempos de modificación) y asegurarse de que solo exista un archivo llamado '{0}' en la carpeta de destino de Google. Otra forma de resolver el conflicto es guardar la base de datos en un nombre de archivo diferente y luego subirla a Google con el complemento, aunque podría perder los cambios si el archivo de la base de datos de Google existente se modificara antes de los cambios en KeePass.</value>
+  </data>
+  <data name="Exc_NoImportPermission" xml:space="preserve">
+    <value>La sincronización falló.
+
+No tienes permiso para importar. Ajuste su configuración de KeePass.</value>
+  </data>
+  <data name="Exc_SyncFailureOther" xml:space="preserve">
+    <value>La sincronización falló.
+
+Si el error fue que las claves maestras (contraseñas) no coinciden, use los comandos Cargar / Descargar en lugar de Sincronizar o cambie la clave maestra local para que coincida con la de la base de datos remota.</value>
+  </data>
+  <data name="Html_AuthResponseString" xml:space="preserve">
+    <value>&lt;!DOCTYPE html&gt;
+
+&lt;html lang="es" xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8" http-equiv='refresh'
+          content='20;url=https://google.com'&gt;
+    &lt;title&gt;Autorización de Google SignIn&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Autorización de Google SignIn Completa&lt;/h1&gt;&lt;div&gt;Por favor regrese a KeePass.&lt;/div&gt;&lt;/body&gt;
+&lt;/html&gt;</value>
+    <comment>s</comment>
+  </data>
+  <data name="Lbl_AutoSync" xml:space="preserve">
+    <value>Auto Sync:</value>
+  </data>
+  <data name="Lbl_ClientID" xml:space="preserve">
+    <value>Client ID:</value>
+  </data>
+  <data name="Lbl_ClientSecret" xml:space="preserve">
+    <value>Client Secret:</value>
+  </data>
+  <data name="Lbl_FolderName" xml:space="preserve">
+    <value>Carpeta de Drive:</value>
+  </data>
+  <data name="Lbl_GoogleAccount" xml:space="preserve">
+    <value>Google Account:</value>
+  </data>
+  <data name="Lbl_KpUuid" xml:space="preserve">
+    <value>KeePass UUID:</value>
+  </data>
+  <data name="Lbl_NoCurrentDatabase" xml:space="preserve">
+    <value>No hay base de datos actual. Cancele este cuadro de diálogo y abra una base de datos para configurar el inicio de sesión.</value>
+  </data>
+  <data name="Lbl_OauthCreds" xml:space="preserve">
+    <value>Credenciales personalizadas de OAuth 2.0</value>
+    <comment>checkbox label</comment>
+  </data>
+  <data name="Lnk_GoogleDev" xml:space="preserve">
+    <value>Google Developer Console</value>
+  </data>
+  <data name="Lnk_Help" xml:space="preserve">
+    <value>Ayuda</value>
+  </data>
+  <data name="Lnk_Home" xml:space="preserve">
+    <value>Hogar</value>
+  </data>
+  <data name="Lnk_SignInHelp" xml:space="preserve">
+    <value>¿Problema de Sign-In?</value>
+  </data>
+  <data name="MenuLabel_Config" xml:space="preserve">
+    <value>Configuración...</value>
+  </data>
+  <data name="MenuLabel_Download" xml:space="preserve">
+    <value>Descargar desde Google Drive</value>
+  </data>
+  <data name="MenuLabel_Sync" xml:space="preserve">
+    <value>Sincronizar con Google Drive</value>
+  </data>
+  <data name="MenuLabel_Upload" xml:space="preserve">
+    <value>Subir a Google Drive</value>
+  </data>
+  <data name="Msg_AuthDialog" xml:space="preserve">
+    <value>Se ha abierto el navegador del sistema para que pueda iniciar sesión en su cuenta de Google y / o autorizar el complemento para sincronizar su base de datos KeePass. El complemento no puede funcionar sin su autorización. Si la entrada del complemento incluye su nombre de usuario y contraseña de Google, puede acceder a ellos mediante los botones a continuación.
+
+Esta ventana de notificación se cierra automáticamente después de completar la autorización en el navegador. Para volver a KeePass sin autorizar el complemento, haga clic en Cancelar.</value>
+  </data>
+  <data name="Msg_AutoSyncIgnore" xml:space="preserve">
+    <value>Tecla Shift presionada. Sincronización automática ignorada.</value>
+  </data>
+  <data name="Msg_DatabaseSaved" xml:space="preserve">
+    <value>Base de datos guardada en archivo local.</value>
+  </data>
+  <data name="Msg_DownloadFileFmt" xml:space="preserve">
+    <value>Obteniendo una copia del archivo '{0}' de Google ...</value>
+  </data>
+  <data name="Msg_FileNotDownloaded" xml:space="preserve">
+    <value>El archivo no se pudo descargar.</value>
+  </data>
+  <data name="Msg_FileUpdatedFmt" xml:space="preserve">
+    <value>Archivo en Google Drive actualizado. Nombre: {0}, ID: {1}</value>
+  </data>
+  <data name="Msg_FileUploadedFmt" xml:space="preserve">
+    <value>Archivo subido a Google Drive. Nombre: {0}, ID: {1}</value>
+  </data>
+  <data name="Msg_FirstOpenDb" xml:space="preserve">
+    <value>Primero necesita abrir una base de datos.</value>
+  </data>
+  <data name="Msg_FolderColorsRetrieved" xml:space="preserve">
+    <value>Colores de carpeta disponibles recuperados.</value>
+  </data>
+  <data name="Msg_GDriveFileNotFound" xml:space="preserve">
+    <value>Nombre de archivo no encontrado en Google Drive. Cargue o sincronice primero con Google Drive.</value>
+  </data>
+  <data name="Msg_LocalDbOnly" xml:space="preserve">
+    <value>Solo se admiten bases de datos almacenadas localmente o en un recurso compartido de red.
+Guarde su base de datos localmente o en un recurso compartido de red e intente nuevamente.</value>
+  </data>
+  <data name="Msg_LocalSyncComplete" xml:space="preserve">
+    <value>Archivo local sincronizado.</value>
+  </data>
+  <data name="Msg_NewEntryNotesFmt" xml:space="preserve">
+    <value>Esta entrada fue generada por {0}.
+Considere agregar su usuario y contraseña de Google a esta entrada.
+Esto le permitirá acceder a ellos si alguna vez necesita autorizar el complemento nuevamente.</value>
+  </data>
+  <data name="Msg_NoAcct" xml:space="preserve">
+    <value>No se encontró ninguna entrada de Google Sync.
+
+El complemento requiere una entrada KeePass para almacenar los datos de autorización de Google Drive. Es conveniente si esta entrada también contiene su usuario / contraseña de Google Sign-in. Para crear una entrada sin credenciales (puede agregarlas más tarde), haga clic en Sí.
+
+De lo contrario, regrese a KeePass para crear una nueva entrada o editar una existente, asegurándose de que el campo URL de la entrada contenga la cadena '{0}'.</value>
+  </data>
+  <data name="Msg_NoAutoSyncConfig" xml:space="preserve">
+    <value>No se encontró una configuración válida. Sincronización automática ignorada.</value>
+  </data>
+  <data name="Msg_OauthCredsInvalidFmt" xml:space="preserve">
+    <value>Ingrese un ID de cliente personalizado de Google OAuth 2.0 válido y un Secreto de cliente para {0} o use los valores predeterminados.</value>
+  </data>
+  <data name="Msg_PasswdUuidEntryMissingFmt" xml:space="preserve">
+    <value>No se encontró la entrada de contraseña con UUID '{0}'.</value>
+  </data>
+  <data name="Msg_PleaseWaitEllipsis" xml:space="preserve">
+    <value>Por favor espera ...</value>
+  </data>
+  <data name="Msg_ProductAbortedFmt" xml:space="preserve">
+    <value>{0} cancelado!</value>
+  </data>
+  <data name="Msg_RefreshTokenAuth" xml:space="preserve">
+    <value>Intentando la autorización previa de Google Drive ...</value>
+  </data>
+  <data name="Msg_RemoveCfgConfirm" xml:space="preserve">
+    <value>¿Eliminar la asociación de la cuenta de Google de la configuración de KeePass?</value>
+  </data>
+  <data name="Msg_ReopenDatabase" xml:space="preserve">
+    <value>Reapertura de la base de datos ...</value>
+  </data>
+  <data name="Msg_ReplaceDbFailedFmt" xml:space="preserve">
+    <value>Reemplazar la base de datos actual falló. Archivo descargado como '{0}'.</value>
+  </data>
+  <data name="Msg_ReplaceDbStatusFmt" xml:space="preserve">
+    <value>La base de datos '{0}' se reemplazó por una copia del archivo de Google Drive.</value>
+  </data>
+  <data name="Msg_ReplaceFileFmt" xml:space="preserve">
+    <value>Reemplazando el archivo '{0}' en Google ...</value>
+  </data>
+  <data name="Msg_ReplacingFile" xml:space="preserve">
+    <value>Reemplazar la copia local del archivo con el archivo descargado ...</value>
+  </data>
+  <data name="Msg_RetrievingFolderFmt" xml:space="preserve">
+    <value>Abriendo la carpeta '{0}' ...</value>
+  </data>
+  <data name="Msg_RetrievingGDriveFileFmt" xml:space="preserve">
+    <value>Buscando el archivo '{0}' en Google ...</value>
+  </data>
+  <data name="Msg_SaveUserAuth" xml:space="preserve">
+    <value>Agregar token de autorización de usuario a la base de datos ...</value>
+  </data>
+  <data name="Msg_SavingDatabase" xml:space="preserve">
+    <value>Guardando la base de datos actual en el disco ...</value>
+  </data>
+  <data name="Msg_Synchronizing" xml:space="preserve">
+    <value>Sincronizando la base de datos actual con Google copy ...</value>
+  </data>
+  <data name="Msg_TempClose" xml:space="preserve">
+    <value>Cerrar temporalmente la base de datos ...</value>
+  </data>
+  <data name="Msg_UploadingFileFmt" xml:space="preserve">
+    <value>Subiendo el archivo '{0}' a Google ...</value>
+  </data>
+  <data name="Msg_UploadingSync" xml:space="preserve">
+    <value>Subiendo copia de la base de datos sincronizada a Google ...</value>
+  </data>
+  <data name="Msg_UserAuth" xml:space="preserve">
+    <value>El usuario debe autorizar el acceso a Google Drive.</value>
+  </data>
+  <data name="Msg_UuidEntryInvalid" xml:space="preserve">
+    <value>El UUID ingresado no es válido.</value>
+  </data>
+  <data name="Opt_AutoSyncBoth" xml:space="preserve">
+    <value>A la vez</value>
+  </data>
+  <data name="Opt_AutoSyncDisabled" xml:space="preserve">
+    <value>Desactivada</value>
+  </data>
+  <data name="Opt_AutoSyncOpen" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="Opt_AutoSyncSave" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Opt_CustomKpUuid" xml:space="preserve">
+    <value>UUID de KeePass en desuso</value>
+  </data>
+  <data name="Title_AuthDialogMain" xml:space="preserve">
+    <value>Google Sign-In</value>
+    <comment>"Google Sign-In" is current Google branding</comment>
+  </data>
+  <data name="Title_AuthDialogSub" xml:space="preserve">
+    <value>Por favor no cierre esta ventana</value>
+  </data>
+  <data name="Title_ConfigDialogFmt" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="Group_AuthDefaults" xml:space="preserve">
+    <value>Valores predeterminados de autorización de Google Drive</value>
+  </data>
+  <data name="Group_AutoSync" xml:space="preserve">
+    <value>Auto-Sync</value>
+  </data>
+  <data name="Group_DriveAuth" xml:space="preserve">
+    <value>Autorización de Google Drive</value>
+  </data>
+  <data name="Group_DriveOptions" xml:space="preserve">
+    <value>Opciones de Google Drive</value>
+  </data>
+  <data name="Group_FolderDefaults" xml:space="preserve">
+    <value>Opciones predeterminadas de carpeta</value>
+  </data>
+  <data name="Lbl_AuthPwEntry" xml:space="preserve">
+    <value>Entrada de KeePass:</value>
+  </data>
+  <data name="Lbl_AutoSyncOnOpen" xml:space="preserve">
+    <value>Sincronizar antes de abrir una base de datos KeePass</value>
+  </data>
+  <data name="Lbl_AutoSyncOnSave" xml:space="preserve">
+    <value>Sincronizar al guardar una base de datos KeePass</value>
+  </data>
+  <data name="Lbl_CurrentDb" xml:space="preserve">
+    <value>Base de datos actual:</value>
+  </data>
+  <data name="Lbl_DefaultTargetFolder" xml:space="preserve">
+    <value>Carpeta de sincronización de destino predeterminada:</value>
+  </data>
+  <data name="Lbl_DefaultTargetFolderHint" xml:space="preserve">
+    <value>(Deje esto en blanco para usar la carpeta "raíz" de Mi unidad).</value>
+  </data>
+  <data name="Lbl_DefaultTgtFolderColor" xml:space="preserve">
+    <value>Color predeterminado de la nueva carpeta:</value>
+  </data>
+  <data name="Lbl_TargetFolder" xml:space="preserve">
+    <value>Carpeta de sincronización de destino:</value>
+  </data>
+  <data name="Lbl_UseLegacyClientID" xml:space="preserve">
+    <value>Utilice el ID de cliente del complemento heredado (no recomendado; haga clic en el enlace Ayuda).</value>
+  </data>
+  <data name="Lbl_UseRestrictedApiScope" xml:space="preserve">
+    <value>Use el alcance restringido de la API de Google "todos los archivos" (no recomendado).</value>
+  </data>
+  <data name="Title_DefaultsTab" xml:space="preserve">
+    <value>Opciones y valores predeterminados</value>
+  </data>
+  <data name="Title_SyncAuthTab" xml:space="preserve">
+    <value>Autorización de sincronización</value>
+  </data>
+  <data name="Msg_UserCancelledOpFmt" xml:space="preserve">
+    <value>Se canceló la operación {0}.</value>
+    <comment>0="Google Sync Plugin"</comment>
+  </data>
+  <data name="Lbl_DefaultClientID" xml:space="preserve">
+    <value>Client ID por Defecto:</value>
+  </data>
+  <data name="Lbl_DefaultClientSecret" xml:space="preserve">
+    <value>Client Secret por Defecto:</value>
+  </data>
+</root>
