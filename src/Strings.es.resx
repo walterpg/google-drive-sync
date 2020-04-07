@@ -205,9 +205,6 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
   <data name="Lbl_KpUuid" xml:space="preserve">
     <value>KeePass UUID:</value>
   </data>
-  <data name="Lbl_NoCurrentDatabase" xml:space="preserve">
-    <value>No hay base de datos actual. Cancele este cuadro de diálogo y abra una base de datos para configurar el inicio de sesión.</value>
-  </data>
   <data name="Lbl_OauthCreds" xml:space="preserve">
     <value>Credenciales personalizadas de OAuth 2.0</value>
     <comment>checkbox label</comment>
@@ -225,16 +222,16 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
     <value>¿Problema de Sign-In?</value>
   </data>
   <data name="MenuLabel_Config" xml:space="preserve">
-    <value>Configuración...</value>
+    <value>Configurar</value>
   </data>
   <data name="MenuLabel_Download" xml:space="preserve">
-    <value>Descargar desde Google Drive</value>
+    <value>Descargar desde Drive</value>
   </data>
   <data name="MenuLabel_Sync" xml:space="preserve">
-    <value>Sincronizar con Google Drive</value>
+    <value>Sincronizar con Drive</value>
   </data>
   <data name="MenuLabel_Upload" xml:space="preserve">
-    <value>Subir a Google Drive</value>
+    <value>Subir a Drive</value>
   </data>
   <data name="Msg_AuthDialog" xml:space="preserve">
     <value>Se ha abierto el navegador del sistema para que pueda iniciar sesión en su cuenta de Google y / o autorizar el complemento para sincronizar su base de datos KeePass. El complemento no puede funcionar sin su autorización. Si la entrada del complemento incluye su nombre de usuario y contraseña de Google, puede acceder a ellos mediante los botones a continuación.
@@ -375,7 +372,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Title_AuthDialogSub" xml:space="preserve">
     <value>Por favor no cierre esta ventana</value>
   </data>
-  <data name="Title_ConfigDialogFmt" xml:space="preserve">
+  <data name="Title_ConfigDialog" xml:space="preserve">
     <value>Configuración</value>
   </data>
   <data name="Group_AuthDefaults" xml:space="preserve">
@@ -394,7 +391,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Opciones predeterminadas de carpeta</value>
   </data>
   <data name="Lbl_AuthPwEntry" xml:space="preserve">
-    <value>Entrada de KeePass:</value>
+    <value>Título de entrada de KeePass:</value>
   </data>
   <data name="Lbl_AutoSyncOnOpen" xml:space="preserve">
     <value>Sincronizar antes de abrir una base de datos KeePass</value>
@@ -402,8 +399,8 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Lbl_AutoSyncOnSave" xml:space="preserve">
     <value>Sincronizar al guardar una base de datos KeePass</value>
   </data>
-  <data name="Lbl_CurrentDb" xml:space="preserve">
-    <value>Base de datos actual:</value>
+  <data name="Lbl_CurrentDbFmt" xml:space="preserve">
+    <value>Base de datos: {0}</value>
   </data>
   <data name="Lbl_DefaultTargetFolder" xml:space="preserve">
     <value>Carpeta de sincronización de destino predeterminada:</value>
@@ -418,10 +415,10 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Carpeta de sincronización de destino:</value>
   </data>
   <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Utilice el ID de cliente del complemento heredado (no recomendado; haga clic en el enlace Ayuda).</value>
+    <value>Use el Legacy Plugin OAuth 2.0 Client ID (no recomendado para nuevas bases de datos).</value>
   </data>
-  <data name="Lbl_UseRestrictedApiScope" xml:space="preserve">
-    <value>Use el alcance restringido de la API de Google "todos los archivos" (no recomendado).</value>
+  <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
+    <value>Use acceso limitado a Drive (puede ser útil con Legacy Client ID).</value>
   </data>
   <data name="Title_DefaultsTab" xml:space="preserve">
     <value>Opciones y valores predeterminados</value>
@@ -438,5 +435,14 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   </data>
   <data name="Lbl_DefaultClientSecret" xml:space="preserve">
     <value>Client Secret por Defecto:</value>
+  </data>
+  <data name="Title_AboutTab" xml:space="preserve">
+    <value>Acerca de</value>
+  </data>
+  <data name="Group_Entry" xml:space="preserve">
+    <value>Entrada de contraseña de Google</value>
+  </data>
+  <data name="Lbl_LegacyAttribution" xml:space="preserve">
+    <value>Basado y compatible con el complemento KeePass Google Sync, Copyright © 2016 DesignsInnovate.</value>
   </data>
 </root>

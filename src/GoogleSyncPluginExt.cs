@@ -125,11 +125,12 @@ namespace GoogleSyncPlugin
 		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
 		public const string EntryDriveScope = ConfigDriveScope;
 		public const string AccountSearchString = "accounts.google.com";
-		public const string URLHome = "http://sourceforge.net/p/kp-googlesync";
-		public const string URLHelp = "http://sourceforge.net/p/kp-googlesync/support";
-		public const string URLGoogleDev = "https://console.developers.google.com/start";
+		public const string UrlHome = "http://sourceforge.net/p/kp-googlesync";
+		public const string UrlLegacyHome = "http://sourceforge.net/p/kp-googlesync";
+		public const string UrlHelp = "http://sourceforge.net/p/kp-googlesync/support";
+		public const string UrlGoogleDev = "https://console.developers.google.com/start";
 		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
-		public const string URLSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
+		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Google Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
@@ -1352,8 +1353,7 @@ namespace GoogleSyncPlugin
 			};
 			ConfigurationForm optionsForm = new ConfigurationForm(options)
 			{
-				DatabaseFileName = 
-					Path.GetFileName(m_host.Database.IOConnectionInfo.Path)
+				DatabaseFilePath = m_host.Database.IOConnectionInfo.Path
 			};
 			using (options)
 			using (optionsForm)

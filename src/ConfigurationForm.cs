@@ -33,6 +33,7 @@ namespace GoogleSyncPlugin
     {
         const string GSigninTabIcoKey = "gsignin";
         const string GeneralTabIcoKey = "general";
+        const string AboutIcoKey = "about";
 
         readonly ConfigurationFormData m_data;
         readonly GoogleColor m_nullColor;
@@ -42,19 +43,19 @@ namespace GoogleSyncPlugin
         {
             InitializeComponent();
 
-            // Localize the form.
+            // Localize the form
             Text = Defs.ProductName;
-            DatabaseFileName = Resources.GetString(m_lblDatabaseName.Text);
+            DatabaseFilePath = string.Empty;
             m_lnkGoogle.Text = Resources.GetString(m_lnkGoogle.Text);
             m_lnkHelp.Text = Resources.GetString(m_lnkHelp.Text);
             m_lnkHome.Text = Resources.GetString(m_lnkHome.Text);
             m_lnkGoogle2.Text = Resources.GetString(m_lnkGoogle2.Text);
             m_lnkHelp2.Text = Resources.GetString(m_lnkHelp2.Text);
-            m_lnkHome2.Text = Resources.GetString(m_lnkHome2.Text);
             m_tabGSignIn.Text = Resources.GetString(m_tabGSignIn.Text);
             m_tabOptions.Text = Resources.GetString(m_tabOptions.Text);
+            m_tabAbout.Text = Resources.GetString(m_tabAbout.Text);
+            m_grpEntry.Text = Resources.GetString(m_grpEntry.Text);
             m_grpDriveAuth.Text = Resources.GetString(m_grpDriveAuth.Text);
-            m_lblDatabaseLabel.Text = Resources.GetString(m_lblDatabaseLabel.Text);
             m_lblAccount.Text = Resources.GetString(m_lblAccount.Text);
             m_lblClientId.Text = Resources.GetString(m_lblClientId.Text);
             m_lblClientSecret.Text = Resources.GetString(m_lblClientSecret.Text);
@@ -78,6 +79,9 @@ namespace GoogleSyncPlugin
             m_lblDefaultFolderLabel.Text = Resources.GetString(m_lblDefaultFolderLabel.Text);
             m_lblDefFolderColor.Text = Resources.GetString(m_lblDefFolderColor.Text);
             m_btnGetColors.Text = Resources.GetString(m_btnGetColors.Text);
+            m_lblAttribution.Text = Resources.GetString(m_lblAttribution.Text);
+            m_lblAboutVer.Text = Defs.Version;
+            m_lblAboutProd.Text = Defs.ProductName;
 
             m_data = data;
 
@@ -116,8 +120,6 @@ namespace GoogleSyncPlugin
         // before the form is shown.
         protected override void OnLoad(EventArgs args)
         {
-            m_lblDatabaseName.Text = DatabaseFileName;
-
             // Do the "data bindings" with the presentation object.
             BindingSource bindingSource = m_data.EntryBindingSource;
             bindingSource.DataSource = m_data.Entries;
@@ -135,8 +137,8 @@ namespace GoogleSyncPlugin
             binding = new Binding("Enabled",
                 bindingSource,
                 "UseLegacyClientId", true);
-            binding.Format += HandleBoolNegationFormat;
-            binding.Parse += HandleBoolNegationFormat;
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_txtClientId.DataBindings.Add(binding);
             Debug.Assert(m_txtClientSecret is TextBox);
             binding = new Binding("Text",
@@ -148,8 +150,8 @@ namespace GoogleSyncPlugin
             binding = new Binding("Enabled",
                 bindingSource,
                 "UseLegacyClientId", true);
-            binding.Format += HandleBoolNegationFormat;
-            binding.Parse += HandleBoolNegationFormat;
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_txtClientSecret.DataBindings.Add(binding);
             Debug.Assert(m_txtFolder is TextBox);
             binding = new Binding("Text",
@@ -159,7 +161,9 @@ namespace GoogleSyncPlugin
             Debug.Assert(m_chkDriveScope is CheckBox);
             binding = new Binding("Checked",
                 bindingSource,
-                "IsRestrictedDriveScope");
+                "IsRestrictedDriveScope", true);
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_chkDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_chkLegacyClientId is CheckBox);
             binding = new Binding("Checked",
@@ -187,8 +191,8 @@ namespace GoogleSyncPlugin
             binding = new Binding("Enabled",
                 m_data,
                 "DefaultUseLegacyClientId", true);
-            binding.Format += HandleBoolNegationFormat;
-            binding.Parse += HandleBoolNegationFormat;
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_txtDefaultClientId.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientSecret is TextBox);
             binding = new Binding("Text",
@@ -200,8 +204,8 @@ namespace GoogleSyncPlugin
             binding = new Binding("Enabled",
                 m_data,
                 "DefaultUseLegacyClientId", true);
-            binding.Format += HandleBoolNegationFormat;
-            binding.Parse += HandleBoolNegationFormat;
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_txtDefaultClientSecret.DataBindings.Add(binding);
             Debug.Assert(m_chkDefaultLegacyClientId is CheckBox);
             binding = new Binding("Checked",
@@ -233,13 +237,12 @@ namespace GoogleSyncPlugin
             }
 
             // Initialize link handlers.
-            m_lnkGoogle.LinkClicked += (o, e) => Process.Start(Defs.URLGoogleDev);
-            m_lnkHelp.LinkClicked += (o, e) => Process.Start(Defs.URLHelp);
-            m_lnkHome.LinkClicked += (o, e) => Process.Start(Defs.URLHome);
-            m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(Defs.URLGoogleDev);
-            m_lnkHelp2.LinkClicked += (o, e) => Process.Start(Defs.URLHelp);
-            m_lnkHome2.LinkClicked += (o, e) => Process.Start(Defs.URLHome);
-            m_bannerImage.DoubleClick += (o, e) => Process.Start(Defs.URLHome);
+            m_lnkGoogle.LinkClicked += (o, e) => Process.Start(Defs.UrlGoogleDev);
+            m_lnkHelp.LinkClicked += (o, e) => Process.Start(Defs.UrlHelp);
+            m_lnkHome.LinkClicked += (o, e) => Process.Start(Defs.UrlHome);
+            m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(Defs.UrlGoogleDev);
+            m_lnkHelp2.LinkClicked += (o, e) => Process.Start(Defs.UrlHelp);
+            m_lblAttribution.Click += (o, e) => Process.Start(Defs.UrlLegacyHome);
 
             // Manage tab changes to prevent invalid data entry.
             m_tabMain.Deselecting += HandleTabChangeValidation;
@@ -251,18 +254,35 @@ namespace GoogleSyncPlugin
             m_btnOK.Click += HandleOkClicked;
 
             // Initialize KeePass dialog banner.
+            string filePath = DatabaseFilePath;
+            if (filePath.Length > 60)
+            {
+                m_toolTipper.SetToolTip(m_bannerImage, DatabaseFilePath);
+                string fileName = System.IO.Path.GetFileName(filePath);
+                if (fileName.Length > 50)
+                {
+                    DatabaseFilePath = "...\\" + fileName;
+                }
+                else
+                {
+                    DatabaseFilePath = filePath.Substring(0, 50-fileName.Length) + "...\\" + fileName;
+                }
+            }
             BannerFactory.CreateBannerEx(this, m_bannerImage,
                 Resources.GetBitmap("round_settings_black_48dp"),
-                Resources.GetString("Title_ConfigDialogFmt"),
-                string.Format("{0} {1}", Defs.ProductName, Defs.Version));
+                Resources.GetString("Title_ConfigDialog"),
+                Resources.GetFormat("Lbl_CurrentDbFmt", DatabaseFilePath));
 
             // Initialize tab images.
             m_imgList.Images.Add(GSigninTabIcoKey,
                 Resources.GetBitmap("outline_security_black_18dp"));
             m_imgList.Images.Add(GeneralTabIcoKey,
                 Resources.GetBitmap("outline_settings_black_18dp"));
+            m_imgList.Images.Add(AboutIcoKey,
+                Resources.GetBitmap("round_help_outline_black_18dp"));
             m_tabGSignIn.ImageKey = GSigninTabIcoKey;
             m_tabOptions.ImageKey = GeneralTabIcoKey;
+            m_tabAbout.ImageKey = AboutIcoKey;
 
             base.OnLoad(args);
         }
@@ -314,7 +334,7 @@ namespace GoogleSyncPlugin
             }
         }
 
-        private void HandleBoolNegationFormat(object sender,
+        private void HandleBoolNegation(object sender,
                                                 ConvertEventArgs e)
         {
             e.Value = !((bool)e.Value);
@@ -440,6 +460,6 @@ namespace GoogleSyncPlugin
                 !string.IsNullOrEmpty(m_txtDefaultClientSecret.Text.Trim());
         }
 
-        public string DatabaseFileName { get; set; }
+        public string DatabaseFilePath { get; set; }
     }
 }

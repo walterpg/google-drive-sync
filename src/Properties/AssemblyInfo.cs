@@ -21,12 +21,12 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Google Sync Plugin")]
-[assembly: AssemblyDescription("Sync KeePass database with Google Drive")]
+[assembly: AssemblyTitle("Google Drive Sync")]
+[assembly: AssemblyDescription("Easily synchronize KeePass database files with Google Drive.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("DesignsInnovate")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright © 2020 DesignsInnovate")]
+[assembly: AssemblyCopyright("Copyright © 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]

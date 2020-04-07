@@ -65,7 +65,7 @@ namespace GoogleSyncPlugin
 
         private void lnkHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start(Defs.URLSignInHelp);
+            System.Diagnostics.Process.Start(Defs.UrlSignInHelp);
         }
 
         private void btnCopyPassword_Click(object sender, EventArgs e)

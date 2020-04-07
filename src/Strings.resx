@@ -189,6 +189,9 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Group_DriveOptions" xml:space="preserve">
     <value>Google Drive Options</value>
   </data>
+  <data name="Group_Entry" xml:space="preserve">
+    <value>Google Password Entry</value>
+  </data>
   <data name="Group_FolderDefaults" xml:space="preserve">
     <value>Folder Option Defaults</value>
   </data>
@@ -208,7 +211,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
 &lt;/html&gt;</value>
   </data>
   <data name="Lbl_AuthPwEntry" xml:space="preserve">
-    <value>KeePass Auth Entry:</value>
+    <value>KeePass Entry Title:</value>
   </data>
   <data name="Lbl_AutoSync" xml:space="preserve">
     <value>Auto Sync:</value>
@@ -225,8 +228,8 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Lbl_ClientSecret" xml:space="preserve">
     <value>Client Secret:</value>
   </data>
-  <data name="Lbl_CurrentDb" xml:space="preserve">
-    <value>Current Database:</value>
+  <data name="Lbl_CurrentDbFmt" xml:space="preserve">
+    <value>Database: {0}</value>
   </data>
   <data name="Lbl_DefaultClientID" xml:space="preserve">
     <value>Default Client ID:</value>
@@ -252,8 +255,8 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Lbl_KpUuid" xml:space="preserve">
     <value>KeePass UUID:</value>
   </data>
-  <data name="Lbl_NoCurrentDatabase" xml:space="preserve">
-    <value>No current database. Cancel this dialog and open a database to configure Sign-in.</value>
+  <data name="Lbl_LegacyAttribution" xml:space="preserve">
+    <value>Based on and compatible with KeePass Google Sync Plugin, Copyright © 2016 DesignsInnovate.</value>
   </data>
   <data name="Lbl_OauthCreds" xml:space="preserve">
     <value>Custom OAuth 2.0 Credentials</value>
@@ -262,11 +265,11 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Lbl_TargetFolder" xml:space="preserve">
     <value>Target Sync Folder:</value>
   </data>
-  <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Use Legacy Plugin Client ID (not recommended; click Help link).</value>
+  <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
+    <value>Use limited Drive access (may be useful with Legacy Client ID).</value>
   </data>
-  <data name="Lbl_UseRestrictedApiScope" xml:space="preserve">
-    <value>Use restricted "all files" Google API scope (not recommended).</value>
+  <data name="Lbl_UseLegacyClientID" xml:space="preserve">
+    <value>Use Legacy Plugin OAuth 2.0 Client ID (not recommended for new databases).</value>
   </data>
   <data name="Lnk_GoogleDev" xml:space="preserve">
     <value>Google Developer Console</value>
@@ -281,16 +284,16 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>Sign-In Problem?</value>
   </data>
   <data name="MenuLabel_Config" xml:space="preserve">
-    <value>Configuration...</value>
+    <value>Configure</value>
   </data>
   <data name="MenuLabel_Download" xml:space="preserve">
-    <value>Download from Google Drive</value>
+    <value>Download from Drive</value>
   </data>
   <data name="MenuLabel_Sync" xml:space="preserve">
-    <value>Sync with Google Drive</value>
+    <value>Sync with Drive</value>
   </data>
   <data name="MenuLabel_Upload" xml:space="preserve">
-    <value>Upload to Google Drive</value>
+    <value>Upload to Drive</value>
   </data>
   <data name="Msg_AuthDialog" xml:space="preserve">
     <value>The system Browser has been opened for you to sign in to your Google account and/or authorize the plugin to sync your KeePass database. The plugin cannot operate without your authorization. If the plugin entry includes your Google user name and password, you may access them via the buttons below.
@@ -428,6 +431,9 @@ Otherwise, return to KeePass to create a new entry or edit an existing one, ensu
   <data name="Opt_CustomKpUuid" xml:space="preserve">
     <value>Deprecated KeePass UUID</value>
   </data>
+  <data name="Title_AboutTab" xml:space="preserve">
+    <value>About</value>
+  </data>
   <data name="Title_AuthDialogMain" xml:space="preserve">
     <value>Google Sign-In</value>
     <comment>"Google Sign-In" is current Google branding</comment>
@@ -435,7 +441,7 @@ Otherwise, return to KeePass to create a new entry or edit an existing one, ensu
   <data name="Title_AuthDialogSub" xml:space="preserve">
     <value>Please Do Not Close This Window</value>
   </data>
-  <data name="Title_ConfigDialogFmt" xml:space="preserve">
+  <data name="Title_ConfigDialog" xml:space="preserve">
     <value>Configuration</value>
   </data>
   <data name="Title_DefaultsTab" xml:space="preserve">
