@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -47,8 +49,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,88 +57,8 @@ using System.Windows.Forms;
 using File = System.IO.File;
 using GDriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
-	public static class Defs
-	{
-		private static string m_productName;
-		private static string m_productVersion;
-		private static ProtectedString m_emptyEx;
-
-		public static string ProductName
-		{
-			get
-			{
-				if (m_productName == null)
-				{
-					Assembly assembly = Assembly.GetExecutingAssembly();
-					object[] attrs = assembly.GetCustomAttributes(
-						typeof(AssemblyTitleAttribute), false);
-					AssemblyTitleAttribute assemblyTitle;
-					assemblyTitle = attrs[0] as AssemblyTitleAttribute;
-					m_productName = assemblyTitle.Title;
-				}
-				return m_productName;
-			}
-		}
-
-		public static string Version
-		{
-			get
-			{
-				if (m_productVersion == null)
-				{
-					Version version = Assembly.GetExecutingAssembly().GetName().Version;
-					m_productVersion = "v" + version.ToString(4);
-				}
-				return m_productVersion;
-			}
-		}
-
-		// ProtectedString.EmptyEx is not available until after the release we
-		// are currently targeting (2.35).
-		public static ProtectedString PsEmptyEx
-		{
-			get
-			{
-				if (m_emptyEx == null)
-				{
-					m_emptyEx = new ProtectedString(true, new byte[0]);
-				}
-				return m_emptyEx;
-			}
-		}
-
-		public const string ConfigAutoSync = "GoogleSync.AutoSync";
-		public const string ConfigUUID = "GoogleSync.AccountUUID";
-		public const string ConfigDefaultAppFolder = "GoogleSync.DefaultAppFolder";
-		public const string ConfigDefaultAppFolderColor = "GoogleSync.DefaultAppFolderColor";
-		public const string ConfigDriveScope = "GoogleSync.DriveApiScope";
-		public const string ConfigDefaultClientId = "GoogleSync.DefaultClientId";
-		public const string ConfigDefaultClientSecret = "GoogleSync.DefaultClientSecret";
-		public const string EntryClientId = "GoogleSync.ClientID";
-		public const string EntryClientSecret = "GoogleSync.ClientSecret";
-		public const string EntryRefreshToken = "GoogleSync.RefreshToken";
-		public const string EntryActiveAccount = "GoogleSync.ActiveAccount";
-		public const string EntryActiveAccountTrue = EntryActiveAccount + ".TRUE";
-		public const string EntryActiveAccountFalse = EntryActiveAccount + ".FALSE";
-		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
-		public const string EntryDriveScope = ConfigDriveScope;
-		public const string AccountSearchString = "accounts.google.com";
-		public const string UrlHome = "http://sourceforge.net/p/kp-googlesync";
-		public const string UrlLegacyHome = "http://sourceforge.net/p/kp-googlesync";
-		public const string UrlHelp = "http://sourceforge.net/p/kp-googlesync/support";
-		public const string UrlGoogleDev = "https://console.developers.google.com/start";
-		public const string UpdateUrl = "http://designsinnovate.com/googlesyncplugin/versioninfo.txt";
-		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
-		public const string GsyncBackupExt = ".gsyncbak";
-		public const string AppDefaultFolderName = "KeePass Google Sync";
-		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
-		public const string FolderMimeType = "application/vnd.google-apps.folder";
-
-		public const int DefaultDotNetFileBufferSize = 4096;
-	}
-
 	[Flags]
 	public enum AutoSyncMode
 	{
@@ -150,7 +70,7 @@ namespace GoogleSyncPlugin
 	/// <summary>
 	/// main plugin class
 	/// </summary>
-	public sealed class GoogleSyncPluginExt : Plugin, IDriveServiceProvider
+	public sealed class GoogleDriveSyncExt : Plugin, IDriveServiceProvider
 	{
 		private IPluginHost m_host = null;
 
@@ -160,7 +80,7 @@ namespace GoogleSyncPlugin
 		private GoogleColor m_defaultFolderColor = null;
 		private string m_defaultDriveScope = null;
 		private string m_defaultClientId = string.Empty;
-		private ProtectedString m_defaultClientSecret = Defs.PsEmptyEx;
+		private ProtectedString m_defaultClientSecret = GdsDefs.PsEmptyEx;
 
 		private ToolStripSeparator m_tsSeparator = null;
 		private ToolStripMenuItem m_tsmiPopup = null;
@@ -192,7 +112,7 @@ namespace GoogleSyncPlugin
 		{
 			get
 			{
-				return Defs.UpdateUrl;
+				return GdsDefs.UpdateUrl;
 			}
 		}
 
@@ -228,12 +148,12 @@ namespace GoogleSyncPlugin
 		    );
 
 			m_host = host;
-			string syncOption = m_host.GetConfig(Defs.ConfigAutoSync,
+			string syncOption = m_host.GetConfig(GdsDefs.ConfigAutoSync,
 											AutoSyncMode.DISABLED.ToString());
 			if (!Enum.TryParse(syncOption, out m_autoSync))
 			{
 				// Support obsolete Sync on Save confg.
-				if (m_host.GetConfig(Defs.ConfigAutoSync, false))
+				if (m_host.GetConfig(GdsDefs.ConfigAutoSync, false))
 				{
 					m_autoSync = AutoSyncMode.SAVE;
 				}
@@ -244,20 +164,20 @@ namespace GoogleSyncPlugin
 			}
 
 			// The default setting is to use the My Drive root folder.
-			m_defaultFolder = m_host.GetConfig(Defs.ConfigDefaultAppFolder,
-									Defs.AppDefaultFolderName);
-			string encodedColor = m_host.GetConfig(Defs.ConfigDefaultAppFolderColor);
+			m_defaultFolder = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolder,
+									GdsDefs.AppDefaultFolderName);
+			string encodedColor = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolderColor);
 			m_defaultFolderColor = !string.IsNullOrEmpty(encodedColor) ?
 				GoogleColor.DeserializeFromString(encodedColor) : null;
 
 			// The default setting is to use the less restrictive API scope.
-			m_defaultDriveScope = m_host.GetConfig(Defs.ConfigDriveScope,
+			m_defaultDriveScope = m_host.GetConfig(GdsDefs.ConfigDriveScope,
 									DriveService.Scope.DriveFile);
 
 			// Default is no OAuth 2.0 credentials.
-			m_defaultClientId = m_host.GetConfig(Defs.ConfigDefaultClientId,
+			m_defaultClientId = m_host.GetConfig(GdsDefs.ConfigDefaultClientId,
 												string.Empty);
-			string secretVal = m_host.GetConfig(Defs.ConfigDefaultClientSecret,
+			string secretVal = m_host.GetConfig(GdsDefs.ConfigDefaultClientSecret,
 												string.Empty);
 			m_defaultClientSecret = new ProtectedString(true, secretVal);
 
@@ -273,7 +193,7 @@ namespace GoogleSyncPlugin
 			// Add the popup menu item
 			m_tsmiPopup = new ToolStripMenuItem
 			{
-				Text = Defs.ProductName,
+				Text = GdsDefs.ProductName,
 				Image = Resources.GetBitmap("google_signin_light")
 			};
 			tsMenu.Add(m_tsmiPopup);
@@ -492,7 +412,7 @@ namespace GoogleSyncPlugin
 					msg = Resources.GetString("Err_TokenInvalidScope");
 					break;
 				case "user_cancelled":
-					msg = Resources.GetFormat("Msg_UserCancelledOpFmt", Defs.ProductName);
+					msg = Resources.GetFormat("Msg_UserCancelledOpFmt", GdsDefs.ProductName);
 					ShowMessage(msg, true);
 					return;
 				default:
@@ -552,7 +472,7 @@ namespace GoogleSyncPlugin
 			if (config == null)
 			{
 				return Resources.GetFormat("Msg_ProductAbortedFmt",
-											Defs.ProductName);
+											GdsDefs.ProductName);
 			}
 
 			// Save reference to current token.
@@ -609,7 +529,7 @@ namespace GoogleSyncPlugin
 				DriveService service = new DriveService(new BaseClientService.Initializer()
 				{
 					HttpClientInitializer = credAndToken.Item1,
-					ApplicationName = Defs.ProductName
+					ApplicationName = GdsDefs.ProductName
 				});
 				status = await use(service, authData.ActiveFolder);
 			}
@@ -770,11 +690,11 @@ namespace GoogleSyncPlugin
 
 			FilesResource.GetRequest request = service.Files.Get(file.Id);
 			request.MediaDownloader.ProgressChanged += DownloadProgressChanged;
-			request.MediaDownloader.ChunkSize = Defs.DefaultDotNetFileBufferSize;
+			request.MediaDownloader.ChunkSize = GdsDefs.DefaultDotNetFileBufferSize;
 			string downloadFilePath = Path.GetTempFileName();
 			using (FileStream fileStream = new FileStream(downloadFilePath, 
 					FileMode.Create, FileAccess.Write, FileShare.None,
-					Defs.DefaultDotNetFileBufferSize, true))
+					GdsDefs.DefaultDotNetFileBufferSize, true))
 			{
 				try
 				{
@@ -839,7 +759,7 @@ namespace GoogleSyncPlugin
 
 			// Only look for root-level folders.
 			FilesResource.ListRequest req = service.Files.List();
-			req.Q = "mimeType='" + Defs.FolderMimeType + "' and name='" +
+			req.Q = "mimeType='" + GdsDefs.FolderMimeType + "' and name='" +
 					folderName.Replace("'", "\\'") + 
 					"' and 'root' in parents and trashed=false";
 			FileList appFolders = await req.ExecuteAsync();
@@ -858,7 +778,7 @@ namespace GoogleSyncPlugin
 			GDriveFile folderMetadata = new GDriveFile()
 			{
 				Name = folderName,
-				MimeType = Defs.FolderMimeType
+				MimeType = GdsDefs.FolderMimeType
 			};
 			if (m_defaultFolderColor != null)
 			{
@@ -1001,10 +921,10 @@ namespace GoogleSyncPlugin
 		{
 			using (FileStream stream = new FileStream(filePath,
 					FileMode.Open, FileAccess.Read,
-					FileShare.Read, Defs.DefaultDotNetFileBufferSize, true))
+					FileShare.Read, GdsDefs.DefaultDotNetFileBufferSize, true))
 			{
 				m_currentUpload = uploadFactory(stream);
-				m_currentUpload.ChunkSize = Math.Max(Defs.DefaultDotNetFileBufferSize,
+				m_currentUpload.ChunkSize = Math.Max(GdsDefs.DefaultDotNetFileBufferSize,
 					FilesResource.CreateMediaUpload.MinimumChunkSize);
 				m_currentUpload.ProgressChanged += UploadProgressChanged;
 				IUploadProgress progress = await m_currentUpload.UploadAsync();
@@ -1059,7 +979,7 @@ namespace GoogleSyncPlugin
 		/// <returns>Status of the replacement</returns>
 		private async Task<string> ReplaceDatabase(string currentFilePath, string downloadFilePath)
 		{
-			string tempFilePath = currentFilePath + Defs.GsyncBackupExt;
+			string tempFilePath = currentFilePath + GdsDefs.GsyncBackupExt;
 
 			string status = Resources.GetString("Msg_TempClose");
 			ShowMessage(status, true);
@@ -1257,7 +1177,7 @@ namespace GoogleSyncPlugin
 		{
 			SyncConfiguration originalAuthData = null;
 			if (string.IsNullOrEmpty(authData.ClientId) &&
-				Defs.PsEmptyEx.OrdinalEquals(authData.ClientSecret, true))
+				GdsDefs.PsEmptyEx.OrdinalEquals(authData.ClientSecret, true))
 			{
 				originalAuthData = authData;
 				authData = new TransientConfiguration(authData)
@@ -1322,13 +1242,13 @@ namespace GoogleSyncPlugin
 					return true;
 				}
 				if (-1 != e.Strings.ReadSafe(PwDefs.UrlField)
-								.IndexOf(Defs.AccountSearchString,
+								.IndexOf(GdsDefs.AccountSearchString,
 									StringComparison.OrdinalIgnoreCase))
 				{
 					acctList.Add(new EntryConfiguration(e));
 				}
 				else if(-1 != e.Strings.ReadSafe(PwDefs.TitleField)
-								.IndexOf(Defs.AccountSearchString,
+								.IndexOf(GdsDefs.AccountSearchString,
 									StringComparison.OrdinalIgnoreCase))
 				{
 					acctList.Add(new EntryConfiguration(e));
@@ -1372,7 +1292,7 @@ namespace GoogleSyncPlugin
 					try
 					{
 						// Attempt to use long-deprecated UUID config.
-						strUuid = m_host.GetConfig(Defs.ConfigUUID);
+						strUuid = m_host.GetConfig(GdsDefs.ConfigUUID);
 						if (!string.IsNullOrEmpty(strUuid))
 						{
 							PwEntry entry = m_host.Database.RootGroup.FindEntry(
@@ -1397,8 +1317,8 @@ namespace GoogleSyncPlugin
 				{
 					if (MessageBox.Show(
 							Resources.GetFormat("Msg_NoAcct",
-								Defs.AccountSearchString),
-							Defs.ProductName,
+								GdsDefs.AccountSearchString),
+							GdsDefs.ProductName,
 							MessageBoxButtons.YesNo,
 							MessageBoxIcon.Warning) != DialogResult.Yes)
 					{
@@ -1446,7 +1366,7 @@ namespace GoogleSyncPlugin
 		private PluginEntryFactory GetEntryFactory()
 		{
 			// Search KeePass for pre-existing entry titles.
-			string searchString = Defs.ProductName;
+			string searchString = GdsDefs.ProductName;
 			EntryHandler checkEntry = delegate(PwEntry e)
 			{
 				return -1 == e.Strings.ReadSafe(PwDefs.TitleField)
@@ -1458,7 +1378,7 @@ namespace GoogleSyncPlugin
 			while (!root.TraverseTree(TraversalMethod.PreOrder,
 							null, checkEntry))
 			{
-				searchString = string.Format("{0}-{1}", Defs.ProductName, cDup++);
+				searchString = string.Format("{0}-{1}", GdsDefs.ProductName, cDup++);
 			}
 
 			// Return entry creator with unused title.
@@ -1492,7 +1412,7 @@ namespace GoogleSyncPlugin
 				try
 				{
 					// Attempt to use long-obsolete UUID config.
-					string strUuid = m_host.GetConfig(Defs.ConfigUUID);
+					string strUuid = m_host.GetConfig(GdsDefs.ConfigUUID);
 					if (!string.IsNullOrEmpty(strUuid))
 					{
 						PwEntry entry = m_host.Database.RootGroup.FindEntry(
@@ -1548,14 +1468,14 @@ namespace GoogleSyncPlugin
 		private bool SaveConfiguration(EntryConfiguration entryConfig)
 		{
 			// Save global config to app config.
-			m_host.SetConfig(Defs.ConfigAutoSync, m_autoSync.ToString());
-			m_host.SetConfig(Defs.ConfigDefaultAppFolder, m_defaultFolder);
-			m_host.SetConfig(Defs.ConfigDefaultAppFolderColor, 
+			m_host.SetConfig(GdsDefs.ConfigAutoSync, m_autoSync.ToString());
+			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolder, m_defaultFolder);
+			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolderColor, 
 				m_defaultFolderColor == null ? null :
 				GoogleColor.SerializeToString(m_defaultFolderColor));
-			m_host.SetConfig(Defs.ConfigDriveScope, m_defaultDriveScope);
-			m_host.SetConfig(Defs.ConfigDefaultClientId, m_defaultClientId);
-			m_host.SetConfig(Defs.ConfigDefaultClientSecret,
+			m_host.SetConfig(GdsDefs.ConfigDriveScope, m_defaultDriveScope);
+			m_host.SetConfig(GdsDefs.ConfigDefaultClientId, m_defaultClientId);
+			m_host.SetConfig(GdsDefs.ConfigDefaultClientSecret,
 				m_defaultClientSecret == null ? string.Empty :
 				m_defaultClientSecret.ReadString());
 
@@ -1584,11 +1504,11 @@ namespace GoogleSyncPlugin
 
 			SaveDatabase();
 
-			if (m_host.GetConfig(Defs.ConfigUUID) != null)
+			if (m_host.GetConfig(GdsDefs.ConfigUUID) != null)
 			{
 				// Remove deprecated uuiid setting now that the new-style
 				// setting ares saved to the database.
-				m_host.SetConfig(Defs.ConfigUUID, null);
+				m_host.SetConfig(GdsDefs.ConfigUUID, null);
 			}
 
 			return true;
@@ -1764,7 +1684,7 @@ namespace GoogleSyncPlugin
 						window.BeginInvoke(new MethodInvoker(window.Activate));
 					});
 					form.Shown += (o, e) => t.Start();
-					GoogleSyncPluginExt.ShowModalDialogAndDestroy(form);
+					GoogleDriveSyncExt.ShowModalDialogAndDestroy(form);
 				}
 			}
 			return context;

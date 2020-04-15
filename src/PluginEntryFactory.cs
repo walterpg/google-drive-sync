@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +30,7 @@ using KeePassLib.Serialization;
 using System.IO;
 using System.Windows.Forms;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     internal class PluginEntryFactory : FileFormatProvider
     {
@@ -68,16 +70,16 @@ namespace GoogleSyncPlugin
             strings.Set(PwDefs.NotesField,
                 new ProtectedString(false, 
                     Resources.GetFormat("Msg_NewEntryNotesFmt",
-                                        Defs.ProductName)));
+                                        GdsDefs.ProductName)));
             strings.Set(PwDefs.UrlField,
-                new ProtectedString(false, Defs.AccountSearchString));
+                new ProtectedString(false, GdsDefs.AccountSearchString));
 
             StringDictionaryEx data = Entry.CustomData;
-            data.Set(Defs.EntryDriveScope, driveScope);
-            data.Set(Defs.EntryActiveAppFolder, folder);
-            data.Set(Defs.EntryActiveAccount, Defs.EntryActiveAccountTrue);
-            data.Set(Defs.EntryClientId, clientId);
-            data.Set(Defs.EntryClientSecret, clientSecret.ReadString());
+            data.Set(GdsDefs.EntryDriveScope, driveScope);
+            data.Set(GdsDefs.EntryActiveAppFolder, folder);
+            data.Set(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
+            data.Set(GdsDefs.EntryClientId, clientId);
+            data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
 
             Entry.IconId = PwIcon.WorldComputer;
         }

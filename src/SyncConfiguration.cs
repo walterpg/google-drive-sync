@@ -1,7 +1,9 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2014-2016  DesignsInnovate
+ * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -11,11 +13,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.If not, see<http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
 using Google.Apis.Drive.v3;
@@ -27,7 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     public abstract class SyncConfiguration
     {
@@ -217,16 +219,16 @@ namespace GoogleSyncPlugin
                 {
                     switch (kv.Key)
                     {
-                        case Defs.EntryActiveAccount:
-                        case Defs.EntryClientId:
-                        case Defs.EntryActiveAppFolder:
-                        case Defs.EntryDriveScope:
+                        case GdsDefs.EntryActiveAccount:
+                        case GdsDefs.EntryClientId:
+                        case GdsDefs.EntryActiveAppFolder:
+                        case GdsDefs.EntryDriveScope:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
                                 stringVal == null ? string.Empty : stringVal);
                             break;
-                        case Defs.EntryClientSecret:
-                        case Defs.EntryRefreshToken:
+                        case GdsDefs.EntryClientSecret:
+                        case GdsDefs.EntryRefreshToken:
                             ProtectedString ps = kv.Value as ProtectedString;
                             CustomData.Set(kv.Key,
                                 ps == null ? string.Empty : ps.ReadString());
@@ -438,12 +440,12 @@ namespace GoogleSyncPlugin
         {
             get
             {
-                string stringVal = GetValue(Defs.EntryActiveAccount, ReadSafe);
-                if (stringVal == Defs.EntryActiveAccountFalse)
+                string stringVal = GetValue(GdsDefs.EntryActiveAccount, ReadSafe);
+                if (stringVal == GdsDefs.EntryActiveAccountFalse)
                 {
                     return false;
                 }
-                else if (stringVal == Defs.EntryActiveAccountTrue)
+                else if (stringVal == GdsDefs.EntryActiveAccountTrue)
                 {
                     return true;
                 }
@@ -453,15 +455,15 @@ namespace GoogleSyncPlugin
             {
                 if (!value.HasValue)
                 {
-                    SetValue(Defs.EntryActiveAccount, (string)null);
+                    SetValue(GdsDefs.EntryActiveAccount, (string)null);
                 }
                 else if (value.Value)
                 {
-                    SetValue(Defs.EntryActiveAccount, Defs.EntryActiveAccountTrue);
+                    SetValue(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
                 }
                 else // !value.Value
                 {
-                    SetValue(Defs.EntryActiveAccount, Defs.EntryActiveAccountFalse);
+                    SetValue(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountFalse);
                 }
             }
         }
@@ -470,11 +472,11 @@ namespace GoogleSyncPlugin
         {
             get
             {
-                return GetValue(Defs.EntryClientId, ReadSafe);
+                return GetValue(GdsDefs.EntryClientId, ReadSafe);
             }
             set
             {
-                SetValue(Defs.EntryClientId, value);
+                SetValue(GdsDefs.EntryClientId, value);
             }
         }
 
@@ -484,11 +486,11 @@ namespace GoogleSyncPlugin
             {
                 // Use GetSafe so this property can be bound to
                 // SecureTextBoxEx.TextEx.
-                return GetValue(Defs.EntryClientSecret, GetSafe);
+                return GetValue(GdsDefs.EntryClientSecret, GetSafe);
             }
             set
             {
-                SetValue(Defs.EntryClientSecret, value);
+                SetValue(GdsDefs.EntryClientSecret, value);
             }
         }
 
@@ -498,11 +500,11 @@ namespace GoogleSyncPlugin
         {
             get
             {
-                return GetValue(Defs.EntryRefreshToken, Get);
+                return GetValue(GdsDefs.EntryRefreshToken, Get);
             }
             set
             {
-                SetValue(Defs.EntryRefreshToken, value);
+                SetValue(GdsDefs.EntryRefreshToken, value);
             }
         }
 
@@ -510,11 +512,11 @@ namespace GoogleSyncPlugin
         {
             get
             {
-                return GetValue(Defs.EntryActiveAppFolder, ReadSafe);
+                return GetValue(GdsDefs.EntryActiveAppFolder, ReadSafe);
             }
             set
             {
-                SetValue(Defs.EntryActiveAppFolder, value);
+                SetValue(GdsDefs.EntryActiveAppFolder, value);
             }
         }
 
@@ -522,11 +524,11 @@ namespace GoogleSyncPlugin
         {
             get
             {
-                return GetValue(Defs.EntryDriveScope, ReadSafe);
+                return GetValue(GdsDefs.EntryDriveScope, ReadSafe);
             }
             set
             {
-                SetValue(Defs.EntryDriveScope, value);
+                SetValue(GdsDefs.EntryDriveScope, value);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿namespace GoogleSyncPlugin
+﻿namespace GoogleDriveSync
 {
     partial class ConfigurationForm
     {
@@ -539,7 +539,7 @@
             // 
             // m_aboutPic
             // 
-            this.m_aboutPic.Image = global::GoogleSyncPlugin.Images.gdsync;
+            this.m_aboutPic.Image = global::GoogleDriveSync.Images.gdsync;
             this.m_aboutPic.InitialImage = null;
             this.m_aboutPic.Location = new System.Drawing.Point(39, 40);
             this.m_aboutPic.Name = "m_aboutPic";

@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +32,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     class SingleAssemblyResourcesManager : ResourceManager
     {
@@ -146,8 +148,8 @@ namespace GoogleSyncPlugin
         Resources()
         {
             Type thisType = GetType();
-            m_strings = new SingleAssemblyResourcesManager("GoogleSyncPlugin.Strings",
-                                            thisType.Assembly);
+            m_strings = new SingleAssemblyResourcesManager(
+                thisType.Namespace + ".Strings", thisType.Assembly);
             m_images = new ResourceManager(thisType.Namespace + ".Images", thisType.Assembly);
         }
 
@@ -212,7 +214,7 @@ namespace GoogleSyncPlugin
         public static MemoryStream GetImageStream(string name, ImageFormat fmt)
         {
             Bitmap image = GetBitmap(name);
-            MemoryStream stream = new MemoryStream(Defs.DefaultDotNetFileBufferSize);
+            MemoryStream stream = new MemoryStream(GdsDefs.DefaultDotNetFileBufferSize);
             image.Save(stream, fmt);
             stream.Position = 0;
             return stream;

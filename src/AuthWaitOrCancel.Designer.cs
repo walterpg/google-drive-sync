@@ -1,4 +1,4 @@
-﻿namespace GoogleSyncPlugin
+﻿namespace GoogleDriveSync
 {
     partial class AuthWaitOrCancel
     {

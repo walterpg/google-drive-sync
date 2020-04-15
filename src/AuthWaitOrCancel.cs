@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +27,7 @@ using KeePass.Util;
 using System;
 using System.Windows.Forms;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     public partial class AuthWaitOrCancel : Form
     {
@@ -45,7 +47,7 @@ namespace GoogleSyncPlugin
             lblSubTitle.Text = Resources.GetString(lblSubTitle.Text);
             btnCopyUser.Text = Resources.GetString(btnCopyUser.Text);
             btnCopyPassword.Text = Resources.GetString(btnCopyPassword.Text);
-            Text = Defs.ProductName;
+            Text = GdsDefs.ProductName;
 
             btnCopyUser.Enabled = false;
             btnCopyPassword.Enabled = false;
@@ -59,13 +61,13 @@ namespace GoogleSyncPlugin
             BannerFactory.CreateBannerEx(this, m_bannerImage,
                 Resources.GetBitmap("btn_google_signin_dark_pressed_web"),
                 Resources.GetFormat("Title_AuthDialogMain",
-                                    Defs.ProductName),
-                string.Format("{0} {1}", Defs.ProductName, Defs.Version));
+                                    GdsDefs.ProductName),
+                string.Format("{0} {1}", GdsDefs.ProductName, GdsDefs.Version));
         }
 
         private void lnkHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start(Defs.UrlSignInHelp);
+            System.Diagnostics.Process.Start(GdsDefs.UrlSignInHelp);
         }
 
         private void btnCopyPassword_Click(object sender, EventArgs e)

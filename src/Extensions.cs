@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     static class Extensions
     {
@@ -194,11 +196,14 @@ namespace GoogleSyncPlugin
             }
             if (isStatusMessage)
             {
-                window.SetStatusEx(Defs.ProductName + ": " + msg);
+                window.SetStatusEx(GdsDefs.ProductName + ": " + msg);
             }
             else
             {
-                MessageBox.Show(window, msg, Defs.ProductName);
+                using(new CenterWin32Dlg(window))
+                {
+                    MessageBox.Show(window, msg, GdsDefs.ProductName);
+                }
             }
         }
     }

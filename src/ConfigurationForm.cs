@@ -2,6 +2,8 @@
  * Google Sync Plugin for KeePass Password Safe
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
+ * 
+ * Google Drive Sync for KeePass Password Safe
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +29,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace GoogleSyncPlugin
+namespace GoogleDriveSync
 {
     public partial class ConfigurationForm : Form
     {
@@ -44,7 +46,7 @@ namespace GoogleSyncPlugin
             InitializeComponent();
 
             // Localize the form
-            Text = Defs.ProductName;
+            Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
             m_lnkGoogle.Text = Resources.GetString(m_lnkGoogle.Text);
             m_lnkHelp.Text = Resources.GetString(m_lnkHelp.Text);
@@ -80,8 +82,8 @@ namespace GoogleSyncPlugin
             m_lblDefFolderColor.Text = Resources.GetString(m_lblDefFolderColor.Text);
             m_btnGetColors.Text = Resources.GetString(m_btnGetColors.Text);
             m_lblAttribution.Text = Resources.GetString(m_lblAttribution.Text);
-            m_lblAboutVer.Text = Defs.Version;
-            m_lblAboutProd.Text = Defs.ProductName;
+            m_lblAboutVer.Text = GdsDefs.Version;
+            m_lblAboutProd.Text = GdsDefs.ProductName;
 
             m_data = data;
 
@@ -237,12 +239,12 @@ namespace GoogleSyncPlugin
             }
 
             // Initialize link handlers.
-            m_lnkGoogle.LinkClicked += (o, e) => Process.Start(Defs.UrlGoogleDev);
-            m_lnkHelp.LinkClicked += (o, e) => Process.Start(Defs.UrlHelp);
-            m_lnkHome.LinkClicked += (o, e) => Process.Start(Defs.UrlHome);
-            m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(Defs.UrlGoogleDev);
-            m_lnkHelp2.LinkClicked += (o, e) => Process.Start(Defs.UrlHelp);
-            m_lblAttribution.Click += (o, e) => Process.Start(Defs.UrlLegacyHome);
+            m_lnkGoogle.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlGoogleDev);
+            m_lnkHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHelp);
+            m_lnkHome.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHome);
+            m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlGoogleDev);
+            m_lnkHelp2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHelp);
+            m_lblAttribution.Click += (o, e) => Process.Start(GdsDefs.UrlLegacyHome);
 
             // Manage tab changes to prevent invalid data entry.
             m_tabMain.Deselecting += HandleTabChangeValidation;
@@ -327,8 +329,8 @@ namespace GoogleSyncPlugin
             if (e.Cancel)
             {
                 MessageBox.Show(Resources.GetFormat("Msg_OauthCredsInvalidFmt",
-                                                    Defs.ProductName),
-                                Defs.ProductName,
+                                                    GdsDefs.ProductName),
+                                GdsDefs.ProductName,
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
             }
@@ -437,8 +439,8 @@ namespace GoogleSyncPlugin
             {
                 MessageBox.Show(
                     Resources.GetFormat("Msg_OauthCredsInvalidFmt",
-                                        Defs.ProductName),
-                    Defs.ProductName,
+                                        GdsDefs.ProductName),
+                    GdsDefs.ProductName,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
