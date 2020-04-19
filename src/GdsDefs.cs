@@ -84,7 +84,7 @@ namespace GoogleDriveSync
 			}
 		}
 
-		public const string GitHubProjectName = "side-o-beat";
+		public const string GitHubProjectName = "google-drive-sync";
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
 		public const string ConfigDefaultAppFolder = "GoogleSync.DefaultAppFolder";

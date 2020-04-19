@@ -1,3 +1,3 @@
 :
-Google Drive Sync:3.1.0.0
+Google Drive Sync:4.0.0.0
 :
