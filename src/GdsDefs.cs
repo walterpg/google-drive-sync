@@ -55,8 +55,12 @@ namespace GoogleDriveSync
 			{
 				if (m_productVersion == null)
 				{
-					Version version = Assembly.GetExecutingAssembly().GetName().Version;
-					m_productVersion = "v" + version.ToString(4);
+					Assembly assembly = Assembly.GetExecutingAssembly();
+					object[] attrs = assembly.GetCustomAttributes(
+						typeof(AssemblyInformationalVersionAttribute), false);
+					AssemblyInformationalVersionAttribute asmVer;
+					asmVer = attrs[0] as AssemblyInformationalVersionAttribute;
+					m_productVersion = asmVer.InformationalVersion;
 				}
 				return m_productVersion;
 			}

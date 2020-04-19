@@ -1,5 +1,5 @@
 @echo off
-set version=4.0.0-unstable
+set version=4.0.0-alpha
 set sevenzip="C:\Program Files (x86)\7-Zip\7z.exe"
 set msbuildcmd="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsMSBuildCmd.bat"
 
