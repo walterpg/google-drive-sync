@@ -26,26 +26,46 @@ using System.Reflection;
 
 namespace GoogleDriveSync
 {
-	public static class GdsDefs
+	static partial class GdsDefs
 	{
-		private static string m_productName;
-		private static string m_productVersion;
-		private static ProtectedString m_emptyEx;
+		static string s_productName;
+		static string s_productVersion;
+		static ProtectedString s_emptyEx;
+		static ProtectedString s_defClientId;
+		static ProtectedString s_defClientSecret;
+
+		static ProtectedString GetData(byte[] data, byte[] pad)
+		{
+			XorredBuffer buf = null;
+			try
+			{
+				buf = new XorredBuffer(data, pad);
+				return new ProtectedString(true, buf);
+			}
+			finally
+			{
+				// $$REVIEW
+				// XorredBuffer isn't IDisposable until sometime after KeePass
+				// v2.35, so fool the compiler and dispose if necessary.
+				object unknown = buf;
+				using (IDisposable disposable = unknown as IDisposable) { }
+			}
+		}
 
 		public static string ProductName
 		{
 			get
 			{
-				if (m_productName == null)
+				if (s_productName == null)
 				{
 					Assembly assembly = Assembly.GetExecutingAssembly();
 					object[] attrs = assembly.GetCustomAttributes(
 						typeof(AssemblyTitleAttribute), false);
 					AssemblyTitleAttribute assemblyTitle;
 					assemblyTitle = attrs[0] as AssemblyTitleAttribute;
-					m_productName = assemblyTitle.Title;
+					s_productName = assemblyTitle.Title;
 				}
-				return m_productName;
+				return s_productName;
 			}
 		}
 
@@ -53,30 +73,31 @@ namespace GoogleDriveSync
 		{
 			get
 			{
-				if (m_productVersion == null)
+				if (s_productVersion == null)
 				{
 					Assembly assembly = Assembly.GetExecutingAssembly();
 					object[] attrs = assembly.GetCustomAttributes(
 						typeof(AssemblyInformationalVersionAttribute), false);
 					AssemblyInformationalVersionAttribute asmVer;
 					asmVer = attrs[0] as AssemblyInformationalVersionAttribute;
-					m_productVersion = asmVer.InformationalVersion;
+					s_productVersion = asmVer.InformationalVersion;
 				}
-				return m_productVersion;
+				return s_productVersion;
 			}
 		}
 
+		// $$REVIEW
 		// ProtectedString.EmptyEx is not available until after the current target
 		// release (2.35).
 		public static ProtectedString PsEmptyEx
 		{
 			get
 			{
-				if (m_emptyEx == null)
+				if (s_emptyEx == null)
 				{
-					m_emptyEx = new ProtectedString(true, new byte[0]);
+					s_emptyEx = new ProtectedString(true, new byte[0]);
 				}
-				return m_emptyEx;
+				return s_emptyEx;
 			}
 		}
 
@@ -85,6 +106,34 @@ namespace GoogleDriveSync
 			get
 			{
 				return string.Format(UrlUpdateFormat, GitHubProjectName);
+			}
+		}
+
+		public static ProtectedString DefaultClientSecret
+		{
+			get
+			{
+				if (s_defClientSecret == null)
+				{
+					s_defClientSecret = GetData(
+						s_clientSecretBytes,
+						s_clientSecretPad);
+				}
+				return s_defClientSecret;
+			}
+		}
+
+		public static ProtectedString DefaultClientId
+		{
+			get
+			{
+				if (s_defClientId == null)
+				{
+					s_defClientId = GetData(
+						s_clientIdBytes,
+						s_clientIdPad);
+				}
+				return s_defClientId;
 			}
 		}
 
@@ -115,7 +164,6 @@ namespace GoogleDriveSync
 		public const string AppDefaultFolderName = "KeePass Google Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
 		public const string FolderMimeType = "application/vnd.google-apps.folder";
-
 		public const int DefaultDotNetFileBufferSize = 4096;
 	}
 

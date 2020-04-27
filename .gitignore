@@ -157,3 +157,13 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# =========================
+# Project specifica
+# =========================
+
+# Allow lib to have a bin folder for small version-dependent libs.
+!lib/bin/
+
+# Machine-generated code.
+src/GdsDefs.Data.cs

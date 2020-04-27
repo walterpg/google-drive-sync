@@ -102,9 +102,6 @@ namespace GoogleDriveSync
 			UPLOAD = 3
 		}
 
-		private const string DefaultClientId = "579467001123-ee60b1ghffl38rgdk6pj7gjdjvagi9i7.apps.googleusercontent.com";
-		private XorredBuffer DefaultClientSecret;
-
 		/// <summary>
 		/// URL of a version information file
 		/// </summary>
@@ -133,19 +130,6 @@ namespace GoogleDriveSync
 			{
 				return false;
 			}
-
-			// pseudosecret (pad is sha256 of DefaultClientId)
-			DefaultClientSecret = new XorredBuffer(
-			   new byte[] {
-					0x56, 0x26, 0xd7, 0x81, 0xcd, 0x45, 0x8c, 0xd2,
-					0xee, 0x3d, 0x1a, 0x6a, 0x64, 0xec, 0x54, 0x5d,
-					0xa0, 0x36, 0x24, 0x2c, 0xca, 0x27, 0x81, 0xec
-			   }, new byte[] {
-					0x10, 0x65, 0x98, 0xec, 0xbd, 0x74, 0xe0, 0xe2,
-					0xda, 0x72, 0x5f, 0x2b, 0x21, 0x85, 0x2d, 0x34,
-					0xf2, 0x78, 0x5e, 0x7e, 0x8b, 0x74, 0xf4, 0xae
-			   }
-		    );
 
 			m_host = host;
 			string syncOption = m_host.GetConfig(GdsDefs.ConfigAutoSync,
@@ -278,12 +262,6 @@ namespace GoogleDriveSync
 
 			m_host.MainWindow.FileSaved -= OnFileSaved;
 			m_host.MainWindow.FileOpened -= OnFileOpened;
-
-			// $$BUG XorredBuffer is not IDisposable until >v2.35,
-			// so we are fooling C#5.0 here.
-			object unknown = DefaultClientSecret;
-			IDisposable disposable = unknown as IDisposable;
-			using (disposable) { }
 		}
 
 		// File thumbnail image.
@@ -497,8 +475,8 @@ namespace GoogleDriveSync
 				// Traditionally, the plugin's indicator for "use default 
 				// clientId" is empty strings for clientId & secret.  Maintain
 				// that compatibility point.
-				if (DefaultClientId == config.ClientId &&
-					 new ProtectedString(true, DefaultClientSecret)
+				if (GdsDefs.DefaultClientId.ReadString() == config.ClientId &&
+					 GdsDefs.DefaultClientSecret
 						.OrdinalEquals(config.ClientSecret, true))
 				{
 					config.ClientId = string.Empty;
@@ -1182,8 +1160,8 @@ namespace GoogleDriveSync
 				originalAuthData = authData;
 				authData = new TransientConfiguration(authData)
 				{
-					ClientId = DefaultClientId,
-					ClientSecret = new ProtectedString(true, DefaultClientSecret)
+					ClientId = GdsDefs.DefaultClientId.ReadString(),
+					ClientSecret = GdsDefs.DefaultClientSecret
 				};
 			}
 
@@ -1429,9 +1407,8 @@ namespace GoogleDriveSync
 
 			if (entryConfig != null && entryConfig.IsMissingOauthCredentials)
 			{
-				entryConfig.ClientId = DefaultClientId;
-				entryConfig.ClientSecret =
-					new ProtectedString(true, DefaultClientSecret);
+				entryConfig.ClientId = GdsDefs.DefaultClientId.ReadString();
+				entryConfig.ClientSecret = GdsDefs.DefaultClientSecret;
 			}
 
 			return entryConfig;
@@ -1453,9 +1430,8 @@ namespace GoogleDriveSync
 					// Use default OAuth 2.0 credentials if missing.
 					if (config.IsMissingOauthCredentials)
 					{
-						config.ClientId = DefaultClientId;
-						config.ClientSecret = new ProtectedString(true,
-													DefaultClientSecret);
+						config.ClientId = GdsDefs.DefaultClientId.ReadString();
+						config.ClientSecret = GdsDefs.DefaultClientSecret;
 					}
 				}
 			}

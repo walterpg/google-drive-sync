@@ -16,6 +16,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <!--<LangVersion>5</LangVersion>-->
+    <GenClientIdFolder>$(MSBuildProjectDirectory)\..\lib\src\GenClientId\bin\$(Configuration)\</GenClientIdFolder>
+    <ClientIdSrcFolder>$(MSBuildProjectDirectory)\</ClientIdSrcFolder>
+    <TransformOnBuild>true</TransformOnBuild>
+    <TransformOutOfDateOnly>true</TransformOutOfDateOnly>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,6 +57,26 @@
       <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
     </Compile>
     <Compile Include="GdsDefs.cs" />
+    <None Include="GdsDefs.Data.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GdsDefs.Data.cs</LastGenOutput>
+      <Visible>true</Visible>
+    </None>
+    <T4ParameterValues Include="ClientIdSrcFolder">
+      <Value>$(ClientIdSrcFolder)</Value>
+      <Visible>false</Visible>
+      <ExcludeFromPlgx>true</ExcludeFromPlgx>
+    </T4ParameterValues>
+    <T4ParameterValues Include="GenClientIdFolder">
+      <Value>$(GenClientIdFolder)</Value>
+      <Visible>false</Visible>
+      <ExcludeFromPlgx>true</ExcludeFromPlgx>
+    </T4ParameterValues>
+    <Compile Include="GdsDefs.Data.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GdsDefs.Data.tt</DependentUpon>
+    </Compile>
     <Compile Include="GoogleColor.cs" />
     <Compile Include="GoogleDriveSyncExt.cs" />
     <Compile Include="IDriveServiceProvider.cs" />
@@ -65,6 +89,7 @@
     <Compile Include="PluginEntryFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
+    <Content Include="GdsDefs.OAuthCreds.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -94,30 +119,28 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Google.Apis, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.1.45.0\lib\net45\Google.Apis.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.1.45.0\lib\net45\Google.Apis.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Auth, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.Auth.1.45.0\lib\net45\Google.Apis.Auth.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.Auth.1.45.0\lib\net45\Google.Apis.Auth.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.Auth.1.45.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.Auth.1.45.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Core, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.Core.1.45.0\lib\net45\Google.Apis.Core.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.Core.1.45.0\lib\net45\Google.Apis.Core.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Drive.v3, Version=1.45.0.1911, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.Drive.v3.1.45.0.1911\lib\net45\Google.Apis.Drive.v3.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.Drive.v3.1.45.0.1911\lib\net45\Google.Apis.Drive.v3.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.PlatformServices, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Apis.1.45.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
+      <HintPath>..\packages\Google.Apis.1.45.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.35.0.20042, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\KeePass.exe</HintPath>
-      <Private>True</Private>
+    <Reference Include="KeePass">
+      <HintPath>..\lib\bin\KeePass.exe</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -143,7 +166,13 @@
     <Content Include="Images\round_settings_black_48dp.png" />
     <Content Include="Images\round_sync_black_18dp.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}">
+      <ExcludeFromPlgx>true</ExcludeFromPlgx>
+    </Service>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" />
   <PropertyGroup>
     <PlgxConfiguration>
       <Prerequisites>
@@ -161,12 +190,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="packages\PlgxTool.1.0.0\build\PlgxTool.targets" Condition="Exists('packages\PlgxTool.1.0.0\build\PlgxTool.targets')" />
+  <Import Project="..\packages\PlgxTool.1.0.0\build\PlgxTool.targets" Condition="Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\PlgxTool.1.0.0\build\PlgxTool.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\PlgxTool.1.0.0\build\PlgxTool.targets'))" />
+    <Error Condition="!Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PlgxTool.1.0.0\build\PlgxTool.targets'))" />
   </Target>
   <!--To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

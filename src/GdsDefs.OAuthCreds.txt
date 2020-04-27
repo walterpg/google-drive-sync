@@ -1,0 +1,2 @@
+﻿replace the text on this line with the built-in ClientId
+replace the text on this line with the ClientId secret

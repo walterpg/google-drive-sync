@@ -12,9 +12,13 @@ del /s /f /q build\*
 
 if not exist build\bin mkdir build\bin
 if not exist build\dist mkdir build\dist
+if not exist build\log mkdir build\log
+del /s /f /q build\bin\*
+del /s /f /q build\dist\*
+del /s /f /q build\log\*
 
-nuget.exe restore src\
-msbuild -t:clean,build -p:Configuration=Release;Platform="Any CPU" -flp:logfile=build\build.log src\GoogleDriveSync.sln
+nuget.exe restore
+msbuild -t:clean,build -p:Configuration=Release;Platform="Any CPU" -flp:logfile=build\log\build.log GoogleDriveSync.sln
 if %errorlevel% NEQ 0 goto error
 
 xcopy src\bin\Release\*.* build\bin

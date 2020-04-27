@@ -1,0 +1,41 @@
+<#@ template hostspecific="true" language="C#" #>
+<#@ parameter type="System.String" name="ClientIdSrcFolder" #>
+<#@ output extension=".cs" encoding="utf-8" #>
+<#@ assembly name="System.dll" #>
+<#@ assembly name="$(GenClientIdFolder)GenClientId.exe" #>
+<#@ import namespace="GenClientId" #>
+<# var clientIdSrc = this.Host.ResolveParameterValue("-", "-", "ClientIdSrcFolder"); #>
+<# clientIdSrc += "GdsDefs.OAuthCreds.txt"; #>
+<#
+    Generator gen = new Generator()
+    {
+        SourceFilePath = this.Host.ResolvePath(clientIdSrc)
+    };
+    gen.Run();
+#>
+//
+// Design-time generated file.  Do not modify or check into source control.
+// <#= DateTime.Now #>
+//
+namespace GoogleDriveSync
+{
+    static partial class GdsDefs
+    {
+        static readonly byte[] s_clientIdBytes = new byte[]
+        {
+<#= gen.ClientIdCsharpConstant #>
+        };
+        static readonly byte[] s_clientIdPad = new byte[]
+        {
+<#= gen.ClientIdPadCsharpConstant #>
+        };
+        static readonly byte[] s_clientSecretBytes = new byte[]
+		{
+<#= gen.ClientSecretCsharpConstant #>
+		};
+		static readonly byte[] s_clientSecretPad = new byte[]
+		{
+<#= gen.ClientSecretPadCsharpConstant #>
+		};
+	}
+}
