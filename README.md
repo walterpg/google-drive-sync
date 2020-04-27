@@ -1,6 +1,6 @@
 # Google Drive Sync *Preview*
 
-[![GitHub license](https://img.shields.io/github/license/walterpg/side-o-beat)](https://raw.githubusercontent.com/walterpg/side-o-beat/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
 ##### A [KeePass Password Safe](https://keepass.info) Plugin and fork of the original [KeePass Google Sync Plugin](https://sourceforge.net/projects/kp-googlesync/)
 
@@ -42,7 +42,7 @@ The plugin supports natural languages with standard .NET/Visual
 Studio resource files.  No *genuine* translations are available - yet.
   
 There is a 
-[demo resource](https://github.com/walterpg/side-o-beat/blob/master/src/Strings.es.resx)
+[demo resource](https://github.com/walterpg/google-drive-sync/blob/master/src/Strings.es.resx)
 that will load when the user loads the 
 [KeePass translation files](https://keepass.info/translations.html) for Spanish.
 The strings in that resource were machine translated - if you are able and willing to translate
