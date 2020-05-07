@@ -167,3 +167,6 @@ $RECYCLE.BIN/
 
 # Machine-generated code.
 src/GdsDefs.Data.cs
+
+# Private key for release version signing.
+lib/src/GenVerInfo/PrivateKey.xml

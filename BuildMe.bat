@@ -25,6 +25,7 @@ xcopy src\bin\Release\*.* build\bin
 copy src\bin\Release\GoogleDriveSync.plgx build\dist\GoogleDriveSync-%version%.plgx
 copy doc\readme.txt build\dist
 %sevenzip% a -tzip build\dist\GoogleDriveSync-%version%.zip .\build\bin\*.dll .\build\bin\*.pdb
+.\lib\src\GenVerInfo\bin\Release\GenVerInfo.exe .\build\bin\GoogleDriveSync.dll .\current_version_manifest.txt
 
 goto end
 

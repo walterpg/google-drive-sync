@@ -34,6 +34,7 @@ using KeePass.DataExchange;
 using KeePass.Forms;
 using KeePass.Plugins;
 using KeePass.UI;
+using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Cryptography;
 using KeePassLib.Delegates;
@@ -130,6 +131,8 @@ namespace GoogleDriveSync
 			{
 				return false;
 			}
+
+			UpdateCheckEx.SetFileSigKey(UpdateUrl, Images.PubKey);
 
 			m_host = host;
 			string syncOption = m_host.GetConfig(GdsDefs.ConfigAutoSync,

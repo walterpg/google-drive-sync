@@ -159,6 +159,7 @@
     <Content Include="Images\keepass_thumbnail.png" />
     <Content Include="Images\outline_security_black_18dp.png" />
     <Content Include="Images\outline_settings_black_18dp.png" />
+    <Content Include="Images\PubKey.xml" />
     <Content Include="Images\round_cloud_download_black_18dp.png" />
     <Content Include="Images\round_cloud_upload_black_18dp.png" />
     <Content Include="Images\round_help_outline_black_18dp.png" />
@@ -201,7 +202,7 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>-->
-  <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="AfterBuild">
     <CallTarget Targets="BuildPlgx" />
   </Target>
 </Project>

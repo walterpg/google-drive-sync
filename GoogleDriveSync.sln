@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleDriveSync", "src\Goog
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenClientId", "lib\src\GenClientId\GenClientId.csproj", "{F7B92FBF-F5D8-45E0-B357-4CA8F05AD652}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenVerInfo", "lib\src\GenVerInfo\GenVerInfo.csproj", "{552F1DC6-E4B4-4766-B0B3-7A37276AB86B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{F7B92FBF-F5D8-45E0-B357-4CA8F05AD652}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7B92FBF-F5D8-45E0-B357-4CA8F05AD652}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7B92FBF-F5D8-45E0-B357-4CA8F05AD652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{552F1DC6-E4B4-4766-B0B3-7A37276AB86B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552F1DC6-E4B4-4766-B0B3-7A37276AB86B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{552F1DC6-E4B4-4766-B0B3-7A37276AB86B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552F1DC6-E4B4-4766-B0B3-7A37276AB86B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
