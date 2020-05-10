@@ -132,7 +132,7 @@ namespace GoogleDriveSync
             set
             {
                 DefaultApiScope = value ?
-                    DriveService.Scope.Drive : DriveService.Scope.DriveFile;
+                    DriveService.Scope.DriveFile : DriveService.Scope.Drive;
             }
         }
 
