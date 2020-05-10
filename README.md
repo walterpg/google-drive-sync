@@ -2,10 +2,12 @@
 
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
-##### A [KeePass Password Safe](https://keepass.info) Plugin and fork of the original [KeePass Google Sync Plugin](https://sourceforge.net/projects/kp-googlesync/)
+##### A [KeePass Password Safe](https://keepass.info) Plugin and fork of the original [KeePass Google Sync Plugin](http://sourceforge.net/projects/kp-googlesync/)
 
 ---
 Google Drive Sync helps maintain synchronized KeePass databases accessible to your KeePass-compatible apps via Google Drive.
+
+[Documentation](https://github.com/walterpg/google-drive-sync/blob/master/doc/Use.md).
 
 Some Features:
 * Feature-compatible with KeePass Google Sync Plugin: manual upload/download, sync, and auto-sync.
@@ -17,6 +19,7 @@ Some Features:
 * Localized language support[*](#Localization).
 
 Some ToDo's:
+* Document release build.
 * Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).
 * Secure storage of default user-specified OAuth ClientId/Secret.
 * Specify sign-in browser of choice.
