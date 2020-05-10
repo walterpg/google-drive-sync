@@ -26,6 +26,8 @@ xcopy src\bin\Release\*.* build\bin
 copy src\bin\Release\GoogleDriveSync.plgx build\dist\GoogleDriveSync-%version%.plgx
 %sevenzip% a -tzip build\dist\GoogleDriveSync-%version%.zip .\build\bin\*.dll .\build\bin\*.pdb
 .\lib\src\GenVerInfo\bin\Release\GenVerInfo.exe .\build\bin\GoogleDriveSync.dll .\current_version_manifest.txt
+
+if not exist %pandoc% goto end
 %pandoc% -f gfm -t plain --wrap=auto doc\README.md -o build\dist\readme.txt
 
 goto end
