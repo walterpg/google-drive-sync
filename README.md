@@ -19,7 +19,6 @@ Some Features:
 * Localized language support[*](#localization).
 
 Some ToDo's:
-* Document release build.
 * More documentation generally.
 * Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).
 * Secure storage of default user-specified OAuth ClientId/Secret.
