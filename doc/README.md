@@ -23,7 +23,7 @@ backup procedures!
 * [Synchronizing a Database](#synchronizing-a-database)
 * [Configuration](#configuration)
 * [Privacy and Security](#privacy-and-security)
-* [Obtaining Custom OAuth 2.0 Credentials](#obtaining-custom-oauth-2.0-credentials)
+* [Obtaining Custom OAuth 2.0 Credentials](#obtaining-custom-oauth-20-credentials)
 
 ## Primary Functions
 The plugin uses the name of the local database file when uploading/downloading
@@ -48,7 +48,7 @@ database must be configured to synchronize "manually" via menu commands.
 When enabled, this feature can be temporarily suppressed by holding the Shift
 key when opening/saving the database file.
 * Custom OAuth 2.0 ClientId Credentials: Provide your own credentials, [obtained
-from Google](#obtaining-custom-oauth-2.0-credentials), for the ultimate control
+from Google](#obtaining-custom-oauth-20-credentials), for the ultimate control
 over KeePass-secured access to Google Drive, configured per-database.
 * Custom Drive folders: Specify a top-level Google Drive folder to contain the
 uploaded copy of the database file.
@@ -126,7 +126,7 @@ Clear button).
 ## Privacy and Security
 As with Google Sync Plugin 3.0, this release offers flexible options for 
 securing Google Drive account access.  You may use the
-"built-in" OAuth 2.0 credentials, or [your own personal credentials](#obtaining-custom-oauth-2.0-credentials),
+"built-in" OAuth 2.0 credentials, or [your own personal credentials](#obtaining-custom-oauth-20-credentials),
 with the assurance that, from the perspective of KeePass and the
 plugin, no personal information is logged, shared, or used
 for any purpose other than to read and write the KeePass database to and
