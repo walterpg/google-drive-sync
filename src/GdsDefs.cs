@@ -154,11 +154,11 @@ namespace GoogleDriveSync
 		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
 		public const string EntryDriveScope = ConfigDriveScope;
 		public const string AccountSearchString = "accounts.google.com";
-		public const string UrlHome = "http://sourceforge.net/p/kp-googlesync";
+		public const string UrlHome = "https://github.com/walterpg/" + GitHubProjectName;
 		public const string UrlLegacyHome = "http://sourceforge.net/p/kp-googlesync";
-		public const string UrlHelp = "http://sourceforge.net/p/kp-googlesync/support";
+		public const string UrlHelp = "https://github.com/walterpg/" + GitHubProjectName + "/blob/master/doc/Use.md";
 		public const string UrlGoogleDev = "https://console.developers.google.com/start";
-		public const string UrlUpdateFormat = "https://github.com/walterpg/{0}/current_version_manifest.txt";
+		public const string UrlUpdateFormat = "https://github.com/walterpg/"+ GitHubProjectName + "/current_version_manifest.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Google Sync";
