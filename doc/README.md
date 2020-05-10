@@ -1,61 +1,75 @@
-# Google Drive Sync
-(formerly [*Google Sync Plugin*](https://sourceforge.net/projects/kp-googlesync/))
+# KeePass Google Drive Sync
+(formerly [*KeePass Google Sync*](https://sourceforge.net/projects/kp-googlesync/))
 
 
-## Introduction
 This KeePass Password Safe v2 plugin permits easy, safe synchronization
 of the currently open KeePass database with a corresponding file in your Google
 Drive account.  Beyond simple "backup", this plugin automates use of KeePass'
 ["synchronize" function](https://keepass.info/help/v2/sync.html),
-so that, say, changes made to the database by another machine or user are
+so that, say, changes made to the database by another PC or user are
 correctly merged with the local copy of the database.
 This simplifies distribution of group-shared password archives, and
 handy when using [mobile or other KeePass programs](https://keepass.info/download.html)
-that synchronize with Google Drive.
+that synchronize with Google Drive.  Note that this tool is *not* a
+general-purpose backup utility for your data; please use sensible
+backup procedures!
 
-* [Requirements]
-* [Compatibility]
-* [Installation (Normal)]
-* [Installation (Portable)]
-* [Primary Functions]
-* [Secondary Functions]
-* [Synchronizing a Database]
-* [Privacy and Security]
-* [Obtaining Custom OAuth 2.0 Credentials]
-* [Configuration]
+* [Requirements](#requirements)
+* [Compatibility](#compatibility)
+* [Installation (Normal)](#installation-normal)
+* [Installation (Portable)](#installation-portable)
+* [Primary Functions](#primary-functions)
+* [Secondary Functions](#secondary-functions)
+* [Synchronizing a Database](#synchronizing-a-database)
+* [Configuration](#configuration)
+* [Privacy and Security](#privacy-and-security)
+* [Obtaining Custom OAuth 2.0 Credentials](#obtaining-custom-oauth-2.0-credentials)
 
 ## Primary Functions
 The plugin uses the name of the local database file when uploading/downloading
-to the local machine.  These primary functions are accessed with KeePass menu commands (Tools &#x21D2; Google Drive Sync): 
+to the local machine.  These primary functions are accessed with KeePass menu
+commands (Tools &#x21D2; Google Drive Sync): 
 * Synchronize: The copy of the database on Google Drive is downloaded to your
 local machine, *merged* with the currently open database via the KeePass
-Synchronize with File feature, then uploaded back to Google Drive, replacing the remote file.
-* Upload: The copy of the current database is uploaded to Google Drive, _replacing_ the remote file of the same name, if any.
-* Download: The remote file on Google Drive is downloaded to the local machine, _replacing_ the current database.
+"Synchronize with File" feature, then uploaded back to Google Drive, replacing
+the remote file.
+* Upload: The copy of the current database is uploaded to Google Drive,
+_replacing_ the remote file of the same name, if any.
+* Download: The remote file on Google Drive is downloaded to the local machine,
+_replacing_ the currently open database. The database is not saved to the local
+file until you explicitly do so.
 
 ## Secondary Functions
-These optional functions are accessed automatically or with keyboard commands, and configured with the plugin's configuration window (Tools &#x21D2; Google Drive Sync &#x21D2; Configure):
-* Auto-sync: Automates the Synchronize function to run when the database is saved to, and/or read from the local file. To use this your database must be configured to synchronize "manually" via menu commands. Auto-sync can be suppressed by holding the Shift key when opening/saving the database filefile.
-* Custom OAuth 2.0 ClientId Credentials: Provide your own credentials, obtained from Google, for the ultimate KeePass-secured access to Google Drive, configured per-database.
-* Custom Drive folders: Specify a top-level Google Drive folder to contain the uploaded copy of the database file.
+These optional functions are accessed automatically or with keyboard commands,
+and configured with the plugin's configuration window (Tools &#x21D2; Google Drive Sync &#x21D2; Configure):
+* Auto-sync: Automates the Synchronize function to run when the database is
+saved to, and/or read from the local file via KeePass commands. To use this your
+database must be configured to synchronize "manually" via menu commands.
+When enabled, this feature can be temporarily suppressed by holding the Shift
+key when opening/saving the database file.
+* Custom OAuth 2.0 ClientId Credentials: Provide your own credentials, [obtained
+from Google](#obtaining-custom-oauth-2.0-credentials), for the ultimate control
+over KeePass-secured access to Google Drive, configured per-database.
+* Custom Drive folders: Specify a top-level Google Drive folder to contain the
+uploaded copy of the database file.
 
 ## Compatibility
 This is the 4th generation of the plugin, with updated Google Drive APIs,
-modern KeePass functionality, and updated .NET Framework security.  This release
-maintains functional compatibility with Google Sync Plugin 3.0, while 
-fixing issues with current Google OAuth 2.0 authentication requirements.  
+modern KeePass functionality, and updated .NET Framework security.  Functional
+compatibility with Google Sync Plugin 3.0 is fully maintained while 
+fixing issues with current Google authentication requirements.  
 
 If you currently synchronize successfully with the old plugin, this release
-will maintain the same functionality as long as Google continues to respect the
-authentication token granted to the old plugin.  However, if you want to
-synchronize a new database, or if Google retires your current token, this release
-is probably the best way to continue synchronizing in the customary way.
+will as well, as long as Google continues to respect the authorization token
+granted to the old plugin.  However, if you want to synchronize a new database,
+or if Google retires your current token saved in an existing database, this
+plugin is probably the best way to continue synchronizing in the customary way.
 
 If you configured custom OAuth 2.0 credentials for your database with the old
 plugin, these will continue to work as before.
 
-Though not fully forward-compatible due to new KeePass facilities, the plugin can be
-safely installed side-by-side with Google Sync Plugin.
+Though not fully forward-compatible due to new KeePass facilities, the plugin
+can be safely installed side-by-side with Google Sync Plugin 3.0.
 
 ## Requirements
 * KeePass version 2.35 or later.
@@ -76,7 +90,7 @@ be signed on with an account in the [Windows "local Administrators group"](https
 minimized to the task bar or [notification tray](https://docs.microsoft.com/en-us/windows/win32/shell/notification-area)).
 
 When KeePass starts, a small delay occurs to initialize the plugin(s)
-that you installed.  Verify that the plugin is installed by examining the
+that you have installed.  Verify that the plugin is installed by examining the
 KeePass Tools menu:
 
 ![Google Drive Sync menu](img/menu.png)
@@ -85,7 +99,7 @@ KeePass Tools menu:
 KeePass supports ["portable"](https://keepass.info/help/v2/setup.html#portable)
 installation that allows you to install and run KeePass on removable
 media such as USB sticks.  To use the plugin in portable mode, ensure that the
-machine meets the [minumum .NET Framework requirements](#Requirements).
+machine meets the [minumum .NET Framework requirements](#requirements).
 
 To install the plugin in this mode, use the ".zip"
 file embedded the release download (e.g., GoogleDriveSync-4.0.1.zip).
@@ -103,15 +117,16 @@ plugin from operating in normal, non-portable mode, if KeePass is still
 installed that way.
 
 1. Remove the ".plgx" file added to the KeePass directory in Step 1 of the 
-Installation (Normal) instructions.
-2. In KeePass, clear the "Plugin Cache" (Tools &#x21D2; Plugins... &#x21D2; Clear button).
+[Installation (Normal)] instructions.
+2. In KeePass, clear the "Plugin Cache" (Tools &#x21D2; Plugins... &#x21D2;
+Clear button).
 3. Restart KeePass.
 
 
 ## Privacy and Security
 As with Google Sync Plugin 3.0, this release offers flexible options for 
 securing Google Drive account access.  You may use the
-"built-in" OAuth 2.0 credentials, or [your own personal credentials](#Custom),
+"built-in" OAuth 2.0 credentials, or [your own personal credentials](#obtaining-custom-oauth-2.0-credentials),
 with the assurance that, from the perspective of KeePass and the
 plugin, no personal information is logged, shared, or used
 for any purpose other than to read and write the KeePass database to and
@@ -137,26 +152,25 @@ create one for you.
 
 ![New Config](img/new-config.png)
 
-If you answer "Yes", or the plugin has already been [configured](#Configuration),
+If you answer "Yes", or the plugin has already been [configured](#configuration),
 the plugin logs on to your Google Drive account.  If this is the first time you
-have used the plugin or the OAuth 2.0 credentials have changed, you will be
-prompted to enter for your Google login, via the system browser.  Note that the
-plugin also opens a window that prompts your attention to the browser sign-in,
-and, if you have configured the KeePass entry with your Google login credentials,
-allows you to copy them for the browser sign-in.
+have used the plugin or the saved credentials have changed, you will be
+prompted for your Google login, via the system browser.  Note that the
+plugin also opens a window that directs your attention to the browser sign-in,
+and, if you have configured the KeePass entry with your Google login
+credentials, allows you to copy them with standard KeePass clipboard functions
+for the browser sign-in.
 
-![Authorization prompt](img/auth.png)
-
-
+![Authorization prompt with "classic" OAuth 2.0 Client ID](img/auth.png)
 
 ## Obtaining Custom OAuth 2.0 Credentials
 The plugin allows you to authorize Google Drive access with personal OAuth
-2.0 credentials that Google creates for *your* own use.  There are notable
+2.0 credentials that Google creates for *your* use.  There are notable
 reasons, of possibly questionable value, for doing this:
 
-* If you don't share the credentials with anyone, then no third party
-can use them - they are a secret between you, Google, and the KeePass program
-running on your PC.
+* If you don't share the credentials with anyone, then no non-mechanical
+third party can use them - they are a secret between you, Google, and the
+KeePass program running on your PC.
 * Though reasonably protected, and only useful with your expressed permission,
 the built-in credentials could be compromised by unintended neglect or
 nefarious means, and used to "spoof" the plugin's request for authorization.
@@ -192,10 +206,11 @@ such a value in the URL field, as shown.
 
 ![KeePass entry showing URL=accounts.google.com](img/oauth-entry.png)
 
-Now open the Google Drive Sync configuration dialog (Tools &#x21D2; Google Drive Sync &#x21D2; Configuration).
-The drop-down box at the top of the dialog will contain all KeePass entries
-tagged with the URL=``accounts.google.com`` field.  Select the one where
-you want to save the credentials.
+Now open the Google Drive Sync configuration dialog (Tools &#x21D2; Google
+Drive Sync &#x21D2; Configuration). The drop-down box at the top of the dialog
+will contain all KeePass entries tagged with the URL=``accounts.google.com``
+field.  Select one entry in the drop-down list where you want to save the
+credentials.
 
 ![Plugin Entry Configuration](img/config-entry.png)
 
