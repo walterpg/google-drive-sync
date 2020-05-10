@@ -127,7 +127,7 @@ namespace GoogleDriveSync
         {
             get
             {
-                return DefaultApiScope == DriveService.Scope.Drive;
+                return DefaultApiScope == DriveService.Scope.DriveFile;
             }
             set
             {

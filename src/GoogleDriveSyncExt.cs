@@ -150,16 +150,14 @@ namespace GoogleDriveSync
 				}
 			}
 
-			// The default setting is to use the My Drive root folder.
 			m_defaultFolder = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolder,
-									GdsDefs.AppDefaultFolderName);
+												string.Empty);
 			string encodedColor = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolderColor);
 			m_defaultFolderColor = !string.IsNullOrEmpty(encodedColor) ?
 				GoogleColor.DeserializeFromString(encodedColor) : null;
 
-			// The default setting is to use the less restrictive API scope.
 			m_defaultDriveScope = m_host.GetConfig(GdsDefs.ConfigDriveScope,
-									DriveService.Scope.DriveFile);
+									DriveService.Scope.Drive);
 
 			// Default is no OAuth 2.0 credentials.
 			m_defaultClientId = m_host.GetConfig(GdsDefs.ConfigDefaultClientId,

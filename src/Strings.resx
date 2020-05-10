@@ -266,10 +266,10 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>Target Sync Folder:</value>
   </data>
   <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
-    <value>Use limited Drive access (may be useful with Legacy Client ID).</value>
+    <value>Use limited Drive access.</value>
   </data>
   <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Use Legacy Plugin OAuth 2.0 Client ID (not recommended for new databases).</value>
+    <value>Use built-in OAuth 2.0 Client ID.</value>
   </data>
   <data name="Lnk_GoogleDev" xml:space="preserve">
     <value>Google Developer Console</value>

@@ -415,10 +415,10 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Carpeta de sincronización de destino:</value>
   </data>
   <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Use el Legacy Plugin OAuth 2.0 Client ID (no recomendado para nuevas bases de datos).</value>
+    <value>Use el ID de cliente OAuth 2.0 incorporado.</value>
   </data>
   <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
-    <value>Use acceso limitado a Drive (puede ser útil con Legacy Client ID).</value>
+    <value>Use acceso limitado a Drive.</value>
   </data>
   <data name="Title_DefaultsTab" xml:space="preserve">
     <value>Opciones y valores predeterminados</value>
