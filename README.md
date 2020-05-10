@@ -1,13 +1,13 @@
-# Google Drive Sync *Preview*
+# KeePass Google Drive Sync
 
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
-##### A [KeePass Password Safe](https://keepass.info) Plugin and fork of the original [KeePass Google Sync Plugin](http://sourceforge.net/projects/kp-googlesync/)
+##### A [KeePass Password Safe](https://keepass.info) Plugin and fork of the original [KeePass Google Sync](http://sourceforge.net/projects/kp-googlesync/) Plugin
 
 ---
 Google Drive Sync helps maintain synchronized KeePass databases accessible to your KeePass-compatible apps via Google Drive.
 
-[Documentation](https://github.com/walterpg/google-drive-sync/blob/master/doc/Use.md).
+[Documentation](https://github.com/walterpg/google-drive-sync/blob/master/doc).
 
 Some Features:
 * Feature-compatible with KeePass Google Sync Plugin: manual upload/download, sync, and auto-sync.
@@ -16,10 +16,10 @@ Some Features:
 * Deeper integration with Google Drive, including folders, scopes, etc.
 * Simplified UI with KeePass theme integration and material.io icons.
 * Updated Google libraries and new KeePass database format support.
-* Localized language support[*](#Localization).
+* Localized language support[*](#localization).
 
 Some ToDo's:
-* Document release build.
+* More documentation generally.
 * Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).
 * Secure storage of default user-specified OAuth ClientId/Secret.
 * Specify sign-in browser of choice.
@@ -38,7 +38,6 @@ Some ToDo's:
 * Forward-compatibility: changes to a database configuration such as ClientId/Secret will not be visible to KeePass Google Sync.
 * Limited-scope workaround for use with the expired "built-in" ClientId, or as a security feature.
 * Recognizes the credential KeePass entries with the "accounts.google.com" URL field.
-* Installation and usage as previously documented.
 
 ## *Localization
 The plugin supports natural languages with standard .NET/Visual 
