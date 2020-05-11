@@ -9,6 +9,10 @@ Google Drive Sync helps maintain synchronized KeePass databases accessible to yo
 
 [Documentation](https://github.com/walterpg/google-drive-sync/blob/master/doc).
 
+[PLGX Download](https://github.com/walterpg/google-drive-sync/releases/download/4.0.0-alpha.1/GoogleDriveSync-4.0.0-alpha.1.plgx).
+
+[Zip Download](https://github.com/walterpg/google-drive-sync/releases/download/4.0.0-alpha.1/GoogleDriveSync-4.0.0-alpha.1.zip).
+
 Some Features:
 * Feature-compatible with KeePass Google Sync Plugin: manual upload/download, sync, and auto-sync.
 * Browser-based OAuth 2.0 authentication flow enhanced with KeePass clipboard clickies.
