@@ -25,10 +25,11 @@ Run ``BuildMe.bat``.
 If successful, the ``build`` directory contains a log, and three directories.
 * ``bin``: "raw" build output, including pdbs, etc.
 * ``dist``: release PLGX, ZIP, and documentation files.
-* ``log``: contains build status loggging.
+* ``log``: contains build status logging.
 
 ### Preparing for Release
 Update the release tag version strings:
+* ``set version=x`` at the top of BuildMe.Bat
 * ``src\Properties\AssemblyInfo.cs``
 * ``BuildMe.bat``
 
