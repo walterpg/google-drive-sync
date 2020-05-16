@@ -816,8 +816,12 @@ namespace GoogleDriveSync
 
 			Form fParent = m_host.MainWindow;
 			IUIOperations uiOps = m_host.MainWindow;
-			bool? success = ImportUtil.Synchronize(m_host.Database, uiOps,
+			bool? success;
+			using (new MruFreezer(m_host))
+			{
+				success = ImportUtil.Synchronize(m_host.Database, uiOps,
 												connection, true, fParent);
+			}
 
 			// Delete the file.
 			Task.Run(() =>
