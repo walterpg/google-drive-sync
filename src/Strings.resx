@@ -183,6 +183,9 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Group_AutoSync" xml:space="preserve">
     <value>Auto-Sync</value>
   </data>
+  <data name="Group_CmdEnabled" xml:space="preserve">
+    <value>Enabled Commands (choose at least one)</value>
+  </data>
   <data name="Group_DriveAuth" xml:space="preserve">
     <value>Google Drive Authorization</value>
   </data>
@@ -246,6 +249,9 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   <data name="Lbl_DefaultTgtFolderColor" xml:space="preserve">
     <value>Default New Folder Color:</value>
   </data>
+  <data name="Lbl_DownloadEnabled" xml:space="preserve">
+    <value>Download</value>
+  </data>
   <data name="Lbl_FolderName" xml:space="preserve">
     <value>Drive Sync Folder:</value>
   </data>
@@ -262,8 +268,14 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>Custom OAuth 2.0 Credentials</value>
     <comment>checkbox label</comment>
   </data>
+  <data name="Lbl_SyncEnabled" xml:space="preserve">
+    <value>Synchronize</value>
+  </data>
   <data name="Lbl_TargetFolder" xml:space="preserve">
     <value>Target Sync Folder:</value>
+  </data>
+  <data name="Lbl_UploadEnabled" xml:space="preserve">
+    <value>Upload</value>
   </data>
   <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
     <value>Use limited Drive access.</value>

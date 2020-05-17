@@ -31,7 +31,7 @@ using System.Windows.Forms;
 
 namespace GoogleDriveSync
 {
-    public partial class ConfigurationForm : Form
+    partial class ConfigurationForm : Form
     {
         const string GSigninTabIcoKey = "gsignin";
         const string GeneralTabIcoKey = "general";
@@ -45,50 +45,63 @@ namespace GoogleDriveSync
         {
             InitializeComponent();
 
-            // Localize the form
             Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
-            m_lnkGoogle.Text = Resources.GetString(m_lnkGoogle.Text);
-            m_lnkHelp.Text = Resources.GetString(m_lnkHelp.Text);
-            m_lnkHome.Text = Resources.GetString(m_lnkHome.Text);
-            m_lnkGoogle2.Text = Resources.GetString(m_lnkGoogle2.Text);
-            m_lnkHelp2.Text = Resources.GetString(m_lnkHelp2.Text);
-            m_tabGSignIn.Text = Resources.GetString(m_tabGSignIn.Text);
-            m_tabOptions.Text = Resources.GetString(m_tabOptions.Text);
-            m_tabAbout.Text = Resources.GetString(m_tabAbout.Text);
-            m_grpEntry.Text = Resources.GetString(m_grpEntry.Text);
-            m_grpDriveAuth.Text = Resources.GetString(m_grpDriveAuth.Text);
-            m_lblAccount.Text = Resources.GetString(m_lblAccount.Text);
-            m_lblClientId.Text = Resources.GetString(m_lblClientId.Text);
-            m_lblClientSecret.Text = Resources.GetString(m_lblClientSecret.Text);
-            m_chkDriveScope.Text = Resources.GetString(m_chkDriveScope.Text);
-            m_chkLegacyClientId.Text = Resources.GetString(m_chkLegacyClientId.Text);
-            m_grpDriveOptions.Text = Resources.GetString(m_grpDriveOptions.Text);
-            m_lblHintFolder.Text = Resources.GetString(m_lblHintFolder.Text);
-            m_lblFolder.Text = Resources.GetString(m_lblFolder.Text);
-            m_btnCancel.Text = Resources.GetString(m_btnCancel.Text);
-            m_btnOK.Text = Resources.GetString(m_btnOK.Text);
-            m_grpAutoSync.Text = Resources.GetString(m_grpAutoSync.Text);
-            m_chkSyncOnOpen.Text = Resources.GetString(m_chkSyncOnOpen.Text);
-            m_chkSyncOnSave.Text = Resources.GetString(m_chkSyncOnSave.Text);
-            m_grpDriveAuthDefaults.Text = Resources.GetString(m_grpDriveAuthDefaults.Text);
-            m_lblDefaultClientId.Text = Resources.GetString(m_lblDefaultClientId.Text);
-            m_lblDefaultClientSecret.Text = Resources.GetString(m_lblDefaultClientSecret.Text);
-            m_chkDefaultDriveScope.Text = Resources.GetString(m_chkDefaultDriveScope.Text);
-            m_chkDefaultLegacyClientId.Text = Resources.GetString(m_chkDefaultLegacyClientId.Text);
-            m_grpFolderDefaults.Text = Resources.GetString(m_grpFolderDefaults.Text);
-            m_lblHintDefaultFolder.Text = Resources.GetString(m_lblHintDefaultFolder.Text);
-            m_lblDefaultFolderLabel.Text = Resources.GetString(m_lblDefaultFolderLabel.Text);
-            m_lblDefFolderColor.Text = Resources.GetString(m_lblDefFolderColor.Text);
-            m_btnGetColors.Text = Resources.GetString(m_btnGetColors.Text);
-            m_lblAttribution.Text = Resources.GetString(m_lblAttribution.Text);
             m_lblAboutVer.Text = GdsDefs.Version;
             m_lblAboutProd.Text = GdsDefs.ProductName;
+
+            // Localize the form
+            Control[] textCx = new Control[]
+            {
+                m_lnkGoogle,
+                m_lnkHelp,
+                m_lnkHome,
+                m_lnkGoogle2,
+                m_lnkHelp2,
+                m_tabGSignIn,
+                m_tabOptions,
+                m_tabAbout,
+                m_grpEntry,
+                m_grpDriveAuth,
+                m_lblAccount,
+                m_lblClientId,
+                m_lblClientSecret,
+                m_chkDriveScope,
+                m_chkLegacyClientId,
+                m_grpDriveOptions,
+                m_lblHintFolder,
+                m_lblFolder,
+                m_btnCancel,
+                m_btnOK,
+                m_grpCmdEnabled,
+                m_chkSyncEnabled,
+                m_chkUploadEnabled,
+                m_chkDownloadEnabled,
+                m_grpAutoSync,
+                m_chkSyncOnOpen,
+                m_chkSyncOnSave,
+                m_grpDriveAuthDefaults,
+                m_lblDefaultClientId,
+                m_lblDefaultClientSecret,
+                m_chkDefaultDriveScope,
+                m_chkDefaultLegacyClientId,
+                m_grpFolderDefaults,
+                m_lblHintDefaultFolder,
+                m_lblDefaultFolderLabel,
+                m_lblDefFolderColor,
+                m_btnGetColors,
+                m_lblAttribution,
+            };
+            foreach (Control c in textCx)
+            {
+                c.Text = Resources.GetString(c.Text);
+            }
 
             m_data = data;
 
             // Wire events and such for the folder color picker. 
-            m_nullColor = new GoogleColor(m_cbColors.BackColor, GoogleColor.Default.Name);
+            m_nullColor = new GoogleColor(m_cbColors.BackColor,
+                GoogleColor.Default.Name);
             m_cbColors.DrawMode = DrawMode.OwnerDrawVariable;
             m_cbColors.DrawItem += HandleColorsDrawItem;
             m_btnGetColors.Click += HandleColorsComboLazyLoad;
@@ -177,55 +190,69 @@ namespace GoogleDriveSync
             // Global default auth controls.
             Debug.Assert(m_txtFolderDefault is TextBox);
             binding = new Binding("Text",
-                m_data,
-                "DefaultAppFolder");
+                m_data, "DefaultAppFolder");
             m_txtFolderDefault.DataBindings.Add(binding);
             Debug.Assert(m_chkDefaultDriveScope is CheckBox);
             binding = new Binding("Checked",
-                m_data,
-                "DefaultIsRestrictedDriveScope");
+                m_data, "DefaultIsRestrictedDriveScope");
             m_chkDefaultDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientId is TextBox);
             binding = new Binding("Text",
-                m_data,
-                "DefaultClientId");
+                m_data, "DefaultClientId");
             m_txtDefaultClientId.DataBindings.Add(binding);
             binding = new Binding("Enabled",
-                m_data,
-                "DefaultUseLegacyClientId", true);
+                m_data, "DefaultUseLegacyClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtDefaultClientId.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientSecret is TextBox);
-            binding = new Binding("Text",
-                m_data,
+            binding = new Binding("Text", m_data,
                 "DefaultClientSecret", true);
             binding.Format += HandleProtectedStringFormatting;
             binding.Parse += HandleProtectedStringParsing;
             m_txtDefaultClientSecret.DataBindings.Add(binding);
             binding = new Binding("Enabled",
-                m_data,
-                "DefaultUseLegacyClientId", true);
+                m_data, "DefaultUseLegacyClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtDefaultClientSecret.DataBindings.Add(binding);
             Debug.Assert(m_chkDefaultLegacyClientId is CheckBox);
             binding = new Binding("Checked",
-                m_data,
-                "DefaultUseLegacyClientId");
-            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+                m_data, "DefaultUseLegacyClientId");
+            binding.DataSourceUpdateMode = 
+                DataSourceUpdateMode.OnPropertyChanged;
             m_chkDefaultLegacyClientId.DataBindings.Add(binding);
+
+            // Enabled command controls.
+            Debug.Assert(m_chkSyncEnabled is CheckBox);
+            binding = new Binding("Checked",
+                m_data, "CmdSyncEnabled");
+            binding.DataSourceUpdateMode =
+                DataSourceUpdateMode.OnPropertyChanged;
+            m_chkSyncEnabled.DataBindings.Add(binding);
+            Debug.Assert(m_chkDownloadEnabled is CheckBox);
+            binding = new Binding("Checked",
+                m_data, "CmdDownloadEnabled");
+            m_chkDownloadEnabled.DataBindings.Add(binding);
+            Debug.Assert(m_chkUploadEnabled is CheckBox);
+            binding = new Binding("Checked",
+                m_data, "CmdUploadEnabled");
+            m_chkUploadEnabled.DataBindings.Add(binding);
 
             // Auto-sync controls.
             Debug.Assert(m_chkSyncOnOpen is CheckBox);
             binding = new Binding("Checked",
-                m_data,
-                "SyncOnOpen");
+                m_data, "SyncOnOpen");
+            m_chkSyncOnOpen.DataBindings.Add(binding);
+            binding = new Binding("Enabled",
+                m_data, "CmdSyncEnabled");
             m_chkSyncOnOpen.DataBindings.Add(binding);
             Debug.Assert(m_chkSyncOnSave is CheckBox);
             binding = new Binding("Checked",
-                m_data,
-                "SyncOnSave");
+                m_data, "SyncOnSave");
+            m_chkSyncOnSave.DataBindings.Add(binding);
+            binding = new Binding("Enabled",
+                m_data, "CmdSyncEnabled");
             m_chkSyncOnSave.DataBindings.Add(binding);
 
             // Select first "active" entry in the accounts combo.
@@ -248,6 +275,11 @@ namespace GoogleDriveSync
 
             // Manage tab changes to prevent invalid data entry.
             m_tabMain.Deselecting += HandleTabChangeValidation;
+
+            // Don't disable all commands.
+            m_chkSyncEnabled.CheckedChanged += HandleCommandDisabled;
+            m_chkDownloadEnabled.CheckedChanged += HandleCommandDisabled;
+            m_chkUploadEnabled.CheckedChanged += HandleCommandDisabled;
 
             // More oddball color picker UI handling.
             m_txtFolderDefault.Validated += HandleDefaultFolderValidated;
@@ -287,6 +319,19 @@ namespace GoogleDriveSync
             m_tabAbout.ImageKey = AboutIcoKey;
 
             base.OnLoad(args);
+        }
+
+        // Don't allow the last enabled command to be disabled.
+        private void HandleCommandDisabled(object sender, EventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            Debug.Assert(cb != null, "invalid sender");
+            if (cb != null && !cb.Checked)
+            {
+                cb.Checked = !m_chkDownloadEnabled.Checked &&
+                    !m_chkUploadEnabled.Checked &&
+                    !m_chkSyncEnabled.Checked;
+            }
         }
 
         private void HandleProtectedStringParsing(object sender, ConvertEventArgs e)

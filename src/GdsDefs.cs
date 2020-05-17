@@ -139,6 +139,7 @@ namespace GoogleDriveSync
 
 		public const string GitHubProjectName = "google-drive-sync";
 		public const string ConfigAutoSync = "GoogleSync.AutoSync";
+		public const string ConfigEnabledCmds = "GoogleSync.EnabledCmds";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
 		public const string ConfigDefaultAppFolder = "GoogleSync.DefaultAppFolder";
 		public const string ConfigDefaultAppFolderColor = "GoogleSync.DefaultAppFolderColor";

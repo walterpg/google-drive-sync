@@ -445,4 +445,16 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Lbl_LegacyAttribution" xml:space="preserve">
     <value>Basado y compatible con el complemento KeePass Google Sync, Copyright © 2016 DesignsInnovate.</value>
   </data>
+  <data name="Group_CmdEnabled" xml:space="preserve">
+    <value>Comandos habilitados (por lo menos uno)</value>
+  </data>
+  <data name="Lbl_DownloadEnabled" xml:space="preserve">
+    <value>Descargar</value>
+  </data>
+  <data name="Lbl_SyncEnabled" xml:space="preserve">
+    <value>Sincronizar</value>
+  </data>
+  <data name="Lbl_UploadEnabled" xml:space="preserve">
+    <value>Subir</value>
+  </data>
 </root>

@@ -31,7 +31,7 @@ using System.Windows.Forms;
 
 namespace GoogleDriveSync
 {
-    public class ConfigurationFormData : IDisposable
+    class ConfigurationFormData : IDisposable
     {
         string m_defaultAppFolder;
         string m_defaultClientId;
@@ -82,6 +82,58 @@ namespace GoogleDriveSync
 
         public IList<EntryConfiguration> Entries { get; private set; }
 
+        bool IsCmdEnabled(SyncCommands cmd)
+        {
+            return (EnabledCommands & cmd) == cmd;
+        }
+
+        void SetCmdEnablement(SyncCommands cmd, bool enabled)
+        {
+            EnabledCommands &= ~cmd;
+            if (enabled)
+            {
+                EnabledCommands |= cmd;
+            }
+        }
+
+        public bool CmdSyncEnabled
+        {
+            get
+            {
+                return IsCmdEnabled(SyncCommands.SYNC);
+            }
+            set
+            {
+                SetCmdEnablement(SyncCommands.SYNC, value);
+            }
+        }
+
+        public bool CmdUploadEnabled
+        {
+            get
+            {
+                return IsCmdEnabled(SyncCommands.UPLOAD);
+            }
+            set
+            {
+                SetCmdEnablement(SyncCommands.UPLOAD, value);
+            }
+        }
+
+        public bool CmdDownloadEnabled
+        {
+            get
+            {
+                return IsCmdEnabled(SyncCommands.DOWNLOAD);
+            }
+            set
+            {
+                SetCmdEnablement(SyncCommands.DOWNLOAD, value);
+            }
+        }
+
+        public SyncCommands EnabledCommands { get; set; }
+
         public bool SyncOnOpen { get; set; }
 
         public bool SyncOnSave { get; set; }
@@ -107,7 +159,6 @@ namespace GoogleDriveSync
                 SyncOnSave = (value & AutoSyncMode.SAVE) == AutoSyncMode.SAVE;
             }
         }
-
 
         public string DefaultAppFolder 
         {

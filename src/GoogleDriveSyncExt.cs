@@ -46,6 +46,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -68,6 +69,17 @@ namespace GoogleDriveSync
 		OPEN = 2
 	}
 
+	[Flags]
+    enum SyncCommands : int
+	{
+		DOWNLOAD = 1,
+		SYNC = 2,
+		UPLOAD = 4,
+
+		All = 7,
+		None = 0
+	}
+
 	/// <summary>
 	/// main plugin class
 	/// </summary>
@@ -76,6 +88,7 @@ namespace GoogleDriveSync
 		private IPluginHost m_host = null;
 
 		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
+		private SyncCommands m_enabledCmds = SyncCommands.All;
 
 		private string m_defaultFolder = null;
 		private GoogleColor m_defaultFolderColor = null;
@@ -95,13 +108,6 @@ namespace GoogleDriveSync
 		// For UI status updates.
 		volatile ResumableUpload<GDriveFile, GDriveFile> m_currentUpload = null;
 		volatile GDriveFile m_currentDownload = null;
-
-		private enum SyncCommand
-		{
-			DOWNLOAD = 1,
-			SYNC = 2,
-			UPLOAD = 3
-		}
 
 		/// <summary>
 		/// URL of a version information file
@@ -135,6 +141,18 @@ namespace GoogleDriveSync
 			UpdateCheckEx.SetFileSigKey(UpdateUrl, Images.PubKey);
 
 			m_host = host;
+
+			string cmds = m_host.GetConfig(GdsDefs.ConfigEnabledCmds,
+				((int)SyncCommands.All).ToString(
+					NumberFormatInfo.InvariantInfo));
+			int cmdsAsInt;
+			if (!int.TryParse(cmds, NumberStyles.Integer,
+				NumberFormatInfo.InvariantInfo, out cmdsAsInt))
+			{
+				cmdsAsInt = (int)SyncCommands.All;
+			}
+			m_enabledCmds = (SyncCommands)cmdsAsInt;
+
 			string syncOption = m_host.GetConfig(GdsDefs.ConfigAutoSync,
 											AutoSyncMode.DISABLED.ToString());
 			if (!Enum.TryParse(syncOption, out m_autoSync))
@@ -186,9 +204,11 @@ namespace GoogleDriveSync
 			m_tsmiSync = new ToolStripMenuItem
 			{
 				Name = "Sync",
-				Tag = SyncCommand.SYNC,
+				Tag = SyncCommands.SYNC,
 				Text = Resources.GetString("MenuLabel_Sync"),
-				Image = Resources.GetBitmap("round_sync_black_18dp")
+				Image = Resources.GetBitmap("round_sync_black_18dp"),
+				Enabled = (m_enabledCmds & SyncCommands.SYNC) ==
+					SyncCommands.SYNC
 			};
 			m_tsmiSync.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiSync);
@@ -196,9 +216,12 @@ namespace GoogleDriveSync
 			m_tsmiUpload = new ToolStripMenuItem
 			{
 				Name = "Upload",
-				Tag = SyncCommand.UPLOAD,
+				Tag = SyncCommands.UPLOAD,
 				Text = Resources.GetString("MenuLabel_Upload"),
-				Image = Resources.GetBitmap("round_cloud_upload_black_18dp")
+				Image = Resources.GetBitmap("round_cloud_upload_black_18dp"),
+				Enabled = (m_enabledCmds & SyncCommands.UPLOAD) ==
+					SyncCommands.UPLOAD
+					
 			};
 			m_tsmiUpload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiUpload);
@@ -206,9 +229,11 @@ namespace GoogleDriveSync
 			m_tsmiDownload = new ToolStripMenuItem
 			{
 				Name = "Download",
-				Tag = SyncCommand.DOWNLOAD,
+				Tag = SyncCommands.DOWNLOAD,
 				Text = Resources.GetString("MenuLabel_Download"),
-				Image = Resources.GetBitmap("round_cloud_download_black_18dp")
+				Image = Resources.GetBitmap("round_cloud_download_black_18dp"),
+				Enabled = (m_enabledCmds & SyncCommands.DOWNLOAD) ==
+					SyncCommands.DOWNLOAD
 			};
 			m_tsmiDownload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiDownload);
@@ -308,7 +333,7 @@ namespace GoogleDriveSync
 			}
 			else
 			{
-				await ConfigAndSyncWithGoogle(SyncCommand.SYNC, true);
+				await ConfigAndSyncWithGoogle(SyncCommands.SYNC, true);
 			}
 		}
 
@@ -317,7 +342,8 @@ namespace GoogleDriveSync
 		/// </summary>
 		private async void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success && 
+			if (e.Success &&
+				(m_enabledCmds & SyncCommands.SYNC) == SyncCommands.SYNC &&
 				AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
 			{
 				await SyncOnOpenOrSaveCmd();
@@ -329,7 +355,8 @@ namespace GoogleDriveSync
 		/// </summary>
 		private async void OnFileOpened(object sender, FileOpenedEventArgs e)
 		{
-			if (AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
+			if ((m_enabledCmds & SyncCommands.SYNC) == SyncCommands.SYNC &&
+				AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
 			{
 				await SyncOnOpenOrSaveCmd();
 			}
@@ -341,7 +368,7 @@ namespace GoogleDriveSync
 		private async void OnSyncWithGoogle(object sender, EventArgs e)
 		{
 			ToolStripItem item = (ToolStripItem)sender;
-			SyncCommand syncCommand = (SyncCommand)item.Tag;
+			SyncCommands syncCommand = (SyncCommands)item.Tag;
 			await ConfigAndSyncWithGoogle(syncCommand, false);
 		}
 
@@ -546,7 +573,7 @@ namespace GoogleDriveSync
 		/// database with Google Drive. Create a new file if it does not already
 		/// exist.
 		/// </summary>
-		private async Task ConfigAndSyncWithGoogle(SyncCommand syncCommand,
+		private async Task ConfigAndSyncWithGoogle(SyncCommands syncCommand,
 			bool autoSync)
 		{
 			// Suspend these events temporarily in case the configuration
@@ -567,7 +594,7 @@ namespace GoogleDriveSync
 			}
 		}
 
-		private async Task ConfigAndSyncUnsafe(SyncCommand sync, bool autoSync)
+		private async Task ConfigAndSyncUnsafe(SyncCommands sync, bool autoSync)
 		{
 			string status = Resources.GetString("Msg_PleaseWaitEllipsis");
 			ShowMessage(status, true);
@@ -582,7 +609,7 @@ namespace GoogleDriveSync
 				GDriveFile file = await GetFile(service, folder, filePath);
 				if (file == null)
 				{
-					if (sync == SyncCommand.DOWNLOAD)
+					if (sync == SyncCommands.DOWNLOAD)
 					{
 						status = Resources.GetString("Msg_GDriveFileNotFound");
 					}
@@ -600,7 +627,7 @@ namespace GoogleDriveSync
 				}
 				else
 				{
-					if (sync == SyncCommand.UPLOAD)
+					if (sync == SyncCommands.UPLOAD)
 					{
 						if (!autoSync)
 						{
@@ -616,7 +643,7 @@ namespace GoogleDriveSync
 						string fileCopy = await DownloadCopy(service, file, filePath);
 						if (!string.IsNullOrEmpty(fileCopy))
 						{
-							if (sync == SyncCommand.DOWNLOAD)
+							if (sync == SyncCommands.DOWNLOAD)
 							{
 								status = await ReplaceDatabase(filePath, fileCopy);
 							}
@@ -1243,6 +1270,7 @@ namespace GoogleDriveSync
 			ConfigurationFormData options;
 			options = new ConfigurationFormData(acctList, GetColors)
 			{
+				EnabledCommands = m_enabledCmds,
 				AutoSync = m_autoSync,
 				DefaultApiScope = m_defaultDriveScope,
 				DefaultClientId = m_defaultClientId,
@@ -1330,7 +1358,13 @@ namespace GoogleDriveSync
 				m_defaultDriveScope = options.DefaultApiScope;
 				m_defaultClientId = options.DefaultClientId;
 				m_defaultClientSecret = options.DefaultClientSecret;
+				m_enabledCmds = options.EnabledCommands;
 				m_autoSync = options.AutoSync;
+
+				// Update commands.
+				m_tsmiSync.Enabled = options.CmdSyncEnabled;
+				m_tsmiUpload.Enabled = options.CmdUploadEnabled;
+				m_tsmiDownload.Enabled = options.CmdDownloadEnabled;
 
 				// Update the chosen config entry.
 				entryConfig = options.SelectedAccountShadow;
@@ -1449,6 +1483,8 @@ namespace GoogleDriveSync
 		private bool SaveConfiguration(EntryConfiguration entryConfig)
 		{
 			// Save global config to app config.
+			m_host.SetConfig(GdsDefs.ConfigEnabledCmds,
+				((int)m_enabledCmds).ToString(NumberFormatInfo.InvariantInfo));
 			m_host.SetConfig(GdsDefs.ConfigAutoSync, m_autoSync.ToString());
 			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolder, m_defaultFolder);
 			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolderColor, 
