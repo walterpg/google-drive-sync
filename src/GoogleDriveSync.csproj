@@ -15,7 +15,7 @@
     </TargetFrameworkProfile>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <!--<LangVersion>5</LangVersion>-->
+    <LangVersion>5</LangVersion>
     <GenClientIdFolder>$(MSBuildProjectDirectory)\..\lib\src\GenClientId\bin\$(Configuration)\</GenClientIdFolder>
     <ClientIdSrcFolder>$(MSBuildProjectDirectory)\</ClientIdSrcFolder>
     <TransformOnBuild>true</TransformOnBuild>
