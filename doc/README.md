@@ -78,12 +78,11 @@ can be safely installed side-by-side with Google Sync Plugin 3.0.
 
 ## Installation (Normal)
 The [general instructions](https://keepass.info/help/v2/plugins.html) for
-installing plugins apply.  The release download contains a file named 
-GoogleDriveSync-x.x.x.plgx, where 'x.x.x' is the release version.  For
-example "GoogleDriveSync-4.0.1.plgx" or "GoogleDriveSync-4.0.1-beta.plgx".
-The zip archive contains a similarly named file with the ".plgx" extension.
+installing plugins apply.  Download the .PLGX file from the [release page](https://github.com/walterpg/google-drive-sync/releases).
+For example, GoogleDriveSync-x.x.x.plgx, where 'x.x.x' is the release version. 
+There should also be a link to the current release on the repo's [README page](https://github.com/walterpg/google-drive-sync).
 
-1. Extract the .plgx file and copy to the KeePass installation directory, for
+1. Copy the .plgx file to the KeePass installation directory, for
 example "C:\Program Files (x86)\KeePass Password Safe 2".  You probably need to
 be signed on with an account in the [Windows "local Administrators group"](https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/local-accounts#sec-administrator).
 2. Restart KeePass (ensure that KeePass is fully shutdown and not simply
