@@ -205,10 +205,10 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
 &lt;head&gt;
     &lt;meta charset="utf-8" http-equiv='refresh'
           content='20;url=https://google.com'&gt;
-    &lt;title&gt;Google SignIn Authorization&lt;/title&gt;
+    &lt;title&gt;Google Sign-In Authorization&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-    &lt;h1&gt;Google SignIn Authorization Complete&lt;/h1&gt;
+    &lt;h1&gt;Google Sign-In Authorization Complete&lt;/h1&gt;
     &lt;div&gt;Please return to KeePass.&lt;/div&gt;
 &lt;/body&gt;
 &lt;/html&gt;</value>
