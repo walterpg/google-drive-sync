@@ -195,6 +195,8 @@ namespace GoogleDriveSync
             Debug.Assert(m_chkDefaultDriveScope is CheckBox);
             binding = new Binding("Checked",
                 m_data, "DefaultIsRestrictedDriveScope");
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_chkDefaultDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientId is TextBox);
             binding = new Binding("Text",

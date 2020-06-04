@@ -46,7 +46,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -86,15 +85,6 @@ namespace GoogleDriveSync
 	public sealed class GoogleDriveSyncExt : Plugin, IDriveServiceProvider
 	{
 		private IPluginHost m_host = null;
-
-		private AutoSyncMode m_autoSync = AutoSyncMode.DISABLED;
-		private SyncCommands m_enabledCmds = SyncCommands.All;
-
-		private string m_defaultFolder = null;
-		private GoogleColor m_defaultFolderColor = null;
-		private string m_defaultDriveScope = null;
-		private string m_defaultClientId = string.Empty;
-		private ProtectedString m_defaultClientSecret = GdsDefs.PsEmptyEx;
 
 		private ToolStripSeparator m_tsSeparator = null;
 		private ToolStripMenuItem m_tsmiPopup = null;
@@ -142,47 +132,8 @@ namespace GoogleDriveSync
 
 			m_host = host;
 
-			string cmds = m_host.GetConfig(GdsDefs.ConfigEnabledCmds,
-				((int)SyncCommands.All).ToString(
-					NumberFormatInfo.InvariantInfo));
-			int cmdsAsInt;
-			if (!int.TryParse(cmds, NumberStyles.Integer,
-				NumberFormatInfo.InvariantInfo, out cmdsAsInt))
-			{
-				cmdsAsInt = (int)SyncCommands.All;
-			}
-			m_enabledCmds = (SyncCommands)cmdsAsInt;
-
-			string syncOption = m_host.GetConfig(GdsDefs.ConfigAutoSync,
-											AutoSyncMode.DISABLED.ToString());
-			if (!Enum.TryParse(syncOption, out m_autoSync))
-			{
-				// Support obsolete Sync on Save confg.
-				if (m_host.GetConfig(GdsDefs.ConfigAutoSync, false))
-				{
-					m_autoSync = AutoSyncMode.SAVE;
-				}
-				else
-				{
-					m_autoSync = AutoSyncMode.DISABLED;
-				}
-			}
-
-			m_defaultFolder = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolder,
-												string.Empty);
-			string encodedColor = m_host.GetConfig(GdsDefs.ConfigDefaultAppFolderColor);
-			m_defaultFolderColor = !string.IsNullOrEmpty(encodedColor) ?
-				GoogleColor.DeserializeFromString(encodedColor) : null;
-
-			m_defaultDriveScope = m_host.GetConfig(GdsDefs.ConfigDriveScope,
-									DriveService.Scope.Drive);
-
-			// Default is no OAuth 2.0 credentials.
-			m_defaultClientId = m_host.GetConfig(GdsDefs.ConfigDefaultClientId,
-												string.Empty);
-			string secretVal = m_host.GetConfig(GdsDefs.ConfigDefaultClientSecret,
-												string.Empty);
-			m_defaultClientSecret = new ProtectedString(true, secretVal);
+			PluginConfig.InitAppConfig(host);
+			PluginConfig appDefaults = PluginConfig.Default;
 
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
@@ -207,8 +158,7 @@ namespace GoogleDriveSync
 				Tag = SyncCommands.SYNC,
 				Text = Resources.GetString("MenuLabel_Sync"),
 				Image = Resources.GetBitmap("round_sync_black_18dp"),
-				Enabled = (m_enabledCmds & SyncCommands.SYNC) ==
-					SyncCommands.SYNC
+				Enabled = appDefaults.IsCmdEnabled(SyncCommands.SYNC)
 			};
 			m_tsmiSync.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiSync);
@@ -219,9 +169,7 @@ namespace GoogleDriveSync
 				Tag = SyncCommands.UPLOAD,
 				Text = Resources.GetString("MenuLabel_Upload"),
 				Image = Resources.GetBitmap("round_cloud_upload_black_18dp"),
-				Enabled = (m_enabledCmds & SyncCommands.UPLOAD) ==
-					SyncCommands.UPLOAD
-					
+				Enabled = appDefaults.IsCmdEnabled(SyncCommands.UPLOAD)
 			};
 			m_tsmiUpload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiUpload);
@@ -232,8 +180,7 @@ namespace GoogleDriveSync
 				Tag = SyncCommands.DOWNLOAD,
 				Text = Resources.GetString("MenuLabel_Download"),
 				Image = Resources.GetBitmap("round_cloud_download_black_18dp"),
-				Enabled = (m_enabledCmds & SyncCommands.DOWNLOAD) ==
-					SyncCommands.DOWNLOAD
+				Enabled = appDefaults.IsCmdEnabled(SyncCommands.DOWNLOAD)
 			};
 			m_tsmiDownload.Click += OnSyncWithGoogle;
 			m_tsmiPopup.DropDownItems.Add(m_tsmiDownload);
@@ -342,9 +289,7 @@ namespace GoogleDriveSync
 		/// </summary>
 		private async void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success &&
-				(m_enabledCmds & SyncCommands.SYNC) == SyncCommands.SYNC &&
-				AutoSyncMode.SAVE == (m_autoSync & AutoSyncMode.SAVE))
+			if (e.Success && PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE))
 			{
 				await SyncOnOpenOrSaveCmd();
 			}
@@ -355,8 +300,7 @@ namespace GoogleDriveSync
 		/// </summary>
 		private async void OnFileOpened(object sender, FileOpenedEventArgs e)
 		{
-			if ((m_enabledCmds & SyncCommands.SYNC) == SyncCommands.SYNC &&
-				AutoSyncMode.OPEN == (m_autoSync & AutoSyncMode.OPEN))
+			if (PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN))
 			{
 				await SyncOnOpenOrSaveCmd();
 			}
@@ -786,9 +730,10 @@ namespace GoogleDriveSync
 				Name = folderName,
 				MimeType = GdsDefs.FolderMimeType
 			};
-			if (m_defaultFolderColor != null)
+			if (PluginConfig.Default.FolderColor != null)
 			{
-				folderMetadata.FolderColorRgb = m_defaultFolderColor.HtmlHexString;
+				folderMetadata.FolderColorRgb =
+					PluginConfig.Default.FolderColor.HtmlHexString;
 			}
 			FilesResource.CreateRequest folderCreate;
 			folderCreate = service.Files.Create(folderMetadata);
@@ -1044,6 +989,19 @@ namespace GoogleDriveSync
 		private static async Task<Tuple<UserCredential, ProtectedString>> 
 			GetAuthorization(IPluginHost host, SyncConfiguration config)
 		{
+			string clientId = config.ClientId;
+			ProtectedString secret = config.ClientSecret;
+			if (SyncConfiguration.IsDefaultOauthCredential(clientId, secret))
+			{
+				clientId = GdsDefs.DefaultClientId.ReadString().Trim();
+				secret = GdsDefs.DefaultClientSecret;
+			}
+			string scope = config.DriveScope;
+			if (string.IsNullOrEmpty(scope))
+			{
+				scope = PluginConfig.Default.DriveScope;
+			}
+
 			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a
 			// custom code receiver that uses the system browser to 
 			// authenticate the Google user and/or authorize the use of the
@@ -1053,10 +1011,10 @@ namespace GoogleDriveSync
 			{
 				ClientSecrets = new ClientSecrets()
 				{
-					ClientId = config.ClientId,
-					ClientSecret = config.ClientSecret.ReadString().Trim()
+					ClientId = clientId,
+					ClientSecret = secret.ReadString().Trim()
 				},
-				Scopes = new[] { config.DriveScope }
+				Scopes = new[] { scope }
 			};
 			GoogleAuthorizationCodeFlow codeFlow = new GoogleAuthorizationCodeFlow(init);
 			NativeCodeReceiver codeReceiver = new NativeCodeReceiver(host, config);
@@ -1268,20 +1226,7 @@ namespace GoogleDriveSync
 
 			// Create a "presentation" object for dialog data binding.
 			ConfigurationFormData options;
-			options = new ConfigurationFormData(acctList, GetColors)
-			{
-				EnabledCommands = m_enabledCmds,
-				AutoSync = m_autoSync,
-				DefaultApiScope = m_defaultDriveScope,
-				DefaultClientId = m_defaultClientId,
-				DefaultClientSecret = m_defaultClientSecret,
-				DefaultUseLegacyClientId = 
-					SyncConfiguration.IsDefaultOauthCredential(
-													m_defaultClientId,
-													m_defaultClientSecret),
-				DefaultAppFolder = m_defaultFolder,
-				DefaultAppFolderColor = m_defaultFolderColor
-			};
+			options = new ConfigurationFormData(acctList, GetColors);
 			ConfigurationForm optionsForm = new ConfigurationForm(options)
 			{
 				DatabaseFilePath = m_host.Database.IOConnectionInfo.Path
@@ -1352,15 +1297,6 @@ namespace GoogleDriveSync
 					return null;
 				}
 
-				// Update global options.
-				m_defaultFolder = options.DefaultAppFolder;
-				m_defaultFolderColor = options.DefaultAppFolderColor;
-				m_defaultDriveScope = options.DefaultApiScope;
-				m_defaultClientId = options.DefaultClientId;
-				m_defaultClientSecret = options.DefaultClientSecret;
-				m_enabledCmds = options.EnabledCommands;
-				m_autoSync = options.AutoSync;
-
 				// Update commands.
 				m_tsmiSync.Enabled = options.CmdSyncEnabled;
 				m_tsmiUpload.Enabled = options.CmdUploadEnabled;
@@ -1399,11 +1335,12 @@ namespace GoogleDriveSync
 			}
 
 			// Return entry creator with unused title.
+			PluginConfig appConfig = PluginConfig.Default;
 			return PluginEntryFactory.Create(searchString,
-												m_defaultDriveScope,
-												m_defaultClientId,
-												m_defaultClientSecret,
-												m_defaultFolder);
+												appConfig.DriveScope,
+												appConfig.ClientId,
+												appConfig.ClientSecret,
+												appConfig.Folder);
 		}
 
 		/// <summary>
@@ -1443,13 +1380,6 @@ namespace GoogleDriveSync
 					entryConfig = null;
 				}
 			}
-
-			if (entryConfig != null && entryConfig.IsMissingOauthCredentials)
-			{
-				entryConfig.ClientId = GdsDefs.DefaultClientId.ReadString();
-				entryConfig.ClientSecret = GdsDefs.DefaultClientSecret;
-			}
-
 			return entryConfig;
 		}
 
@@ -1483,18 +1413,7 @@ namespace GoogleDriveSync
 		private bool SaveConfiguration(EntryConfiguration entryConfig)
 		{
 			// Save global config to app config.
-			m_host.SetConfig(GdsDefs.ConfigEnabledCmds,
-				((int)m_enabledCmds).ToString(NumberFormatInfo.InvariantInfo));
-			m_host.SetConfig(GdsDefs.ConfigAutoSync, m_autoSync.ToString());
-			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolder, m_defaultFolder);
-			m_host.SetConfig(GdsDefs.ConfigDefaultAppFolderColor, 
-				m_defaultFolderColor == null ? null :
-				GoogleColor.SerializeToString(m_defaultFolderColor));
-			m_host.SetConfig(GdsDefs.ConfigDriveScope, m_defaultDriveScope);
-			m_host.SetConfig(GdsDefs.ConfigDefaultClientId, m_defaultClientId);
-			m_host.SetConfig(GdsDefs.ConfigDefaultClientSecret,
-				m_defaultClientSecret == null ? string.Empty :
-				m_defaultClientSecret.ReadString());
+			PluginConfig.Default.UpdateConfig(m_host);
 
 			if (!m_host.Database.IsOpen || entryConfig == null)
 			{

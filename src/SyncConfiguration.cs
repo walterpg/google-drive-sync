@@ -536,7 +536,8 @@ namespace GoogleDriveSync
         {
             get
             {
-                return DriveScope == DriveService.Scope.Drive;
+                return string.IsNullOrEmpty(DriveScope) ||
+                    DriveScope == DriveService.Scope.Drive;
             }
             set
             {
