@@ -138,8 +138,9 @@
     <Reference Include="Google.Apis.PlatformServices, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.45.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
-	  <Reference Include="KeePass">
-		  <HintPath>..\lib\bin\KeePass.exe</HintPath>
+    <Reference Include="KeePass, Version=2.35.0.20042, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+      <HintPath>..\lib\bin\KeePass.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -190,8 +191,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-	<PostBuildEvent>
-	</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\PlgxTool.1.0.0\build\PlgxTool.targets" Condition="Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
