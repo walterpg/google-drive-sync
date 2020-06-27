@@ -186,14 +186,6 @@
       </Prerequisites>
     </PlgxConfiguration>
   </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
   <Import Project="..\packages\PlgxTool.1.0.0\build\PlgxTool.targets" Condition="Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -205,7 +197,7 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>-->
-  <Target Name="AfterBuild">
+  <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <CallTarget Targets="BuildPlgx" />
   </Target>
 </Project>
