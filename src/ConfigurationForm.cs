@@ -491,6 +491,24 @@ namespace GoogleDriveSync
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+
+            // In the case of changing OAuth creds with a refresh token
+            // present, confirm the user's intention.
+            if  (DialogResult == DialogResult.OK &&
+                m_data.SelectedAccountShadow.IsModifiedOauthCreds &&
+                !m_data.SelectedAccountShadow.RefreshToken.IsEmpty)
+            {
+                DialogResult = MessageBox.Show(
+                    Resources.GetString("Msg_ChangedCredsDeletesToken"),
+                    GdsDefs.ProductName,
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2);
+                if (DialogResult != DialogResult.OK)
+                {
+                    DialogResult = DialogResult.None;
+                }
+            }
         }
 
         bool EntryClientIdStateIsValid()

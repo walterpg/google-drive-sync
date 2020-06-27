@@ -241,6 +241,9 @@ Esta ventana de notificación se cierra automáticamente después de completar l
   <data name="Msg_AutoSyncIgnore" xml:space="preserve">
     <value>Tecla Shift presionada. Sincronización automática ignorada.</value>
   </data>
+  <data name="Msg_ChangedCredsDeletesToken" xml:space="preserve">
+    <value>Está cambiando las credenciales de OAuth, pero hay un token de autorización asociado con las credenciales anteriores en la base de datos. Continuar borrará el token y deberá iniciar sesión la próxima vez que el complemento acceda a Drive. Haga clic en Aceptar para confirmar.</value>
+  </data>
   <data name="Msg_DatabaseSaved" xml:space="preserve">
     <value>Base de datos guardada en archivo local.</value>
   </data>
@@ -452,7 +455,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Descargar</value>
   </data>
   <data name="Lbl_SyncEnabled" xml:space="preserve">
-    <value>Sincronizar</value>
+    <value>Sinc con Drive</value>
   </data>
   <data name="Lbl_UploadEnabled" xml:space="preserve">
     <value>Subir</value>

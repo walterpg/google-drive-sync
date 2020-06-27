@@ -454,10 +454,11 @@ namespace GoogleDriveSync
 					config.ClientId = string.Empty;
 					config.ClientSecret = null;
 				}
-
-				config.CommitChangesIfAny();
-				SaveConfiguration(config);
 			}
+
+			config.CommitChangesIfAny();
+			SaveConfiguration(config);
+
 			return status;
 		}
 
@@ -1042,10 +1043,12 @@ namespace GoogleDriveSync
 				{
 					switch (ex.Error.Error)
 					{
+						case "unauthorized_client":
 						case "invalid_grant":
 							// Refresh Token is invalid. Get user authorization
-							// below.
+							// below and dump the token.
 							credential = null;
+							config.RefreshToken = null;
 							break;
 						default:
 							throw;
@@ -1304,6 +1307,12 @@ namespace GoogleDriveSync
 
 				// Update the chosen config entry.
 				entryConfig = options.SelectedAccountShadow;
+				if (entryConfig.IsModifiedOauthCreds)
+				{
+					// When user changes credentials, the refresh token must be
+					// reset.
+					entryConfig.RefreshToken = GdsDefs.PsEmptyEx;
+				}
 				entryConfig.CommitChangesIfAny();
 				if (entryFactory != null &&
 					entryConfig.Entry == entryFactory.Entry)

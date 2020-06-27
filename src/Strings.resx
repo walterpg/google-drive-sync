@@ -269,7 +269,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <comment>checkbox label</comment>
   </data>
   <data name="Lbl_SyncEnabled" xml:space="preserve">
-    <value>Synchronize</value>
+    <value>Sync with Drive</value>
   </data>
   <data name="Lbl_TargetFolder" xml:space="preserve">
     <value>Target Sync Folder:</value>
@@ -314,6 +314,9 @@ This notification window closes automatically after authorization in the browser
   </data>
   <data name="Msg_AutoSyncIgnore" xml:space="preserve">
     <value>Shift Key pressed. Auto Sync ignored.</value>
+  </data>
+  <data name="Msg_ChangedCredsDeletesToken" xml:space="preserve">
+    <value>You are changing the OAuth credentials, but there is an authorization token associated with the prior credentials in the database.  Proceeding will delete the token and you will have to Sign-in the next time the plugin accesses Drive.  Click OK to confirm.</value>
   </data>
   <data name="Msg_DatabaseSaved" xml:space="preserve">
     <value>Database saved to local file.</value>
