@@ -1,0 +1,8 @@
+title: KeePass Google Drive Sync
+description: Secure sync automation with Google Drive for KeePass.
+show_downloads: true
+google_analytics:
+theme: jekyll-theme-cayman
+github: [metadata]
+gem 'github-pages', group: :jekyll_plugins
+gem 'jekyll-sitemap', group: :jekyll_plugins
