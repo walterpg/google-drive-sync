@@ -4,9 +4,9 @@ title: Privacy Statements
 ---
 
 ---
-The content authors of this site are only concerned with publishing useful,
-free software. There is no interest here in breaching the fundamental
-human right of privacy, nor in the collection and abuse of 
+The only concern of the content authors of this site is the publication
+of useful, free software. There is no interest here in breaching the
+fundamental human right of privacy, nor in the collection and abuse of
 personal information.
 
 ---
@@ -19,6 +19,8 @@ collect personal information about you.
 This site is hosted by [GitHub Pages](https://pages.github.com/), and
 so is subject to GitHub [terms](https://help.github.com/en/github/site-policy/github-terms-of-service)
 for hosted content, and the GitHub [privacy statement](https://help.github.com/en/github/site-policy/github-privacy-statement).
+
+---
 
 
 ## Plugin Privacy

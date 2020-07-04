@@ -1,6 +1,6 @@
 ---
-layout: default
-title: Sync With Drive
+layout: page
+title: Sync with Drive
 description: Simplified, secure KeePass Synchronize with Google Drive files.
 ---
 
@@ -9,8 +9,8 @@ description: Simplified, secure KeePass Synchronize with Google Drive files.
 {: refdef}
 
 KeePass' own built-in [Synchronize](https://keepass.info/help/v2/sync.html) 
-command is one of its most powerful and useful features, but too generic
-to use safely and efficiently with Google Drive.  The plugin command reduces
+command is a powerful feature, but too generic to use safely and
+efficiently with Google Drive files.  The plugin command reduces
 several steps to a single-click.
 
 ## What Happens

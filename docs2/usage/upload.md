@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: "Upload Command"
 description: Copy the current database to Google Drive.
 ---
@@ -8,10 +8,10 @@ description: Copy the current database to Google Drive.
 ![The Upload Command](../assets/img/upload.png)
 {: refdef}
 
-<div class='highlightbox'>
-<div class='highlightboxtitle'>CAUTION</div>
-This command <em>replaces</em> the contents of the Drive file, if it exists,
-with the contents of the current database.
+<div class="alert alert-warning text-dark" role="alert">
+    <div>CAUTION</div>
+    This command <em>replaces</em> the contents of the Drive file, if it exists,
+    with the contents of the current database.
 </div>
 
 ## What Happens

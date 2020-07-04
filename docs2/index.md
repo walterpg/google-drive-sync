@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: home
 title: KeePass Google Drive Sync
 ---
 

@@ -1,8 +1,8 @@
 ---
-layout: default
+layout: page
+title: Disable Certain Commands
 ---
 
-## Enable and Disable Commands
 ![The Synchronize Command](../assets/img/enabled-cmds.png)
 
 You might want a degree of safety when accessing the plugin menu.  The

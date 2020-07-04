@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: Download Command
 description: Replace the current database with a Google Drive copy.
 ---
@@ -8,8 +8,8 @@ description: Replace the current database with a Google Drive copy.
 ![The Download Command](../assets/img/download.png)
 {: refdef}
 
-<div class='highlightbox'>
-<div class='highlightboxtitle'>CAUTION</div>
+<div class="alert alert-warning text-dark" role="alert">
+    <div>CAUTION</div>
 This command <em>replaces</em> the local database with the contents of
 a Drive file with the same name.  Any changes in the current database will be
 lost.

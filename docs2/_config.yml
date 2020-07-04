@@ -22,13 +22,15 @@ description: >- # this means to ignore newlines until "baseurl:"
 #twitter_username: jekyllrb
 #github_username:  jekyll
 author: walterpg
-
+show_downloads: true
 repository: "walterpg/google-drive-sync"
 
 # Build settings
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
+#plugins:
+
+github: [metadata]
+gem 'github-pages', group: :jekyll_plugins
+gem 'jekyll-github-metadata', group: :jekyll_plugins
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list

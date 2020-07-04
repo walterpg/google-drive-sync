@@ -1,9 +1,11 @@
 ---
-layout: default
+layout: page
+title: Auto Sync
 ---
 
-## Auto Sync
+{:refdef: style="text-align: center;"}
 ![Auto Sync Config](../assets/img/auto-sync.png)
+{: refdef}
 
 Sync every time you open or save the database.
 

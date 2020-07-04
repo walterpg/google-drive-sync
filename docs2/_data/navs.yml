@@ -1,3 +1,32 @@
 # A list of the pages to display in the navigation bar
-- usage/index.md
-
+- caption: Download
+  url: /
+- caption: Usage
+  url: usage
+  subnavs:
+    - caption: Sync with Drive
+      url: usage/sync
+    - caption: Upload Command
+      url: usage/upload
+    - caption: Download Command
+      url: usage/dnload
+    - caption: _separator_
+    - caption: Auto Sync
+      url: usage/autosync
+    - caption: Disable Commands
+      url: usage/enabled-cmds
+    - caption: Personal OAuth 2.0
+      url: usage/oauth
+- caption: Installation
+  url: installation
+  subnavs:
+    - caption: Requirements
+      url: install/require
+    - caption: Normal Install
+      url: install/normal
+    - caption: Portable Install
+      url: install/portable
+    - caption: Configuration
+      url: install/config
+- caption: Privacy
+  url: privacy
