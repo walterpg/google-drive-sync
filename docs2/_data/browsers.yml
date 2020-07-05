@@ -1,0 +1,19 @@
+# Major browser names and search parameters
+- browser: Chrome
+  search: Google Chrome
+- browser: Safari
+  search: Safari browser
+- browser: Firefox
+  search: Firefox browser
+- browser: Samsung Internet
+  search: Samsung Internet browser
+- browser: UC
+  search: UC browser
+- browser: Opera
+  search: Opera browser
+- browser: Edge
+  search: Microsoft Edge browser
+- browser: Internet Explorer (IE)
+  search: Internet Explorer
+- browser: Chrome for Android
+  search: Chrome for Android

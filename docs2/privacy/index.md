@@ -61,13 +61,61 @@ collect personal information about you.
 When visiting this site, "cookies" may be placed on your device (computer,
 mobile, or tablet). A cookie is a small text file that is placed on
 your device by websites you visit. The only purpose of cookies on this
-site is to enhance its form and function. While it is possible to use
-cookies to "personalize" or "analyze" your usage, this site does not
-explicitly use cookies in this way. Most web browsers offer settings 
-allowing you to opt-out of the use of cookies, and some browser plugins
-may allow you to review and block some or all cookies offered by a
-site.  Note that blocking functional cookies offered by this site can
-negatively effect its ability to provide information adequately.
+site is "technical", that is, to provide form and function to your
+browsing session. Some sites may use cookies to "personalize" or
+"analyze" your usage; this site does not use cookies in this way.
+Except for cookies that record your preferences or consent, all 
+cookies issued by the site are created with "session lifetime".  That
+is, the browser should delete them when your visit to the site ends.
+
+To enhance responsiveness and navigation of content, this site uses
+JavaScript. JavaScript is a programming language that runs programs, or
+"scripts" in your browser.  The scripts used by this site take
+advantage of a browser feature called "local storage" or "cache",
+which allows scripts to maintain the status of your browser session,
+such as the currently displayed page.  Local storage exists on your
+device, much like a cookie. The data placed in local storage by this
+site includes no identifying personal information. Browsers may have
+various features and settings that allow some non-standard control of
+local storage, including the saving of local storage data to secondary,
+or persistent storage on your device after the session ends. The
+scripts on this site only require their local storage to exist for as
+long as you are browsing the site. 
+
+Most web browsers offer settings allowing you to opt-out of the use of
+cookies and/or JavaScript, and some browser plugins may allow you to
+review and block some or all cookies and scripts offered by a
+site.  Note that blocking the functional cookies and scripts of
+*this* site can negatively effect its ability to provide information
+adequately.
+
+Here is the current list of cookies in use on the site:
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Realm</th>
+      <th scope="col">Purpose</th>
+      <th scope="col">Lifetime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EU_COOKIE_LAW_CONSENT</td>
+      <td>Technical</td>
+      <td>A record of the user’s consent to accept cookies in compliance with 
+      <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02009L0136-20091219">
+        European Union Directive 2009/136/EC.
+        </a></td>
+      <td>30 days</td>
+    </tr>
+  </tbody>
+</table>
+
+>Note that the above list does not include cookies that the site's
+hosting provider may issue, and over which the content authors have no
+control.
 
 This site is hosted by [GitHub Pages](https://pages.github.com/), and
 so is subject to GitHub [terms](https://help.github.com/en/github/site-policy/github-terms-of-service)

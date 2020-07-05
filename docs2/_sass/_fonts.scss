@@ -1,0 +1,29 @@
+/* lato-300 - latin-ext_latin */
+@font-face {
+     font-family: 'Lato';
+     font-style: normal;
+     font-weight: 300;
+     src: url('../fonts/lato-v16-latin-ext_latin-300.eot');
+     src: local("Lato Light"), local("Lato-Light"), url('../fonts/lato-v16-latin-ext_latin-300.eot?#iefix') format("embedded-opentype"), url('../fonts/lato-v16-latin-ext_latin-300.woff2') format("woff2"), url('../fonts/lato-v16-latin-ext_latin-300.woff') format("woff"), url('../fonts/lato-v16-latin-ext_latin-300.ttf') format("truetype"), url('../fonts/lato-v16-latin-ext_latin-300.svg#Lato') format("svg");
+     font-display: swap;
+}
+
+/* lato-regular - latin-ext_latin */
+@font-face {
+     font-family: 'Lato';
+     font-style: normal;
+     font-weight: 400;
+     src: url('../fonts/lato-v16-latin-ext_latin-regular.eot');
+     src: local("Lato Regular"), local("Lato-Regular"), url('../fonts/lato-v16-latin-ext_latin-regular.eot?#iefix') format("embedded-opentype"), url('../fonts/lato-v16-latin-ext_latin-regular.woff2') format("woff2"), url('../fonts/lato-v16-latin-ext_latin-regular.woff') format("woff"), url('../fonts/lato-v16-latin-ext_latin-regular.ttf') format("truetype"), url('../fonts/lato-v16-latin-ext_latin-regular.svg#Lato') format("svg");
+     font-display: swap;
+}
+
+/* lato-700 - latin-ext_latin */
+@font-face {
+     font-family: 'Lato';
+     font-style: normal;
+     font-weight: 700;
+     src: url('../fonts/lato-v16-latin-ext_latin-700.eot');
+     src: local("Lato Bold"), local("Lato-Bold"), url('../fonts/lato-v16-latin-ext_latin-700.eot?#iefix') format("embedded-opentype"), url('../fonts/lato-v16-latin-ext_latin-700.woff2') format("woff2"), url('../fonts/lato-v16-latin-ext_latin-700.woff') format("woff"), url('../fonts/lato-v16-latin-ext_latin-700.ttf') format("truetype"), url('../fonts/lato-v16-latin-ext_latin-700.svg#Lato') format("svg");
+     font-display: swap;
+}

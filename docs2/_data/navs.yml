@@ -2,7 +2,7 @@
 - caption: Download
   url: /
 - caption: Usage
-  url: usage
+  url: navissue
   subnavs:
     - caption: Sync with Drive
       url: usage/sync
@@ -18,7 +18,7 @@
     - caption: Personal OAuth 2.0
       url: usage/oauth
 - caption: Installation
-  url: installation
+  url: navissue
   subnavs:
     - caption: Requirements
       url: install/require

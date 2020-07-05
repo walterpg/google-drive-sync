@@ -1,0 +1,20 @@
+---
+layout: page
+---
+<article>
+
+  <section>
+    {{ content }}
+  </section>
+
+  <ul>
+    {%- for item in site.data.browsers -%}
+      <li>
+        <a href="https://www.google.com/search?q=%22{{ item.search }}%22+enable+javascript+and+cookies">
+          {{ item.browser }}
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+  
+</article>

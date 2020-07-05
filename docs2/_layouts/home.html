@@ -8,7 +8,7 @@ layout: default
   <header class="page-banner" role="banner">
     <h1 class="project-name">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
     <h5 class="project-tagline">{{ page.description | default: site.description | default: site.github.project_tagline }}</h5>
-    {% if site.show_downloads %}
+    {%- if site.show_downloads -%}
       <a href="{{ site.github.zip_url }}" >
         <button type="button" class="btn btn-outline-light">
           Download {{site.github.latest_release}} .PLGX
@@ -19,7 +19,7 @@ layout: default
           Download {{site.github.latest_release}} .ZIP
         </button>
       </a>
-    {% endif %}
+    {%- endif -%}
 
   </header>
 
