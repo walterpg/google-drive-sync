@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Download Command
+title: Download to Drive
 description: Replace the current database with a Google Drive copy.
 ---
 

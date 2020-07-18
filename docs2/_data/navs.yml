@@ -6,9 +6,9 @@
   subnavs:
     - caption: Sync with Drive
       url: usage/sync
-    - caption: Upload Command
+    - caption: Upload to Drive
       url: usage/upload
-    - caption: Download Command
+    - caption: Download from Drive
       url: usage/dnload
     - caption: _separator_
     - caption: Auto Sync
@@ -17,14 +17,16 @@
       url: usage/enabled-cmds
     - caption: Personal OAuth 2.0
       url: usage/oauth
+    - caption: Experiments
+      url: usage/x-40
 - caption: Installation
   url: navissue
   subnavs:
-    - caption: Requirements
+    - caption: Requirements and Compatibility
       url: install/require
-    - caption: Normal Install
+    - caption: Normal Install/Upgrade
       url: install/normal
-    - caption: Portable Install
+    - caption: Portable Install/Upgrade
       url: install/portable
     - caption: Configuration
       url: install/config

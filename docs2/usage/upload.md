@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "Upload Command"
+title: "Upload to Drive"
 description: Copy the current database to Google Drive.
 ---
 

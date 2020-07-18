@@ -37,7 +37,7 @@ KeePass database, and subsequently used in plugin commands accessing
 Google Drive. The token is only valid for use by the plugin, and may be
 [invalidated by you](https://myaccount.google.com/security) or Google at
 any time. Since it is saved in the KeePass database, it is as secure as
-all other personal information saved there. 
+all other personal information there. 
 
 Please note: by authorizing the plugin, Google implicitly grants access
 to some identifying details of your account, such as your email address.
@@ -61,8 +61,10 @@ collect personal information about you.
 When visiting this site, "cookies" may be placed on your device (computer,
 mobile, or tablet). A cookie is a small text file that is placed on
 your device by websites you visit. The only purpose of cookies on this
-site is "technical", that is, to provide form and function to your
-browsing session. Some sites may use cookies to "personalize" or
+site is "technical", that is, to provide form and function to your site
+browsing experience. 
+
+Some sites may use cookies to "personalize" or
 "analyze" your usage; this site does not use cookies in this way.
 Except for cookies that record your preferences or consent, all 
 cookies issued by the site are created with "session lifetime".  That
@@ -70,16 +72,16 @@ is, the browser should delete them when your visit to the site ends.
 
 To enhance responsiveness and navigation of content, this site uses
 JavaScript. JavaScript is a programming language that runs programs, or
-"scripts" in your browser.  The scripts used by this site take
-advantage of a browser feature called "local storage" or "cache",
-which allows scripts to maintain the status of your browser session,
-such as the currently displayed page.  Local storage exists on your
-device, much like a cookie. The data placed in local storage by this
-site includes no identifying personal information. Browsers may have
+"scripts"; in this case, in your web browser.  The scripts
+used by this site take advantage of a browser feature called "local 
+storage" or "cache", which allows scripts to maintain the status of your
+browser session, such as the currently displayed page.  Local storage
+exists on your device, much like a cookie. The data placed in local storage
+by this site includes no identifying personal information. Browsers may have
 various features and settings that allow some non-standard control of
 local storage, including the saving of local storage data to secondary,
 or persistent storage on your device after the session ends. The
-scripts on this site only require their local storage to exist for as
+scripts on this site only require local storage to exist for as
 long as you are browsing the site. 
 
 Most web browsers offer settings allowing you to opt-out of the use of

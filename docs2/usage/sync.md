@@ -32,5 +32,5 @@ contents of the temp file with the local database.
 uses modification times of both entries and database "save" operations to
 save only the most recent changes (new entries, updated passwords, etc.), and
 discard older changes.
-* If the sync op modifies the database, it's uploaded to Google Drive.
-* The databases on your PC and Google Drive are now perfectly in sync.
+* If the sync operation modifies the database, it's uploaded to Google Drive.
+* The databases on your PC and Google Drive are now perfectly synchronized.

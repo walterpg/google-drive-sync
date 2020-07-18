@@ -1,10 +1,14 @@
 
-<div class="py-5 border-top">
+<div class="pb-5 pt-2 border-top">
   <div class="container">
 
     <p class="h5 mb-3">{{ site.title | escape }}</p>
 
     <div class="row">
+
+      <div class="col-sm text-left">
+        <p>{{- site.description | escape -}}</p>
+      </div>
 
       <div class="col-sm">
         <ul class="list-unstyled">
@@ -15,15 +19,10 @@
                 {{ site.author | escape }}
               </a>
             {%- else -%}
-              {{ site.title | escape }}
+              {{ site.github.repository_name | escape }}
             {%- endif -%}
           </li>
         </ul>
-      </div>
-
-
-      <div class="col-sm text-right">
-        <p>{{- site.description | escape -}}</p>
       </div>
 
     </div>
