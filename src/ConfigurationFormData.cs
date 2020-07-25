@@ -33,9 +33,6 @@ namespace GoogleDriveSync
 {
     class ConfigurationFormData : IDisposable
     {
-        string m_defaultAppFolder;
-        string m_defaultClientId;
-        ProtectedString m_defaultClientSecret;
         IEnumerable<Color> m_colors;
         readonly Func<EntryConfiguration, Task<IEnumerable<Color>>> m_colorProvider;
 
@@ -50,10 +47,10 @@ namespace GoogleDriveSync
 
             m_colors = null;
             m_colorProvider = colorProvider;
-            DefaultAppFolderColor = null;
-            DefaultUseLegacyClientId = true;
-            DefaultClientId = string.Empty;
-            DefaultClientSecret = GdsDefs.PsEmptyEx;
+            DefaultUseLegacyClientId = 
+                SyncConfiguration.IsDefaultOauthCredential(
+                    PluginConfig.Default.ClientId,
+                    PluginConfig.Default.ClientSecret);
         }
 
         protected void Dispose(bool bIsDisposing)
@@ -82,29 +79,15 @@ namespace GoogleDriveSync
 
         public IList<EntryConfiguration> Entries { get; private set; }
 
-        bool IsCmdEnabled(SyncCommands cmd)
-        {
-            return (EnabledCommands & cmd) == cmd;
-        }
-
-        void SetCmdEnablement(SyncCommands cmd, bool enabled)
-        {
-            EnabledCommands &= ~cmd;
-            if (enabled)
-            {
-                EnabledCommands |= cmd;
-            }
-        }
-
         public bool CmdSyncEnabled
         {
             get
             {
-                return IsCmdEnabled(SyncCommands.SYNC);
+                return PluginConfig.Default.IsCmdEnabled(SyncCommands.SYNC);
             }
             set
             {
-                SetCmdEnablement(SyncCommands.SYNC, value);
+                PluginConfig.Default.EnableCmd(SyncCommands.SYNC, value);
             }
         }
 
@@ -112,11 +95,11 @@ namespace GoogleDriveSync
         {
             get
             {
-                return IsCmdEnabled(SyncCommands.UPLOAD);
+                return PluginConfig.Default.IsCmdEnabled(SyncCommands.UPLOAD);
             }
             set
             {
-                SetCmdEnablement(SyncCommands.UPLOAD, value);
+                PluginConfig.Default.EnableCmd(SyncCommands.UPLOAD, value);
             }
         }
 
@@ -124,39 +107,35 @@ namespace GoogleDriveSync
         {
             get
             {
-                return IsCmdEnabled(SyncCommands.DOWNLOAD);
+                return PluginConfig.Default.IsCmdEnabled(SyncCommands.DOWNLOAD);
             }
             set
             {
-                SetCmdEnablement(SyncCommands.DOWNLOAD, value);
+                PluginConfig.Default.EnableCmd(SyncCommands.DOWNLOAD, value);
             }
         }
 
-        public SyncCommands EnabledCommands { get; set; }
-
-        public bool SyncOnOpen { get; set; }
-
-        public bool SyncOnSave { get; set; }
-
-        public AutoSyncMode AutoSync
+        public bool SyncOnOpen 
         {
             get
             {
-                AutoSyncMode mode = AutoSyncMode.DISABLED;
-                if (SyncOnOpen)
-                {
-                    mode |= AutoSyncMode.OPEN;
-                }
-                if (SyncOnSave)
-                {
-                    mode |= AutoSyncMode.SAVE;
-                }
-                return mode;
+                return PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN);
             }
             set
             {
-                SyncOnOpen = (value & AutoSyncMode.OPEN) == AutoSyncMode.OPEN;
-                SyncOnSave = (value & AutoSyncMode.SAVE) == AutoSyncMode.SAVE;
+                PluginConfig.Default.EnableAutoSync(AutoSyncMode.OPEN, value);
+            }
+        }
+
+        public bool SyncOnSave 
+        {
+            get
+            {
+                return PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE);
+            }
+            set
+            {
+                PluginConfig.Default.EnableAutoSync(AutoSyncMode.SAVE, value);
             }
         }
 
@@ -164,41 +143,50 @@ namespace GoogleDriveSync
         {
             get
             {
-                return m_defaultAppFolder.Trim();
+                return PluginConfig.Default.Folder.Trim();
             }
             set
             {
-                m_defaultAppFolder = value ?? string.Empty;
+                PluginConfig.Default.Folder = value ?? string.Empty;
             }
         }
 
-        public GoogleColor DefaultAppFolderColor { get; set; }
+        public GoogleColor DefaultAppFolderColor
+        {
+            get
+            {
+                return PluginConfig.Default.FolderColor;
+            }
+            set
+            {
+                PluginConfig.Default.FolderColor = value;
+            }
+        }
 
         public bool DefaultIsRestrictedDriveScope
         {
             get
             {
-                return DefaultApiScope == DriveService.Scope.DriveFile;
+                return PluginConfig.Default.DriveScope ==
+                    DriveService.Scope.Drive;
             }
             set
             {
-                DefaultApiScope = value ?
-                    DriveService.Scope.DriveFile : DriveService.Scope.Drive;
+                PluginConfig.Default.DriveScope = value ?
+                    DriveService.Scope.Drive: DriveService.Scope.DriveFile;
             }
         }
-
-        public string DefaultApiScope { get; set; }
 
         public string DefaultClientId
         {
             get
             {
                 return DefaultUseLegacyClientId ?
-                    string.Empty : m_defaultClientId;
+                    string.Empty : PluginConfig.Default.ClientId;
             }
             set
             {
-                m_defaultClientId = value;
+                PluginConfig.Default.ClientId = value;
             }
         }
 
@@ -207,11 +195,11 @@ namespace GoogleDriveSync
             get
             {
                 return DefaultUseLegacyClientId ?
-                    GdsDefs.PsEmptyEx : m_defaultClientSecret;
+                    GdsDefs.PsEmptyEx : PluginConfig.Default.ClientSecret;
             }
             set
             {
-                m_defaultClientSecret = value == null ?
+                PluginConfig.Default.ClientSecret = value == null ?
                     GdsDefs.PsEmptyEx : value;
             }
         }

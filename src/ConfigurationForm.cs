@@ -195,6 +195,8 @@ namespace GoogleDriveSync
             Debug.Assert(m_chkDefaultDriveScope is CheckBox);
             binding = new Binding("Checked",
                 m_data, "DefaultIsRestrictedDriveScope");
+            binding.Format += HandleBoolNegation;
+            binding.Parse += HandleBoolNegation;
             m_chkDefaultDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientId is TextBox);
             binding = new Binding("Text",
@@ -488,6 +490,24 @@ namespace GoogleDriveSync
                     GdsDefs.ProductName,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+            }
+
+            // In the case of changing OAuth creds with a refresh token
+            // present, confirm the user's intention.
+            if  (DialogResult == DialogResult.OK &&
+                m_data.SelectedAccountShadow.IsModifiedOauthCreds &&
+                !m_data.SelectedAccountShadow.RefreshToken.IsEmpty)
+            {
+                DialogResult = MessageBox.Show(
+                    Resources.GetString("Msg_ChangedCredsDeletesToken"),
+                    GdsDefs.ProductName,
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2);
+                if (DialogResult != DialogResult.OK)
+                {
+                    DialogResult = DialogResult.None;
+                }
             }
         }
 

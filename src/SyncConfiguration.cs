@@ -258,6 +258,19 @@ namespace GoogleDriveSync
         }
 
         /// <summary>
+        /// Indicates there are uncommitted changes to the OAuth 2.0-related
+        /// properties.
+        /// </summary>
+        public bool IsModifiedOauthCreds
+        {
+            get
+            {
+                return m_changes.Keys.Any(k => k == GdsDefs.EntryClientId ||
+                                            k == GdsDefs.EntryClientSecret);
+            }
+        }
+
+        /// <summary>
         /// Indicates that changes have been made and committed to the Entry
         /// object.  You might want to save the database if Entry is contained
         /// in it, for example.  This property is set when IsModified is true
@@ -536,7 +549,8 @@ namespace GoogleDriveSync
         {
             get
             {
-                return DriveScope == DriveService.Scope.Drive;
+                return string.IsNullOrEmpty(DriveScope) ||
+                    DriveScope == DriveService.Scope.Drive;
             }
             set
             {
