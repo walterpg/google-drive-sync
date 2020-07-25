@@ -1,16 +1,15 @@
 ---
-layout: usage
-title: Download Command
+layout: page
+title: Download to Drive
 description: Replace the current database with a Google Drive copy.
-usage-cmd: download
 ---
 
 {:refdef: style="text-align: center;"}
 ![The Download Command](../assets/img/download.png)
 {: refdef}
 
-<div class='highlightbox'>
-<div class='highlightboxtitle'>CAUTION</div>
+<div class="alert alert-warning text-dark" role="alert">
+    <div>CAUTION</div>
 This command <em>replaces</em> the local database with the contents of
 a Drive file with the same name.  Any changes in the current database will be
 lost.
@@ -21,7 +20,7 @@ lost.
 * The local database is replaced by the contents of the downloaded file.
 
 ## How it Works
-* The plugin, with your [authorization](../misc/authorization), accesses
+* The plugin, with your [authorization](authorize), accesses
 Drive and downloads a file with the same name as the current database.
 * An error message is shown if the Drive file does not exist; otherwise,
 the current database is closed.

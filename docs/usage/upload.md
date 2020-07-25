@@ -1,18 +1,17 @@
 ---
-layout: usage
-title: "Upload Command"
+layout: page
+title: "Upload to Drive"
 description: Copy the current database to Google Drive.
-usage-cmd: upload
 ---
 
 {:refdef: style="text-align: center;"}
 ![The Upload Command](../assets/img/upload.png)
 {: refdef}
 
-<div class='highlightbox'>
-<div class='highlightboxtitle'>CAUTION</div>
-This command <em>replaces</em> the contents of the Drive file, if it exists,
-with the contents of the current database.
+<div class="alert alert-warning text-dark" role="alert">
+    <div>CAUTION</div>
+    This command <em>replaces</em> the contents of the Drive file, if it exists,
+    with the contents of the current database.
 </div>
 
 ## What Happens
@@ -25,7 +24,7 @@ with the contents of the local file.
 
 ## How it Works
 * The KeePass Save command is invoked.
-* The plugin, with your [authorization](../misc/authorization), accesses
+* The plugin, with your [authorization](authorize), accesses
 Drive.
 * The Drive file is created or replaced with the uploaded contents of
 the local file.

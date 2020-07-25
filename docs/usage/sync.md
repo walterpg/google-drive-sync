@@ -1,8 +1,7 @@
 ---
-layout: usage
-title: Sync With Drive
+layout: page
+title: Sync with Drive
 description: Simplified, secure KeePass Synchronize with Google Drive files.
-usage-cmd: sync
 ---
 
 {:refdef: style="text-align: center;"}
@@ -10,8 +9,8 @@ usage-cmd: sync
 {: refdef}
 
 KeePass' own built-in [Synchronize](https://keepass.info/help/v2/sync.html) 
-command is one of its most powerful and useful features, but too generic
-to use safely and efficiently with Google Drive.  The plugin command reduces
+command is a powerful feature, but too generic to use safely and
+efficiently with Google Drive files.  The plugin command reduces
 several steps to a single-click.
 
 ## What Happens
@@ -24,7 +23,8 @@ function.
 
 
 ## How it Works
-* The plugin, with your [authorization](../misc/authorization), accesses your Google Drive to find a file with the same name as the currently open database.
+* The plugin, with your [authorization](authorize), accesses your Google Drive
+to find a file with the same name as the currently open database.
 * If the file exists on Google Drive it is downloaded to a temporary file on
 your PC (if a Drive copy doesn't exist, the database is simply uploaded).
 * KeePass [Synchronize](https://keepass.info/help/v2/sync.html) merges the
@@ -33,5 +33,5 @@ contents of the temp file with the local database.
 uses modification times of both entries and database "save" operations to
 save only the most recent changes (new entries, updated passwords, etc.), and
 discard older changes.
-* If the sync op modifies the database, it's uploaded to Google Drive.
-* The databases on your PC and Google Drive are now perfectly in sync.
+* If the sync operation modifies the database, it's uploaded to Google Drive.
+* The databases on your PC and Google Drive are now perfectly synchronized.
