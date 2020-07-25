@@ -22,7 +22,10 @@ commands are disabled.
 [auto-sync](autosync) options.
 
 ## How it Works
-* Click [**Configuration**](../install/config) on the plugin menu to open the dialog shown above.
+* Click [**Configuration**](../install/config#configuration-window) on the
+plugin menu to open the dialog, then the
+[**Options and Defaults** tab](../install/config#options-and-defaults)
+shown above.
 * Select the commands to be disabled/enabled.
 * Initially, you must explicitly disable commands.  The first time the plugin
 is installed, all commands are enabled.

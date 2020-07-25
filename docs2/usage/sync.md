@@ -23,7 +23,8 @@ function.
 
 
 ## How it Works
-* The plugin, with your [authorization](../misc/authorization), accesses your Google Drive to find a file with the same name as the currently open database.
+* The plugin, with your [authorization](authorize), accesses your Google Drive
+to find a file with the same name as the currently open database.
 * If the file exists on Google Drive it is downloaded to a temporary file on
 your PC (if a Drive copy doesn't exist, the database is simply uploaded).
 * KeePass [Synchronize](https://keepass.info/help/v2/sync.html) merges the

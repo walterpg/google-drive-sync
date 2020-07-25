@@ -20,7 +20,7 @@ lost.
 * The local database is replaced by the contents of the downloaded file.
 
 ## How it Works
-* The plugin, with your [authorization](../misc/authorization), accesses
+* The plugin, with your [authorization](authorize), accesses
 Drive and downloads a file with the same name as the current database.
 * An error message is shown if the Drive file does not exist; otherwise,
 the current database is closed.

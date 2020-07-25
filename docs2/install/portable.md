@@ -10,7 +10,7 @@ title: Portable Installation
 Portable installation is required when the KeePass program is run
 from a removable storage device, such as a USB drive.  This is
 convenient mostly for those who wish to use KeePass with multiple
-computers, without having to install KeePass on each of those computers.
+computers, without installing it on each of those computers.
 
 This installation method is generally recommended only for advanced users.  It
 requires diligence to ensure [system requirements](require) are met for
@@ -63,7 +63,7 @@ plugin from operating in normal, non-portable mode, if KeePass is still
 installed that way.
 
 1. Remove the ".plgx" file added to the KeePass directory in Step 1 of the 
-[normal installation](normal) instructions.
+[normal installation](normal#installation-steps) instructions.
 2. In KeePass, clear the "Plugin Cache" (Tools &#x21D2; Plugins... &#x21D2;
 Clear button).
 3. Restart KeePass.
@@ -78,6 +78,6 @@ Use the [Download .ZIP](/) button to obtain the latest release' .zip archive.
 
 1. Ensure KeePass is not running.
 2. Empty the contents of the folder created in step 2 of the
-[installation instructions](#installation-steps).
+[portable installation instructions](#installation-steps).
 3. Extract the contents of the .zip file into the folder emptied in step 2.
 

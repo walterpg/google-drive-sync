@@ -22,7 +22,7 @@ See also:
 
 ---
 
-### Compatibility with Google Sync Plugin 3.0
+### Compatibility with Google Sync Plugin
 This is the 4th generation of the plugin, with updated Google Drive APIs,
 modern KeePass ingegration, and updated .NET Framework security.  Every
 effort is made to preserve functional compatibility with
@@ -30,7 +30,8 @@ effort is made to preserve functional compatibility with
 while also fixing issues with shifting Google authorization requirements.  
 
 <div class="alert alert-secondary" role="alert">
-    If you suspect a compatibility problem, 
+    Compatibility is an important objective for this plugin. If you
+    suspect a compatibility problem, 
     <a class="alert-link"
      href="https://github.com/walterpg/google-drive-sync/issues">
         please report the issue
@@ -39,17 +40,18 @@ while also fixing issues with shifting Google authorization requirements.
 
 If the old plugin currently synchronizes your databases successfully, this
 release will be able to synchronize those databases as well.  Additionally,
-you will not be required to authenticate and 
-reauthorize the plugin, at least as long as Google continues to respect the
-authorization token granted to the old plugin.  
+you will not be required to [authenticate and reauthorize](../usage/authorize)
+the plugin, at least as long as Google continues to respect the
+[authorization token](../usage/authorize#authorization-tokens)
+granted to the old plugin.  
 
 However, if you want to synchronize a new database,
 or if Google retires the token saved in an existing database, this
 plugin may be the only way to continue synchronizing KeePass in a customary
 way.
 
-If you have configured custom OAuth 2.0 credentials for your database with
-the old plugin, these should continue to work as before.
+If you have configured [custom OAuth 2.0 credentials](../usage/oauth) for
+your database with the old plugin, these should continue to work as before.
 
 #### Settings Migration
 Compatibility is achieved through a one-way "migration" of the settings

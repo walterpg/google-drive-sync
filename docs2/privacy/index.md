@@ -123,15 +123,3 @@ This site is hosted by [GitHub Pages](https://pages.github.com/), and
 so is subject to GitHub [terms](https://help.github.com/en/github/site-policy/github-terms-of-service)
 for hosted content, and the GitHub [privacy statement](https://help.github.com/en/github/site-policy/github-privacy-statement).  Please review GitHub's
 own cookie [policy statement](https://docs.github.com/en/github/site-policy/github-privacy-statement#our-use-of-cookies-and-tracking) there.
-
----
-
-#### OAuth 2.0 
-
-As with Google Sync Plugin 3.0, this release offers flexible options for 
-securing Google Drive account access.  You may use the plugin's
-"built-in" OAuth 2.0 credentials, or [your own personal credentials](#obtaining-custom-oauth-20-credentials),
-with the assurance that, from the perspective of KeePass and the
-plugin, no personal information is logged, shared, or used
-for any purpose other than to read and write the KeePass database to and
-from Google Drive.  

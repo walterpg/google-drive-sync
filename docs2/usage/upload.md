@@ -24,7 +24,7 @@ with the contents of the local file.
 
 ## How it Works
 * The KeePass Save command is invoked.
-* The plugin, with your [authorization](../misc/authorization), accesses
+* The plugin, with your [authorization](authorize), accesses
 Drive.
 * The Drive file is created or replaced with the uploaded contents of
 the local file.

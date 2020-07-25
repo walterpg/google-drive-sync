@@ -52,7 +52,7 @@ Google currently allows any user to [obtain OAuth 2.0 client credentials](https:
 for access to its Drive and other APIs.  The process for doing so is designed
 for developer use, and it changes periodically.  But generally it goes like this:
 
-1. Log on to the [Google API Console](https://console.developers.google.com/).
+1. Log on to the [Google Cloud API Console](https://console.developers.google.com/).
 2. Use the "Create a Project" link to create a space for your credentials.  
 Name it something and click CREATE.
 3. Click the "Credentials" link, then "CREATE CREDENTIALS".  A menu or 

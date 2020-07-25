@@ -18,6 +18,10 @@ database are merged into the opened database.
 session are saved *and* merged into the Drive copy.
 
 ## How it Works
+* Click [**Configuration**](../install/config#configuration-window) on the
+plugin menu to open the dialog, then the
+[**Options and Defaults** tab](../install/config#options-and-defaults)
+shown above.
 * The **Sync with Drive** command must be enabled.
 * You can enable **Auto Sync** for the **Open** command, **Save** command, or both.
 * KeePass notifies the plugin when you **Open** or **Save**, and the plugin invokes
