@@ -9,14 +9,31 @@ layout: default
     <h1 class="project-name">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
     <h5 class="project-tagline">{{ page.description | default: site.description | default: site.github.project_tagline }}</h5>
     {%- if site.show_downloads -%}
-      <a href="{{ site.github.zip_url }}" >
+      {%- if site.github.latest_release -%}
+      {%- assign current_release = site.github.latest_release -%}
+      {%- else -%}
+      {%- assign current_release = site.github.releases.first -%}
+      {%- endif -%}
+      {%- for asset in current_release.assets -%}
+        {%- assign plgx_substr = asset.name | slice: -5, 5 | upcase -%}
+        {%- assign zip_substr = asset.name | slice: -4, 4 | upcase -%}
+        {%- if '.PLGX' == plgx_substr and plgx_asset == nil -%}
+          {%- assign plgx_asset = asset -%}
+        {%- elsif '.ZIP' == zip_substr and zip_asset == nil -%}
+          {%- assign zip_asset = asset -%}
+        {%- endif -%}
+      {%- endfor -%}
+      <p>Current release: {% if current_release.name == nil %}{{ current_release.tag_name }}{% else %}{{ current_release.name }}{% endif %}</p>
+      <a href="{{ plgx_asset.browser_download_url }}" 
+         type="{{ plgx_asset.content_type }}">
         <button type="button" class="btn btn-outline-light">
-          Download {{site.github.latest_release}} .PLGX (Normal Installation)
+          Download .PLGX (Normal Installation)
         </button>
       </a>
-      <a href="{{ site.github.zip_url }}" >
+      <a href="{{ zip_asset.browser_download_url }}" 
+         type="{{ zip_asset.content_type }}">
         <button type="button" class="btn btn-outline-light">
-          Download {{site.github.latest_release}} .ZIP (Portable Installation)
+          Download .ZIP (Portable Installation)
         </button>
       </a>
     {%- endif -%}

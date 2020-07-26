@@ -242,9 +242,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  github-pages
-  jekyll (~> 3.8.5)
-  jekyll-github-metadata
+  github-pages (~> 206)
+  jekyll (~> 3.8.7)
+  jekyll-github-metadata (~> 2.13.0)
 
 BUNDLED WITH
    2.1.4

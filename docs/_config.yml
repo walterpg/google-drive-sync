@@ -26,11 +26,9 @@ show_downloads: true
 repository: "walterpg/google-drive-sync"
 
 # Build settings
-#plugins:
-
-github: [metadata]
-gem 'github-pages', group: :jekyll_plugins
-gem 'jekyll-github-metadata', group: :jekyll_plugins
+plugins:
+  - "github-pages"
+  - "jekyll-github-metadata"
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
