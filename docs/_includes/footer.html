@@ -1,0 +1,29 @@
+
+<div class="pb-5 pt-2 border-top">
+  <div class="container">
+
+    <p class="h5 mb-3">{{ site.github.project_title | default: site.title | escape }}</p>
+
+    <div class="row">
+
+      <div class="col-sm text-left">
+        <p>{{- site.description | escape -}}</p>
+      </div>
+
+      <div class="col-sm">
+        <ul class="list-unstyled">
+          <li>
+            {%- if site.github.owner_name -%}
+              Currently maintained by 
+              <a href="mailto:{{ site.email }}">
+                {{ site.github.owner_name | escape }}
+              </a>
+            {%- endif -%}
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>

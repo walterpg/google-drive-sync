@@ -1,0 +1,57 @@
+<nav id="navbar" class="navbar navbar-expand-sm navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" rel="author" href="{{ "/" | relative_url }}">
+      <div class="d-flex flex-row">
+        <div class="px-1">
+          <img src="{{ "/assets/img/gdsync-48.png" | relative_url }}" alt="KeePass Google Drive Sync"></img>
+        </div>
+        <div class="pl-1">
+          {{ site.title | escape }}
+        </div>
+      </div>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="nav navbar-nav ml-auto">
+        {%- assign menus = site.data.navs -%}
+        {%- for path in menus -%}
+          {%- if path.subnavs -%}
+            <li class="dropdown nav-item">
+              <a href="{{ path.url | relative_url }}" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ path.caption }} <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                {%- for sublink in path.subnavs -%}
+                  {%- if sublink.caption == '_separator_' -%}
+                    <div class="dropdown-divider"></div>
+                  {%- else -%}
+                    {%- assign class-active = 'nil' -%}
+                    {%- if page.url contains sublink.url -%}
+                      {%- assign class-active = 'active' -%}
+                    {%- endif -%}
+                    <li class="dropdown-item {{ class-active }}">
+                      <a href="{{ sublink.url | relative_url }}" class="nav-link">{{ sublink.caption }}</a>
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </li>
+          {%- else -%}
+            <li class="nav-item">
+              <a href="{{ path.url | relative_url }}" class="nav-link">{{ path.caption }}</a>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if site.github.is_project_page -%}
+        <li class="nav-item">
+          <a href="{{ site.github.repository_url }}" class="nav-link">
+            <img src="{{ "/assets/img/GitHub-Mark-Light-32px.png" | relative_url }}" alt="GitHub Repo"></img>
+          </a>
+        </li>
+        {%- endif -%}
+      </ul>
+    </div>
+  </div>
+</nav>

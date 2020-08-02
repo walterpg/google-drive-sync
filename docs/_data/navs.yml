@@ -1,0 +1,37 @@
+# A list of the pages to display in the navigation bar
+- caption: Download
+  url: /
+- caption: Usage
+  url: navissue
+  subnavs:
+    - caption: Sync with Drive
+      url: usage/sync
+    - caption: Upload to Drive
+      url: usage/upload
+    - caption: Download from Drive
+      url: usage/dnload
+    - caption: _separator_
+    - caption: Auto Sync
+      url: usage/autosync
+    - caption: Enabled Commands
+      url: usage/enabled-cmds
+    - caption: _separator_
+    - caption: Authorization
+      url: usage/authorize
+    - caption: Personal OAuth 2.0
+      url: usage/oauth
+    - caption: Experiments
+      url: usage/x-40
+- caption: Installation
+  url: navissue
+  subnavs:
+    - caption: Requirements and Compatibility
+      url: install/require
+    - caption: Normal Install/Upgrade
+      url: install/normal
+    - caption: Portable Install/Upgrade
+      url: install/portable
+    - caption: Configuration
+      url: install/config
+- caption: Privacy
+  url: privacy
