@@ -30,6 +30,27 @@ namespace GoogleDriveSync
 {
 	class PluginConfig
 	{
+		// Ver0
+		//	clientID/secret present => custom client id
+		//	clientID/secret missing => legacy client id
+		//
+		// Ver1
+		//	if Use legacy flag missing or false
+		//	 => new app client id
+		//  else
+		//	 clientID/secret present => custom client id
+		//	 clientID/secret missing => legacy client id
+		//
+		//	Don't prompt for migration. Since Ver0 was not persisted,
+		//	there is no very simple way to know if this is a new install or
+		//	migration.  This was new functionality in Ver0, which was
+		//	pre-release software anyway....
+
+		const string Ver0 = "0.0"; // virtual version
+		const string Ver1 = "1.0";
+
+		const string CurrentVer = Ver1;
+
 		static PluginConfig()
 		{
 			Default = new PluginConfig();
@@ -47,6 +68,7 @@ namespace GoogleDriveSync
 		string m_defaultDriveScope;
 		string m_defaultClientId;
 		ProtectedString m_defaultClientSecret;
+		bool m_useLegacyCreds;
 		bool m_isDirty;
 
 		PluginConfig()
@@ -58,7 +80,8 @@ namespace GoogleDriveSync
 			m_defaultDriveScope = null;
 			m_defaultClientId = string.Empty;
 			m_defaultClientSecret = GdsDefs.PsEmptyEx;
-			m_isDirty = false;
+			m_useLegacyCreds = false;
+			m_isDirty = true;
 		}
 
 		public bool IsCmdEnabled(SyncCommands cmd)
@@ -155,7 +178,7 @@ namespace GoogleDriveSync
 			}
 		}
 
-		public string DriveScope
+		public string LegacyDriveScope
 		{
 			get { return m_defaultDriveScope; }
 			set
@@ -169,7 +192,7 @@ namespace GoogleDriveSync
 			}
 		}
 
-		public string ClientId
+		public string PersonalClientId
 		{
 			get { return m_defaultClientId; }
 			set
@@ -183,7 +206,7 @@ namespace GoogleDriveSync
 			}
 		}
 
-		public ProtectedString ClientSecret
+		public ProtectedString PersonalClientSecret
 		{
 			get { return m_defaultClientSecret; }
 			set
@@ -206,6 +229,30 @@ namespace GoogleDriveSync
 			}
 		}
 
+		public bool UseLegacyAppCredentials
+		{
+			get { return m_useLegacyCreds; }
+			set
+			{
+				if (m_useLegacyCreds != value)
+				{
+					m_isDirty = true;
+					m_useLegacyCreds = value;
+				}
+			}
+		}
+
+		public static Version GetVersion(IPluginHost host)
+		{
+			string verString = host.GetConfig(GdsDefs.ConfigVersion, Ver0);
+			Version userVersion;
+			if (!Version.TryParse(verString, out userVersion))
+			{
+				userVersion = new Version(Ver0);
+			}
+			return userVersion;
+		}
+
 		public void UpdateConfig(IPluginHost host)
 		{
 			if (!m_isDirty)
@@ -224,11 +271,18 @@ namespace GoogleDriveSync
 			host.SetConfig(GdsDefs.ConfigDefaultClientSecret,
 				m_defaultClientSecret == null ? string.Empty :
 				m_defaultClientSecret.ReadString());
+			host.SetConfig(GdsDefs.EntryUseLegacyCreds, m_useLegacyCreds ?
+				GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+
+			// Only set CurrentVer if all properties are proper at that level.
+			host.SetConfig(GdsDefs.ConfigVersion, CurrentVer);
+			m_isDirty = false;
 		}
 
-		public static void InitAppConfig(IPluginHost host)
+		public static PluginConfig InitDefault(IPluginHost host)
 		{
 			PluginConfig update = new PluginConfig();
+
 			string cmds = host.GetConfig(GdsDefs.ConfigEnabledCmds,
 				((int)SyncCommands.All).ToString(
 					NumberFormatInfo.InvariantInfo));
@@ -264,18 +318,30 @@ namespace GoogleDriveSync
 			update.FolderColor = !string.IsNullOrEmpty(encodedColor) ?
 				GoogleColor.DeserializeFromString(encodedColor) : null;
 
-			update.DriveScope = host.GetConfig(GdsDefs.ConfigDriveScope,
+			update.LegacyDriveScope = host.GetConfig(GdsDefs.ConfigDriveScope,
 									DriveService.Scope.Drive);
 
 			// Default is no OAuth 2.0 credentials.
-			update.ClientId = host.GetConfig(GdsDefs.ConfigDefaultClientId,
+			update.PersonalClientId = host.GetConfig(GdsDefs.ConfigDefaultClientId,
 												string.Empty);
 			string secretVal = host.GetConfig(GdsDefs.ConfigDefaultClientSecret,
 												string.Empty);
-			update.ClientSecret = new ProtectedString(true, secretVal);
+			update.PersonalClientSecret = new ProtectedString(true, secretVal);
 
-			update.m_isDirty = false;
+			// Config version updates to occur up front.
+			if (GetVersion(host) < new Version(Ver1))
+			{
+				// Update the config with the new default "use new app creds".
+				update.m_isDirty = true;
+			}
+			else
+			{
+				update.m_isDirty = false;
+			}
+
+			update.UpdateConfig(host);
 			Default = update;
+			return Default;
 		}
 	}
 }

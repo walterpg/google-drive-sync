@@ -55,11 +55,19 @@ namespace GenClientId
 
         public string SourceFilePath { get; set; }
 
+        public string LegacyIdCsharpConstant { get; set; }
+        public string LegacyIdPadCsharpConstant { get; set; }
+        public string LegacySecretCsharpConstant { get; set; }
+        public string LegacySecretPadCsharpConstant { get; set; }
         public string ClientIdCsharpConstant { get; set; }
         public string ClientIdPadCsharpConstant { get; set; }
         public string ClientSecretCsharpConstant { get; set; }
         public string ClientSecretPadCsharpConstant { get; set; }
 
+        byte[] LegacyIdBytes { get; set; }
+        byte[] LegacyIdPadBytes { get; set; }
+        byte[] LegacySecretBytes { get; set; }
+        byte[] LegacySecretPadBytes { get; set; }
         byte[] ClientIdBytes { get; set; }
         byte[] ClientIdPadBytes { get; set; }
         byte[] ClientSecretBytes { get; set; }
@@ -69,24 +77,42 @@ namespace GenClientId
         {
             using (StreamReader reader = File.OpenText(SourceFilePath))
             {
+                LegacyIdBytes = Encoding.UTF8.GetBytes(
+                                    reader.ReadLine().Trim());
+                LegacySecretBytes = Encoding.UTF8.GetBytes(
+                                    reader.ReadLine().Trim());
                 ClientIdBytes = Encoding.UTF8.GetBytes(
                                     reader.ReadLine().Trim());
                 ClientSecretBytes = Encoding.UTF8.GetBytes(
                                     reader.ReadLine().Trim());
+                LegacyIdPadBytes = new byte[LegacyIdBytes.Length];
+                LegacySecretPadBytes = new byte[LegacySecretBytes.Length];
                 ClientIdPadBytes = new byte[ClientIdBytes.Length];
                 ClientSecretPadBytes = new byte[ClientSecretBytes.Length];
 
                 using (RandomNumberGenerator rng = 
                             RandomNumberGenerator.Create())
                 {
+                    rng.GetNonZeroBytes(LegacyIdPadBytes);
+                    rng.GetNonZeroBytes(LegacySecretPadBytes);
                     rng.GetNonZeroBytes(ClientIdPadBytes);
                     rng.GetNonZeroBytes(ClientSecretPadBytes);
                 }
 
-                XorredBuffer clientIdBuf = new XorredBuffer(ClientIdBytes,
-                                                            ClientIdPadBytes);
-                XorredBuffer secretBuf = new XorredBuffer(ClientSecretBytes,
-                                                        ClientSecretPadBytes);
+                XorredBuffer clientIdBuf = new XorredBuffer(LegacyIdBytes,
+                                                            LegacyIdPadBytes);
+                XorredBuffer secretBuf = new XorredBuffer(LegacySecretBytes,
+                                                        LegacySecretPadBytes);
+
+                LegacyIdCsharpConstant = GenSrc(clientIdBuf.ReadPlainText());
+                LegacyIdPadCsharpConstant = GenSrc(LegacyIdPadBytes);
+                LegacySecretCsharpConstant = GenSrc(secretBuf.ReadPlainText());
+                LegacySecretPadCsharpConstant = GenSrc(LegacySecretPadBytes);
+
+                clientIdBuf = new XorredBuffer(ClientIdBytes,
+                                                ClientIdPadBytes);
+                secretBuf = new XorredBuffer(ClientSecretBytes,
+                                                ClientSecretPadBytes);
 
                 ClientIdCsharpConstant = GenSrc(clientIdBuf.ReadPlainText());
                 ClientIdPadCsharpConstant = GenSrc(ClientIdPadBytes);

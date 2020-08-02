@@ -44,6 +44,10 @@ namespace GoogleDriveSync
         public ConfigurationForm(ConfigurationFormData data)
         {
             InitializeComponent();
+            
+            EnsureCheckEnabledGroupBox(m_chkDefaultUseLegacyCreds,
+                                        m_grpDriveAuthDefaults);
+            EnsureCheckEnabledGroupBox(m_chkUseLegacyCreds, m_grpDriveAuth);
 
             Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
@@ -80,7 +84,6 @@ namespace GoogleDriveSync
                 m_grpAutoSync,
                 m_chkSyncOnOpen,
                 m_chkSyncOnSave,
-                m_grpDriveAuthDefaults,
                 m_lblDefaultClientId,
                 m_lblDefaultClientSecret,
                 m_chkDefaultDriveScope,
@@ -91,6 +94,8 @@ namespace GoogleDriveSync
                 m_lblDefFolderColor,
                 m_btnGetColors,
                 m_lblAttribution,
+                m_chkDefaultUseLegacyCreds,
+                m_chkUseLegacyCreds,
             };
             foreach (Control c in textCx)
             {
@@ -130,6 +135,24 @@ namespace GoogleDriveSync
             m_bColorsQueried = false;
         }
 
+        static void EnsureCheckEnabledGroupBox(CheckBox chk, GroupBox grp)
+        {
+            grp.Enabled = chk.Checked;
+            if (chk.Parent == grp)
+            {
+                // Move checkbox to the groupbox parent.
+                grp.Parent.Controls.Add(chk);
+
+                // Translate position relative to parent.
+                chk.Location = new Point(
+                    chk.Left + grp.Left,
+                    chk.Top + grp.Top);
+
+                // Checkbox covers the groupbox.
+                chk.BringToFront();
+            }
+        }
+
         // Do most event and binding stitching here because KeePass likes to
         // dispose forms quickly.  Also, the presentation object can change
         // before the form is shown.
@@ -151,7 +174,7 @@ namespace GoogleDriveSync
             m_txtClientId.DataBindings.Add(binding);
             binding = new Binding("Enabled",
                 bindingSource,
-                "UseLegacyClientId", true);
+                "UseLegacyKp3ClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtClientId.DataBindings.Add(binding);
@@ -164,7 +187,7 @@ namespace GoogleDriveSync
             m_txtClientSecret.DataBindings.Add(binding);
             binding = new Binding("Enabled",
                 bindingSource,
-                "UseLegacyClientId", true);
+                "UseLegacyKp3ClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtClientSecret.DataBindings.Add(binding);
@@ -176,16 +199,22 @@ namespace GoogleDriveSync
             Debug.Assert(m_chkDriveScope is CheckBox);
             binding = new Binding("Checked",
                 bindingSource,
-                "IsRestrictedDriveScope", true);
+                "IsLegacyRestrictedDriveScope", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_chkDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_chkLegacyClientId is CheckBox);
             binding = new Binding("Checked",
                 bindingSource,
-                "UseLegacyClientId");
+                "UseLegacyKp3ClientId");
             binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
             m_chkLegacyClientId.DataBindings.Add(binding);
+            Debug.Assert(m_chkUseLegacyCreds is CheckBox);
+            binding = new Binding("Checked",
+                bindingSource,
+                "UseLegacyCreds");
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            m_chkUseLegacyCreds.DataBindings.Add(binding);
 
             // Global default auth controls.
             Debug.Assert(m_txtFolderDefault is TextBox);
@@ -194,36 +223,41 @@ namespace GoogleDriveSync
             m_txtFolderDefault.DataBindings.Add(binding);
             Debug.Assert(m_chkDefaultDriveScope is CheckBox);
             binding = new Binding("Checked",
-                m_data, "DefaultIsRestrictedDriveScope");
+                m_data, "DefaultIsLegacyRestrictedDriveScope");
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_chkDefaultDriveScope.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientId is TextBox);
             binding = new Binding("Text",
-                m_data, "DefaultClientId");
+                m_data, "DefaultLegacyClientId");
             m_txtDefaultClientId.DataBindings.Add(binding);
             binding = new Binding("Enabled",
-                m_data, "DefaultUseLegacyClientId", true);
+                m_data, "DefaultUseKpgs3ClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtDefaultClientId.DataBindings.Add(binding);
             Debug.Assert(m_txtDefaultClientSecret is TextBox);
             binding = new Binding("Text", m_data,
-                "DefaultClientSecret", true);
+                "DefaultLegacyClientSecret", true);
             binding.Format += HandleProtectedStringFormatting;
             binding.Parse += HandleProtectedStringParsing;
             m_txtDefaultClientSecret.DataBindings.Add(binding);
             binding = new Binding("Enabled",
-                m_data, "DefaultUseLegacyClientId", true);
+                m_data, "DefaultUseKpgs3ClientId", true);
             binding.Format += HandleBoolNegation;
             binding.Parse += HandleBoolNegation;
             m_txtDefaultClientSecret.DataBindings.Add(binding);
             Debug.Assert(m_chkDefaultLegacyClientId is CheckBox);
             binding = new Binding("Checked",
-                m_data, "DefaultUseLegacyClientId");
+                m_data, "DefaultUseKpgs3ClientId");
             binding.DataSourceUpdateMode = 
                 DataSourceUpdateMode.OnPropertyChanged;
             m_chkDefaultLegacyClientId.DataBindings.Add(binding);
+            binding = new Binding("Checked",
+                m_data, "DefaultUseLegacyCredentials");
+            binding.DataSourceUpdateMode =
+                DataSourceUpdateMode.OnPropertyChanged;
+            m_chkDefaultUseLegacyCreds.DataBindings.Add(binding);
 
             // Enabled command controls.
             Debug.Assert(m_chkSyncEnabled is CheckBox);
@@ -528,5 +562,15 @@ namespace GoogleDriveSync
         }
 
         public string DatabaseFilePath { get; set; }
+
+        void m_chkDefaultUseLegacyCreds_CheckedChanged(object sender, EventArgs e)
+        {
+            m_grpDriveAuthDefaults.Enabled = m_chkDefaultUseLegacyCreds.Checked;
+        }
+
+        private void m_chkUseLegacyCreds_CheckedChanged(object sender, EventArgs e)
+        {
+            m_grpDriveAuth.Enabled = m_chkUseLegacyCreds.Checked;
+        }
     }
 }

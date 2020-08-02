@@ -132,8 +132,7 @@ namespace GoogleDriveSync
 
 			m_host = host;
 
-			PluginConfig.InitAppConfig(host);
-			PluginConfig appDefaults = PluginConfig.Default;
+			PluginConfig appDefaults = PluginConfig.InitDefault(host);
 
 			// Get a reference to the 'Tools' menu item container
 			ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
@@ -447,8 +446,9 @@ namespace GoogleDriveSync
 				// Traditionally, the plugin's indicator for "use default 
 				// clientId" is empty strings for clientId & secret.  Maintain
 				// that compatibility point.
-				if (GdsDefs.DefaultClientId.ReadString() == config.ClientId &&
-					 GdsDefs.DefaultClientSecret
+				if (config.UseLegacyCreds &&
+					GdsDefs.LegacyClientId.ReadString() == config.ClientId &&
+					 GdsDefs.LegacyClientSecret
 						.OrdinalEquals(config.ClientSecret, true))
 				{
 					config.ClientId = string.Empty;
@@ -990,17 +990,37 @@ namespace GoogleDriveSync
 		private static async Task<Tuple<UserCredential, ProtectedString>> 
 			GetAuthorization(IPluginHost host, SyncConfiguration config)
 		{
-			string clientId = config.ClientId;
-			ProtectedString secret = config.ClientSecret;
-			if (SyncConfiguration.IsDefaultOauthCredential(clientId, secret))
+			string clientId;
+			ProtectedString secret;
+			if (!config.UseLegacyCreds)
 			{
-				clientId = GdsDefs.DefaultClientId.ReadString().Trim();
-				secret = GdsDefs.DefaultClientSecret;
+				// Built-in credentials.
+				clientId = GdsDefs.ClientId.ReadString().Trim();
+				secret = GdsDefs.ClientSecret;
 			}
-			string scope = config.DriveScope;
-			if (string.IsNullOrEmpty(scope))
+			else if (config.IsEmptyOauthCredentials)
 			{
-				scope = PluginConfig.Default.DriveScope;
+				// Legacy built-in credentials.
+				clientId = GdsDefs.LegacyClientId.ReadString().Trim();
+				secret = GdsDefs.LegacyClientSecret;
+			}
+			else
+			{
+				// Personal credentials.
+				clientId = config.ClientId;
+				secret = config.ClientSecret;
+			}
+
+			// Scope choice only available with legacy creds.
+			string scope;
+			if (config.UseLegacyCreds &&
+				!string.IsNullOrEmpty(config.LegacyDriveScope))
+			{
+				scope = config.LegacyDriveScope;
+			}
+			else
+			{
+				scope = DriveService.Scope.Drive;
 			}
 
 			// Set up the Installed App OAuth 2.0 Flow for Google APIs with a
@@ -1146,16 +1166,27 @@ namespace GoogleDriveSync
 
 		async Task<IEnumerable<Color>> GetColors(SyncConfiguration authData)
 		{
-			SyncConfiguration originalAuthData = null;
-			if (string.IsNullOrEmpty(authData.ClientId) &&
-				GdsDefs.PsEmptyEx.OrdinalEquals(authData.ClientSecret, true))
+			SyncConfiguration originalAuthData = authData;
+			if (!authData.UseLegacyCreds)
 			{
-				originalAuthData = authData;
 				authData = new TransientConfiguration(authData)
 				{
-					ClientId = GdsDefs.DefaultClientId.ReadString(),
-					ClientSecret = GdsDefs.DefaultClientSecret
+					ClientId = GdsDefs.ClientId.ReadString(),
+					ClientSecret = GdsDefs.ClientSecret
 				};
+
+			}
+			else if (authData.IsEmptyOauthCredentials)
+			{
+				authData = new TransientConfiguration(authData)
+				{
+					ClientId = GdsDefs.LegacyClientId.ReadString(),
+					ClientSecret = GdsDefs.LegacyClientSecret
+				};
+			}
+			else
+			{
+				originalAuthData = null;
 			}
 
 			int[] palette = new int[0];
@@ -1269,29 +1300,52 @@ namespace GoogleDriveSync
 					}
 				}
 
-				// If all of the above did not find an account, offer to create
-				// a new entry for the plugin config.
+				// If all of the above did not find an "active" account, offer some
+				// alternatives to configure one.
 				PluginEntryFactory entryFactory = null;
 				if (entryConfig == null)
 				{
-					if (MessageBox.Show(
-							Resources.GetFormat("Msg_NoAcct",
-								GdsDefs.AccountSearchString),
-							GdsDefs.ProductName,
-							MessageBoxButtons.YesNo,
-							MessageBoxIcon.Warning) != DialogResult.Yes)
+					if (acctList.Any())
 					{
-						return null;
+						// Eligible entries available, ask to use one.
+						if (MessageBox.Show(
+								Resources.GetString("Msg_NoActiveAccount"),
+								GdsDefs.ProductName,
+								MessageBoxButtons.OKCancel,
+								MessageBoxIcon.Asterisk) != DialogResult.OK)
+						{
+							return null;
+						}
 					}
-					entryFactory = GetEntryFactory();
-					entryConfig = new EntryConfiguration(entryFactory.Entry);
+					else
+					{
+						// No eligible entries found, ask if one may be created.
+						if (MessageBox.Show(
+								Resources.GetFormat("Msg_NoAcct",
+									GdsDefs.AccountSearchString),
+								GdsDefs.ProductName,
+								MessageBoxButtons.YesNo,
+								MessageBoxIcon.Warning) != DialogResult.Yes)
+						{
+							return null;
+						}
+						entryFactory = GetEntryFactory();
+						entryConfig = new EntryConfiguration(entryFactory.Entry);
+					}
 				}
 
 				// Look for the active entry in account list, and if not found,
 				// add it to the front.
-				if (!acctList.Any(es => es.Entry == entryConfig.Entry))
+				if (entryConfig != null &&
+					!acctList.Any(es => es.Entry == entryConfig.Entry))
 				{
 					acctList.Insert(0, entryConfig);
+				}
+
+				// Migrate older settings if needed.
+				if (!OfferEntryMigrationIfNeeded(entryConfig))
+				{
+					return null;
 				}
 
 				// Show the configuration dialog.
@@ -1325,6 +1379,27 @@ namespace GoogleDriveSync
 			}
 		}
 
+		// Return false if the offer was postponed via Cancel.
+		bool OfferEntryMigrationIfNeeded(EntryConfiguration entryConfig)
+		{
+			if (entryConfig.Version < Version.Parse(SyncConfiguration.Ver1))
+			{
+				DialogResult result
+					= ShowModalDialogAndDestroy(new AppCredsUpgrade());
+				if (DialogResult.Cancel == result)
+				{
+					return false;
+				}
+
+				entryConfig.UseLegacyCreds = DialogResult.No == result;
+				if (DialogResult.Yes == result)
+				{
+					entryConfig.RefreshToken = null;
+				}
+			}
+			return true;
+		}
+
 		private PluginEntryFactory GetEntryFactory()
 		{
 			// Search KeePass for pre-existing entry titles.
@@ -1340,16 +1415,18 @@ namespace GoogleDriveSync
 			while (!root.TraverseTree(TraversalMethod.PreOrder,
 							null, checkEntry))
 			{
-				searchString = string.Format("{0}-{1}", GdsDefs.ProductName, cDup++);
+				searchString = string.Format("{0}-{1}",
+									GdsDefs.ProductName, cDup++);
 			}
 
 			// Return entry creator with unused title.
 			PluginConfig appConfig = PluginConfig.Default;
 			return PluginEntryFactory.Create(searchString,
-												appConfig.DriveScope,
-												appConfig.ClientId,
-												appConfig.ClientSecret,
-												appConfig.Folder);
+											appConfig.LegacyDriveScope,
+											appConfig.PersonalClientId,
+											appConfig.PersonalClientSecret,
+											appConfig.Folder,
+											appConfig.UseLegacyAppCredentials);
 		}
 
 		/// <summary>
@@ -1389,6 +1466,7 @@ namespace GoogleDriveSync
 					entryConfig = null;
 				}
 			}
+
 			return entryConfig;
 		}
 
@@ -1398,18 +1476,33 @@ namespace GoogleDriveSync
 		private EntryConfiguration GetConfiguration()
 		{
 			EntryConfiguration config = LoadConfiguration();
-			if (config == null)
+			if (config != null)
+			{
+				// Migrate older settings if necessary.
+				if (!OfferEntryMigrationIfNeeded(config))
+				{
+					return null;
+				}
+			}
+			else
 			{
 				config = AskForConfiguration();
 				if (config != null)
 				{
 					SaveConfiguration(config);
 
-					// Use default OAuth 2.0 credentials if missing.
-					if (config.IsMissingOauthCredentials)
+					// Seed the effective credentials.
+					if (!config.UseLegacyCreds)
 					{
-						config.ClientId = GdsDefs.DefaultClientId.ReadString();
-						config.ClientSecret = GdsDefs.DefaultClientSecret;
+						config.ClientId = GdsDefs.ClientId.ReadString();
+						config.ClientSecret = GdsDefs.ClientSecret;
+					}
+					else if (config.IsEmptyOauthCredentials)
+					{
+						// Use legacy OAuth 2.0 credentials if personal creds
+						// are missing.
+						config.ClientId = GdsDefs.LegacyClientId.ReadString();
+						config.ClientSecret = GdsDefs.LegacyClientSecret;
 					}
 				}
 			}

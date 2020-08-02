@@ -33,12 +33,34 @@ namespace GoogleDriveSync
 {
     public abstract class SyncConfiguration
     {
+        // Ver0
+        //	clientID/secret present => custom client id
+        //	clientID/secret missing => legacy client id
+        //
+        // Ver1
+        //	if Use legacy flag missing or false
+        //	 => new app client id
+        //  else
+        //	 clientID/secret present => custom client id
+        //	 clientID/secret missing => legacy client id
+        //
+
+        public const string Ver0 = "0.0"; // virtual version
+        public const string Ver1 = "1.0";
+
+        protected const string CurrentVer = Ver1;
+
+        public static Version CurrentVersion
+        {
+            get { return new Version(CurrentVer); }
+        }
+
         public static SyncConfiguration GetEmpty()
         {
             return new TransientConfiguration();
         }
 
-        public static bool IsDefaultOauthCredential(string clientId,
+        public static bool IsEmpty(string clientId,
             ProtectedString clientSecret)
         {
             return string.IsNullOrEmpty(clientId) ||
@@ -46,11 +68,11 @@ namespace GoogleDriveSync
                 clientSecret.IsEmpty;
         }
 
-        public bool IsMissingOauthCredentials
+        public bool IsEmptyOauthCredentials
         {
             get
             {
-                return IsDefaultOauthCredential(ClientId, ClientSecret);
+                return IsEmpty(ClientId, ClientSecret);
             }
         }
 
@@ -66,7 +88,9 @@ namespace GoogleDriveSync
         public abstract ProtectedString ClientSecret { get; set; }
         public abstract ProtectedString RefreshToken { get; set; }
         public abstract string ActiveFolder { get; set; }
-        public abstract string DriveScope { get; set; }
+        public abstract string LegacyDriveScope { get; set; }
+        public abstract bool UseLegacyCreds { get; set; }
+        public abstract Version Version { get; }
     }
 
     class TransientConfiguration : SyncConfiguration
@@ -84,6 +108,7 @@ namespace GoogleDriveSync
         string m_user;
         ProtectedString m_password;
         string m_loginHint;
+        Version m_ver;
 
         public TransientConfiguration()
         {
@@ -96,7 +121,8 @@ namespace GoogleDriveSync
             ClientSecret = null;
             RefreshToken = null;
             ActiveFolder = null;
-            DriveScope = null;
+            LegacyDriveScope = null;
+            m_ver = new Version(CurrentVer);
         }
 
         public TransientConfiguration(SyncConfiguration copyee)
@@ -110,7 +136,8 @@ namespace GoogleDriveSync
             m_loginHint = copyee.LoginHint;
             m_title = copyee.Title;
             ActiveFolder = copyee.ActiveFolder;
-            DriveScope = copyee.DriveScope;
+            LegacyDriveScope = copyee.LegacyDriveScope;
+            m_ver = copyee.Version;
         }
 
         public override bool? ActiveAccount { get; set; }
@@ -154,8 +181,15 @@ namespace GoogleDriveSync
         public override ProtectedString RefreshToken { get; set; }
 
         public override string ActiveFolder { get; set; }
+        
+        public override bool UseLegacyCreds { get; set; }
 
-        public override string DriveScope { get; set; }
+        public override string LegacyDriveScope { get; set; }
+
+        public override Version Version 
+        {
+            get { return m_ver; }
+        }
     }
 
     /// <summary>
@@ -170,19 +204,14 @@ namespace GoogleDriveSync
         bool m_changesCommitted;
 
         public EntryConfiguration(PwEntry entry)
-            : this(entry, false)
-        {
-        }
-
-        public EntryConfiguration(PwEntry entry, bool markChangesCommitted)
         {
             Entry = entry;
             m_changes = new Dictionary<string, object>(5);
             m_title = null;
             m_changesCommitted = false;
 
-            UseLegacyClientId = IsMissingOauthCredentials;
-            ChangesCommitted = markChangesCommitted;
+            UseLegacyKp3ClientId = IsEmptyOauthCredentials;
+            ChangesCommitted = false;
         }
 
         ProtectedStringDictionary Strings
@@ -205,7 +234,8 @@ namespace GoogleDriveSync
 
         public PwEntry CommitChangesIfAny()
         {
-            if (UseLegacyClientId)
+            EnsureSettingsMigration();
+            if (UseLegacyKp3ClientId)
             {
                 // Traditionally, the plugin's indicator for "use default 
                 // clientId" is empty strings for clientId & secret.  Maintain
@@ -223,6 +253,8 @@ namespace GoogleDriveSync
                         case GdsDefs.EntryClientId:
                         case GdsDefs.EntryActiveAppFolder:
                         case GdsDefs.EntryDriveScope:
+                        case GdsDefs.EntryUseLegacyCreds:
+                        case GdsDefs.EntryVersion:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
                                 stringVal == null ? string.Empty : stringVal);
@@ -507,8 +539,8 @@ namespace GoogleDriveSync
             }
         }
 
-        public bool UseLegacyClientId { get; set; }
-
+        public bool UseLegacyKp3ClientId { get; set; }
+        
         public override ProtectedString RefreshToken
         {
             get
@@ -533,7 +565,7 @@ namespace GoogleDriveSync
             }
         }
 
-        public override string DriveScope
+        public override string LegacyDriveScope
         {
             get
             {
@@ -545,17 +577,63 @@ namespace GoogleDriveSync
             }
         }
 
-        public bool IsRestrictedDriveScope
+        public bool IsLegacyRestrictedDriveScope
         {
             get
             {
-                return string.IsNullOrEmpty(DriveScope) ||
-                    DriveScope == DriveService.Scope.Drive;
+                return string.IsNullOrEmpty(LegacyDriveScope) ||
+                    LegacyDriveScope == DriveService.Scope.Drive;
             }
             set
             {
-                DriveScope = value ?
+                LegacyDriveScope = value ?
                     DriveService.Scope.Drive : DriveService.Scope.DriveFile;
+            }
+        }
+
+        // Custom or KP3 app creds.
+        public override bool UseLegacyCreds
+        {
+            get
+            {
+                return GdsDefs.ConfigTrue ==
+                    GetValue(GdsDefs.EntryUseLegacyCreds, ReadSafe);
+            }
+            set
+            {
+                SetValue(GdsDefs.EntryUseLegacyCreds,
+                    value ? GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            }
+        }
+
+        public override Version Version
+        {
+            get
+            {
+                string strVer = GetValue(GdsDefs.EntryVersion, ReadSafe);
+                Version retVal;
+                if (!Version.TryParse(strVer, out retVal))
+                {
+                    retVal = new Version(Ver0);
+                }
+                return retVal;
+            }
+        }
+
+        void EnsureSettingsMigration()
+        {
+            if (Version == CurrentVersion)
+            {
+                return;
+            }
+
+            // Only upgrade the version if all properties associated with the
+            // particular version level are present.
+            if (Version < new Version(Ver1) &&
+                !string.IsNullOrEmpty(GetValue(GdsDefs.EntryUseLegacyCreds,
+                                                    ReadSafe)))
+            {
+                SetValue(GdsDefs.EntryVersion, Ver1);
             }
         }
     }

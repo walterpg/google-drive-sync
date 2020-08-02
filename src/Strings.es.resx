@@ -129,6 +129,18 @@
   <data name="Btn_DlgOK" xml:space="preserve">
     <value>&amp;OK</value>
   </data>
+  <data name="Btn_GetColors" xml:space="preserve">
+    <value>Obtén colores para las carpetas de Google</value>
+  </data>
+  <data name="Btn_UseLegacyCreds" xml:space="preserve">
+    <value>Habilitar credenciales de OAuth 2.0 heredadas</value>
+  </data>
+  <data name="Btn_UseLegacyCredsDowngrade" xml:space="preserve">
+    <value>Continúe usando las credenciales KeePass Google Sync 3.0.</value>
+  </data>
+  <data name="Btn_UseNewCredsUpgrade" xml:space="preserve">
+    <value>Actualice la autorización de Google del complemento (recomendado).</value>
+  </data>
   <data name="Descr_KpDbFile" xml:space="preserve">
     <value>Base de datos segura de contraseña de KeePass</value>
   </data>
@@ -215,6 +227,9 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
   <data name="Lnk_Help" xml:space="preserve">
     <value>Ayuda</value>
   </data>
+  <data name="Lnk_HelpAppCredsUpgrade" xml:space="preserve">
+    <value>Más información de actualización disponible en {0}.</value>
+  </data>
   <data name="Lnk_Home" xml:space="preserve">
     <value>Hogar</value>
   </data>
@@ -232,6 +247,13 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
   </data>
   <data name="MenuLabel_Upload" xml:space="preserve">
     <value>Subir a Drive</value>
+  </data>
+  <data name="Msg_AppCredsUpgrade" xml:space="preserve">
+    <value>La actualización elimina los problemas con las credenciales OAuth 2.0 integradas del antiguo complemento, que han excedido los límites de Google para nuevas autorizaciones. Se recomienda usar las nuevas credenciales integradas a menos que tenga razones convincentes para usar las credenciales personales de OAuth 2.0.
+
+Después de actualizar, se le solicitará que vuelva a autorizar con Google Sign-in.
+
+Haga clic en Cancelar para decidir más tarde y abandonar la operación actual.</value>
   </data>
   <data name="Msg_AuthDialog" xml:space="preserve">
     <value>Se ha abierto el navegador del sistema para que pueda iniciar sesión en su cuenta de Google y / o autorizar el complemento para sincronizar su base de datos KeePass. El complemento no puede funcionar sin su autorización. Si la entrada del complemento incluye su nombre de usuario y contraseña de Google, puede acceder a ellos mediante los botones a continuación.
@@ -281,7 +303,7 @@ Considere agregar su usuario y contraseña de Google a esta entrada.
 Esto le permitirá acceder a ellos si alguna vez necesita autorizar el complemento nuevamente.</value>
   </data>
   <data name="Msg_NoAcct" xml:space="preserve">
-    <value>No se encontró ninguna entrada de Google Sync.
+    <value>No se encontró ninguna entrada de Google Sync
 
 El complemento requiere una entrada KeePass para almacenar los datos de autorización de Google Drive. Es conveniente si esta entrada también contiene su usuario / contraseña de Google Sign-in. Para crear una entrada sin credenciales (puede agregarlas más tarde), haga clic en Sí.
 
@@ -300,7 +322,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Por favor espera ...</value>
   </data>
   <data name="Msg_ProductAbortedFmt" xml:space="preserve">
-    <value>{0} cancelado!</value>
+    <value>{0} cancelado.</value>
   </data>
   <data name="Msg_RefreshTokenAuth" xml:space="preserve">
     <value>Intentando la autorización previa de Google Drive ...</value>
@@ -378,14 +400,8 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Title_ConfigDialog" xml:space="preserve">
     <value>Configuración</value>
   </data>
-  <data name="Group_AuthDefaults" xml:space="preserve">
-    <value>Valores predeterminados de autorización de Google Drive</value>
-  </data>
   <data name="Group_AutoSync" xml:space="preserve">
     <value>Auto-Sync</value>
-  </data>
-  <data name="Group_DriveAuth" xml:space="preserve">
-    <value>Autorización de Google Drive</value>
   </data>
   <data name="Group_DriveOptions" xml:space="preserve">
     <value>Opciones de Google Drive</value>
@@ -418,7 +434,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Carpeta de sincronización de destino:</value>
   </data>
   <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Use el ID de cliente OAuth 2.0 incorporado.</value>
+    <value>Utilice las credenciales de la app KeePass Google Sync 3.0.</value>
   </data>
   <data name="Lbl_UseAppFileApiScope" xml:space="preserve">
     <value>Use acceso limitado a Drive.</value>
@@ -442,6 +458,9 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Title_AboutTab" xml:space="preserve">
     <value>Acerca de</value>
   </data>
+  <data name="Title_AppCredsUpgradeMain" xml:space="preserve">
+    <value>Actualizar la autorización de Sign-in</value>
+  </data>
   <data name="Group_Entry" xml:space="preserve">
     <value>Entrada de contraseña de Google</value>
   </data>
@@ -459,5 +478,14 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   </data>
   <data name="Lbl_UploadEnabled" xml:space="preserve">
     <value>Subir</value>
+  </data>
+  <data name="Msg_NoActiveAccount" xml:space="preserve">
+    <value>Cuentas de Google encontradas
+
+Una o más entradas en esta base de datos pueden almacenar datos de autorización de Google Drive. Haga clic en Aceptar para abrir el cuadro de diálogo Configuración, que permite la selección y configuración de una entrada de complemento activa.
+
+De lo contrario, haga clic en Cancelar para abandonar esta operación.
+
+En cualquier caso, puede seleccionar otra entrada más tarde para que sea la entrada activa del complemento, con el comando Configuración en el menú del complemento.</value>
   </data>
 </root>

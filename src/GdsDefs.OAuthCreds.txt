@@ -1,2 +1,4 @@
-﻿replace the text on this line with the built-in ClientId
-replace the text on this line with the ClientId secret
+﻿replace the text on this line with the KPGS 3.0 (legacy) built-in ClientId
+replace the text on this line with the KPGS 3.0 (legacy) ClientId secret
+replace the text on this line with the current built-in ClientId
+replace the text on this line with the current ClientId secret

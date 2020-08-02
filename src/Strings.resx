@@ -132,6 +132,15 @@
   <data name="Btn_GetColors" xml:space="preserve">
     <value>Get All Google Folder Colors</value>
   </data>
+  <data name="Btn_UseLegacyCreds" xml:space="preserve">
+    <value>Enable Legacy OAuth 2.0 Credentials</value>
+  </data>
+  <data name="Btn_UseLegacyCredsDowngrade" xml:space="preserve">
+    <value>Continue using KeePass Google Sync 3.0 credentials.</value>
+  </data>
+  <data name="Btn_UseNewCredsUpgrade" xml:space="preserve">
+    <value>Upgrade the plugin's Google Sign-in Authorization (Recommended).</value>
+  </data>
   <data name="Descr_KpDbFile" xml:space="preserve">
     <value>KeePass Password Safe Database</value>
   </data>
@@ -177,17 +186,11 @@ You do not have permission to import. Adjust your KeePass configuration.</value>
 
 If the error was that master keys (passwords) do not match, use Upload / Download commands instead of Sync or change the local master key to match that of the remote database.</value>
   </data>
-  <data name="Group_AuthDefaults" xml:space="preserve">
-    <value>Google Drive Authorization Defaults</value>
-  </data>
   <data name="Group_AutoSync" xml:space="preserve">
     <value>Auto-Sync</value>
   </data>
   <data name="Group_CmdEnabled" xml:space="preserve">
     <value>Enabled Commands (choose at least one)</value>
-  </data>
-  <data name="Group_DriveAuth" xml:space="preserve">
-    <value>Google Drive Authorization</value>
   </data>
   <data name="Group_DriveOptions" xml:space="preserve">
     <value>Google Drive Options</value>
@@ -281,13 +284,16 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>Use limited Drive access.</value>
   </data>
   <data name="Lbl_UseLegacyClientID" xml:space="preserve">
-    <value>Use built-in OAuth 2.0 Client ID.</value>
+    <value>Use KeePass Google Sync 3.0 App Credentials.</value>
   </data>
   <data name="Lnk_GoogleDev" xml:space="preserve">
     <value>Google Developer Console</value>
   </data>
   <data name="Lnk_Help" xml:space="preserve">
     <value>Help</value>
+  </data>
+  <data name="Lnk_HelpAppCredsUpgrade" xml:space="preserve">
+    <value>More upgrade information available at {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
     <value>Home</value>
@@ -306,6 +312,13 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
   </data>
   <data name="MenuLabel_Upload" xml:space="preserve">
     <value>Upload to Drive</value>
+  </data>
+  <data name="Msg_AppCredsUpgrade" xml:space="preserve">
+    <value>Upgrading eliminates problems with the old plugin's built-in OAuth 2.0 credentials, which have exceeded Google's limits for new authorizations.  Using the new built-in credentials is recommended unless you have compelling reasons to use personal OAuth 2.0 credentials.
+
+After you upgrade, you will be required to re-authorize with Google Sign-in.
+
+Click Cancel to decide later and abandon the current plugin operation.</value>
   </data>
   <data name="Msg_AuthDialog" xml:space="preserve">
     <value>The system Browser has been opened for you to sign in to your Google account and/or authorize the plugin to sync your KeePass database. The plugin cannot operate without your authorization. If the plugin entry includes your Google user name and password, you may access them via the buttons below.
@@ -355,11 +368,20 @@ Consider adding your Google user and password to this entry.
 This will allow you to access them if you ever need to authorize the plugin again.</value>
   </data>
   <data name="Msg_NoAcct" xml:space="preserve">
-    <value>No Google Sync Entry Found.
+    <value>No Google Sync Entry Found
 
 The plugin requires a KeePass entry to store Google Drive authorization data. It is convenient if this entry also contains your Google Sign-in user/password.  To create an entry without credentials (you can add them later), click Yes.
 
 Otherwise, return to KeePass to create a new entry or edit an existing one, ensuring that the entry's URL field contains the string '{0}'.</value>
+  </data>
+  <data name="Msg_NoActiveAccount" xml:space="preserve">
+    <value>Google Accounts Found
+
+One or more entries in this database can store Google Drive authorization data.  Click OK to open the Configuration dialog, allowing selection and configuration of an active plugin entry.
+
+Otherwise click Cancel to abandon this operation.  
+
+In either case, you can select another entry later to be the active plugin entry, with the Configuration command on the plugin menu.</value>
   </data>
   <data name="Msg_NoAutoSyncConfig" xml:space="preserve">
     <value>No valid configuration found. Auto Sync ignored.</value>
@@ -374,7 +396,7 @@ Otherwise, return to KeePass to create a new entry or edit an existing one, ensu
     <value>Please wait ...</value>
   </data>
   <data name="Msg_ProductAbortedFmt" xml:space="preserve">
-    <value>{0} aborted!</value>
+    <value>{0} cancelled.</value>
   </data>
   <data name="Msg_RefreshTokenAuth" xml:space="preserve">
     <value>Trying previous Google Drive authorization...</value>
@@ -448,6 +470,9 @@ Otherwise, return to KeePass to create a new entry or edit an existing one, ensu
   </data>
   <data name="Title_AboutTab" xml:space="preserve">
     <value>About</value>
+  </data>
+  <data name="Title_AppCredsUpgradeMain" xml:space="preserve">
+    <value>Upgrade Sign-in Authorization</value>
   </data>
   <data name="Title_AuthDialogMain" xml:space="preserve">
     <value>Google Sign-In</value>

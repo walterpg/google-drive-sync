@@ -31,8 +31,10 @@ namespace GoogleDriveSync
 		static string s_productName;
 		static string s_productVersion;
 		static ProtectedString s_emptyEx;
-		static ProtectedString s_defClientId;
-		static ProtectedString s_defClientSecret;
+		static ProtectedString s_legacyClientId;
+		static ProtectedString s_legacyClientSecret;
+		static ProtectedString s_currentClientId;
+		static ProtectedString s_currentClientSecret;
 
 		static ProtectedString GetData(byte[] data, byte[] pad)
 		{
@@ -109,31 +111,59 @@ namespace GoogleDriveSync
 			}
 		}
 
-		public static ProtectedString DefaultClientSecret
+		public static ProtectedString ClientSecret
 		{
 			get
 			{
-				if (s_defClientSecret == null)
+				if (s_currentClientSecret == null)
 				{
-					s_defClientSecret = GetData(
+					s_currentClientSecret = GetData(
 						s_clientSecretBytes,
 						s_clientSecretPad);
 				}
-				return s_defClientSecret;
+				return s_currentClientSecret;
 			}
 		}
 
-		public static ProtectedString DefaultClientId
+		public static ProtectedString ClientId
 		{
 			get
 			{
-				if (s_defClientId == null)
+				if (s_currentClientId == null)
 				{
-					s_defClientId = GetData(
+					s_currentClientId = GetData(
 						s_clientIdBytes,
 						s_clientIdPad);
 				}
-				return s_defClientId;
+				return s_currentClientId;
+			}
+		}
+
+		public static ProtectedString LegacyClientSecret
+		{
+			get
+			{
+				if (s_legacyClientSecret == null)
+				{
+					s_legacyClientSecret = GetData(
+						s_legacyClientSecretBytes,
+						s_legacyClientSecretPad);
+				}
+				return s_legacyClientSecret;
+			}
+		}
+
+		public static ProtectedString LegacyClientId
+		{
+			get
+			{
+				if (s_legacyClientId == null)
+				{
+					s_legacyClientId = GetData(
+						s_legacyClientIdBytes,
+						s_legacyClientIdPad);
+				}
+				return s_legacyClientId;
 			}
 		}
 
@@ -146,21 +176,30 @@ namespace GoogleDriveSync
 		public const string ConfigDriveScope = "GoogleSync.DriveApiScope";
 		public const string ConfigDefaultClientId = "GoogleSync.DefaultClientId";
 		public const string ConfigDefaultClientSecret = "GoogleSync.DefaultClientSecret";
+		public const string ConfigUseLegacyCreds = "GoogleSync.UseLegacyAppCreds";
+		public const string ConfigVersion = "GoogleSync.ConfigVersion";
+		public const string ConfigTrue = "TRUE";
+		public const string ConfigFalse = "FALSE";
 		public const string EntryClientId = "GoogleSync.ClientID";
 		public const string EntryClientSecret = "GoogleSync.ClientSecret";
 		public const string EntryRefreshToken = "GoogleSync.RefreshToken";
 		public const string EntryActiveAccount = "GoogleSync.ActiveAccount";
-		public const string EntryActiveAccountTrue = EntryActiveAccount + ".TRUE";
-		public const string EntryActiveAccountFalse = EntryActiveAccount + ".FALSE";
+		public const string EntryActiveAccountTrue = EntryActiveAccount + "." + ConfigTrue;
+		public const string EntryActiveAccountFalse = EntryActiveAccount + "." + ConfigFalse;
 		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
 		public const string EntryDriveScope = ConfigDriveScope;
+		public const string EntryUseLegacyCreds = ConfigUseLegacyCreds;
+		public const string EntryVersion = ConfigVersion;
 		public const string AccountSearchString = "accounts.google.com";
-		public const string UrlHome = "https://github.com/walterpg/" + GitHubProjectName;
-		public const string UrlLegacyHome = "http://sourceforge.net/p/kp-googlesync";
-		public const string UrlHelp = "https://github.com/walterpg/" + GitHubProjectName + "/blob/master/doc";
+		public const string UrlDomainRoot = "gdrivesync.org";
+		public const string UrlDomain = "www." + UrlDomainRoot;
+		public const string UrlHome = "https://" + UrlDomain;
+		public const string UrlLegacyHome = "https://sourceforge.net/p/kp-googlesync";
+		public const string UrlHelp = UrlHome;
 		public const string UrlGoogleDev = "https://console.developers.google.com/start";
 		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/current_version_manifest.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
+		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Google Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"

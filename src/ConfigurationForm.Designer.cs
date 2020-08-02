@@ -32,15 +32,20 @@
             this.m_btnCancel = new System.Windows.Forms.Button();
             this.m_btnOK = new System.Windows.Forms.Button();
             this.m_tabOptions = new System.Windows.Forms.TabPage();
+            this.m_grpCmdEnabled = new System.Windows.Forms.GroupBox();
+            this.m_chkDownloadEnabled = new System.Windows.Forms.CheckBox();
+            this.m_chkUploadEnabled = new System.Windows.Forms.CheckBox();
+            this.m_chkSyncEnabled = new System.Windows.Forms.CheckBox();
             this.m_grpDriveAuthDefaults = new System.Windows.Forms.GroupBox();
+            this.m_chkDefaultUseLegacyCreds = new System.Windows.Forms.CheckBox();
             this.m_lnkGoogle2 = new System.Windows.Forms.LinkLabel();
             this.m_lnkHelp2 = new System.Windows.Forms.LinkLabel();
-            this.m_chkDefaultLegacyClientId = new System.Windows.Forms.CheckBox();
             this.m_chkDefaultDriveScope = new System.Windows.Forms.CheckBox();
             this.m_lblDefaultClientSecret = new System.Windows.Forms.Label();
             this.m_lblDefaultClientId = new System.Windows.Forms.Label();
             this.m_txtDefaultClientSecret = new System.Windows.Forms.TextBox();
             this.m_txtDefaultClientId = new System.Windows.Forms.TextBox();
+            this.m_chkDefaultLegacyClientId = new System.Windows.Forms.CheckBox();
             this.m_grpFolderDefaults = new System.Windows.Forms.GroupBox();
             this.m_btnGetColors = new System.Windows.Forms.Button();
             this.m_cbColors = new System.Windows.Forms.ComboBox();
@@ -53,6 +58,7 @@
             this.m_chkSyncOnOpen = new System.Windows.Forms.CheckBox();
             this.m_tabGSignIn = new System.Windows.Forms.TabPage();
             this.m_grpDriveAuth = new System.Windows.Forms.GroupBox();
+            this.m_chkUseLegacyCreds = new System.Windows.Forms.CheckBox();
             this.m_chkDriveScope = new System.Windows.Forms.CheckBox();
             this.m_lnkGoogle = new System.Windows.Forms.LinkLabel();
             this.m_lnkHelp = new System.Windows.Forms.LinkLabel();
@@ -70,6 +76,7 @@
             this.m_lblFolder = new System.Windows.Forms.Label();
             this.m_tabMain = new System.Windows.Forms.TabControl();
             this.m_tabAbout = new System.Windows.Forms.TabPage();
+            this.m_lblAttribution = new System.Windows.Forms.Label();
             this.m_lnkHome = new System.Windows.Forms.LinkLabel();
             this.m_lblAboutVer = new System.Windows.Forms.Label();
             this.m_lblAboutProd = new System.Windows.Forms.Label();
@@ -77,12 +84,8 @@
             this.m_imgList = new System.Windows.Forms.ImageList(this.components);
             this.m_toolTipper = new System.Windows.Forms.ToolTip(this.components);
             this.m_bannerImage = new System.Windows.Forms.PictureBox();
-            this.m_lblAttribution = new System.Windows.Forms.Label();
-            this.m_grpCmdEnabled = new System.Windows.Forms.GroupBox();
-            this.m_chkUploadEnabled = new System.Windows.Forms.CheckBox();
-            this.m_chkSyncEnabled = new System.Windows.Forms.CheckBox();
-            this.m_chkDownloadEnabled = new System.Windows.Forms.CheckBox();
             this.m_tabOptions.SuspendLayout();
+            this.m_grpCmdEnabled.SuspendLayout();
             this.m_grpDriveAuthDefaults.SuspendLayout();
             this.m_grpFolderDefaults.SuspendLayout();
             this.m_grpAutoSync.SuspendLayout();
@@ -94,7 +97,6 @@
             this.m_tabAbout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.m_aboutPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
-            this.m_grpCmdEnabled.SuspendLayout();
             this.SuspendLayout();
             // 
             // m_btnCancel
@@ -130,26 +132,80 @@
             this.m_tabOptions.Text = "Title_DefaultsTab";
             this.m_tabOptions.UseVisualStyleBackColor = true;
             // 
+            // m_grpCmdEnabled
+            // 
+            this.m_grpCmdEnabled.Controls.Add(this.m_chkDownloadEnabled);
+            this.m_grpCmdEnabled.Controls.Add(this.m_chkUploadEnabled);
+            this.m_grpCmdEnabled.Controls.Add(this.m_chkSyncEnabled);
+            this.m_grpCmdEnabled.Location = new System.Drawing.Point(6, 6);
+            this.m_grpCmdEnabled.Name = "m_grpCmdEnabled";
+            this.m_grpCmdEnabled.Size = new System.Drawing.Size(266, 86);
+            this.m_grpCmdEnabled.TabIndex = 33;
+            this.m_grpCmdEnabled.TabStop = false;
+            this.m_grpCmdEnabled.Text = "Group_CmdEnabled";
+            // 
+            // m_chkDownloadEnabled
+            // 
+            this.m_chkDownloadEnabled.AutoSize = true;
+            this.m_chkDownloadEnabled.Location = new System.Drawing.Point(18, 62);
+            this.m_chkDownloadEnabled.Name = "m_chkDownloadEnabled";
+            this.m_chkDownloadEnabled.Size = new System.Drawing.Size(133, 17);
+            this.m_chkDownloadEnabled.TabIndex = 3;
+            this.m_chkDownloadEnabled.Text = "Lbl_DownloadEnabled";
+            this.m_chkDownloadEnabled.UseVisualStyleBackColor = true;
+            // 
+            // m_chkUploadEnabled
+            // 
+            this.m_chkUploadEnabled.AutoSize = true;
+            this.m_chkUploadEnabled.Location = new System.Drawing.Point(18, 40);
+            this.m_chkUploadEnabled.Name = "m_chkUploadEnabled";
+            this.m_chkUploadEnabled.Size = new System.Drawing.Size(119, 17);
+            this.m_chkUploadEnabled.TabIndex = 2;
+            this.m_chkUploadEnabled.Text = "Lbl_UploadEnabled";
+            this.m_chkUploadEnabled.UseVisualStyleBackColor = true;
+            // 
+            // m_chkSyncEnabled
+            // 
+            this.m_chkSyncEnabled.AutoSize = true;
+            this.m_chkSyncEnabled.Location = new System.Drawing.Point(18, 18);
+            this.m_chkSyncEnabled.Name = "m_chkSyncEnabled";
+            this.m_chkSyncEnabled.Size = new System.Drawing.Size(109, 17);
+            this.m_chkSyncEnabled.TabIndex = 1;
+            this.m_chkSyncEnabled.Text = "Lbl_SyncEnabled";
+            this.m_chkSyncEnabled.UseVisualStyleBackColor = true;
+            // 
             // m_grpDriveAuthDefaults
             // 
+            this.m_grpDriveAuthDefaults.Controls.Add(this.m_chkDefaultUseLegacyCreds);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_lnkGoogle2);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_lnkHelp2);
-            this.m_grpDriveAuthDefaults.Controls.Add(this.m_chkDefaultLegacyClientId);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_chkDefaultDriveScope);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_lblDefaultClientSecret);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_lblDefaultClientId);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_txtDefaultClientSecret);
             this.m_grpDriveAuthDefaults.Controls.Add(this.m_txtDefaultClientId);
-            this.m_grpDriveAuthDefaults.Location = new System.Drawing.Point(6, 98);
+            this.m_grpDriveAuthDefaults.Controls.Add(this.m_chkDefaultLegacyClientId);
+            this.m_grpDriveAuthDefaults.Location = new System.Drawing.Point(6, 190);
             this.m_grpDriveAuthDefaults.Name = "m_grpDriveAuthDefaults";
             this.m_grpDriveAuthDefaults.Size = new System.Drawing.Size(538, 144);
             this.m_grpDriveAuthDefaults.TabIndex = 31;
             this.m_grpDriveAuthDefaults.TabStop = false;
-            this.m_grpDriveAuthDefaults.Text = "Group_AuthDefaults";
+            // 
+            // m_chkDefaultUseLegacyCreds
+            // 
+            this.m_chkDefaultUseLegacyCreds.AutoSize = true;
+            this.m_chkDefaultUseLegacyCreds.Location = new System.Drawing.Point(6, 0);
+            this.m_chkDefaultUseLegacyCreds.Name = "m_chkDefaultUseLegacyCreds";
+            this.m_chkDefaultUseLegacyCreds.Size = new System.Drawing.Size(129, 17);
+            this.m_chkDefaultUseLegacyCreds.TabIndex = 26;
+            this.m_chkDefaultUseLegacyCreds.Text = "Btn_UseLegacyCreds";
+            this.m_chkDefaultUseLegacyCreds.UseVisualStyleBackColor = true;
+            this.m_chkDefaultUseLegacyCreds.CheckedChanged += new System.EventHandler(this.m_chkDefaultUseLegacyCreds_CheckedChanged);
             // 
             // m_lnkGoogle2
             // 
             this.m_lnkGoogle2.AutoSize = true;
+            this.m_lnkGoogle2.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.m_lnkGoogle2.Location = new System.Drawing.Point(199, 123);
             this.m_lnkGoogle2.Name = "m_lnkGoogle2";
             this.m_lnkGoogle2.Size = new System.Drawing.Size(85, 13);
@@ -160,6 +216,7 @@
             // m_lnkHelp2
             // 
             this.m_lnkHelp2.AutoSize = true;
+            this.m_lnkHelp2.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.m_lnkHelp2.Location = new System.Drawing.Point(140, 123);
             this.m_lnkHelp2.Name = "m_lnkHelp2";
             this.m_lnkHelp2.Size = new System.Drawing.Size(53, 13);
@@ -167,20 +224,10 @@
             this.m_lnkHelp2.TabStop = true;
             this.m_lnkHelp2.Text = "Lnk_Help";
             // 
-            // m_chkDefaultLegacyClientId
-            // 
-            this.m_chkDefaultLegacyClientId.AutoSize = true;
-            this.m_chkDefaultLegacyClientId.Location = new System.Drawing.Point(136, 18);
-            this.m_chkDefaultLegacyClientId.Name = "m_chkDefaultLegacyClientId";
-            this.m_chkDefaultLegacyClientId.Size = new System.Drawing.Size(137, 17);
-            this.m_chkDefaultLegacyClientId.TabIndex = 18;
-            this.m_chkDefaultLegacyClientId.Text = "Lbl_UseLegacyClientID";
-            this.m_chkDefaultLegacyClientId.UseVisualStyleBackColor = true;
-            // 
             // m_chkDefaultDriveScope
             // 
             this.m_chkDefaultDriveScope.AutoSize = true;
-            this.m_chkDefaultDriveScope.Location = new System.Drawing.Point(136, 41);
+            this.m_chkDefaultDriveScope.Location = new System.Drawing.Point(136, 46);
             this.m_chkDefaultDriveScope.Name = "m_chkDefaultDriveScope";
             this.m_chkDefaultDriveScope.Size = new System.Drawing.Size(146, 17);
             this.m_chkDefaultDriveScope.TabIndex = 15;
@@ -189,7 +236,7 @@
             // 
             // m_lblDefaultClientSecret
             // 
-            this.m_lblDefaultClientSecret.Location = new System.Drawing.Point(12, 98);
+            this.m_lblDefaultClientSecret.Location = new System.Drawing.Point(12, 103);
             this.m_lblDefaultClientSecret.Name = "m_lblDefaultClientSecret";
             this.m_lblDefaultClientSecret.Size = new System.Drawing.Size(115, 13);
             this.m_lblDefaultClientSecret.TabIndex = 17;
@@ -198,7 +245,7 @@
             // 
             // m_lblDefaultClientId
             // 
-            this.m_lblDefaultClientId.Location = new System.Drawing.Point(12, 72);
+            this.m_lblDefaultClientId.Location = new System.Drawing.Point(12, 77);
             this.m_lblDefaultClientId.Name = "m_lblDefaultClientId";
             this.m_lblDefaultClientId.Size = new System.Drawing.Size(115, 13);
             this.m_lblDefaultClientId.TabIndex = 16;
@@ -207,7 +254,7 @@
             // 
             // m_txtDefaultClientSecret
             // 
-            this.m_txtDefaultClientSecret.Location = new System.Drawing.Point(136, 95);
+            this.m_txtDefaultClientSecret.Location = new System.Drawing.Point(136, 100);
             this.m_txtDefaultClientSecret.Name = "m_txtDefaultClientSecret";
             this.m_txtDefaultClientSecret.Size = new System.Drawing.Size(391, 20);
             this.m_txtDefaultClientSecret.TabIndex = 14;
@@ -215,10 +262,20 @@
             // 
             // m_txtDefaultClientId
             // 
-            this.m_txtDefaultClientId.Location = new System.Drawing.Point(136, 69);
+            this.m_txtDefaultClientId.Location = new System.Drawing.Point(136, 74);
             this.m_txtDefaultClientId.Name = "m_txtDefaultClientId";
             this.m_txtDefaultClientId.Size = new System.Drawing.Size(391, 20);
             this.m_txtDefaultClientId.TabIndex = 13;
+            // 
+            // m_chkDefaultLegacyClientId
+            // 
+            this.m_chkDefaultLegacyClientId.AutoSize = true;
+            this.m_chkDefaultLegacyClientId.Location = new System.Drawing.Point(136, 23);
+            this.m_chkDefaultLegacyClientId.Name = "m_chkDefaultLegacyClientId";
+            this.m_chkDefaultLegacyClientId.Size = new System.Drawing.Size(137, 17);
+            this.m_chkDefaultLegacyClientId.TabIndex = 18;
+            this.m_chkDefaultLegacyClientId.Text = "Lbl_UseLegacyClientID";
+            this.m_chkDefaultLegacyClientId.UseVisualStyleBackColor = true;
             // 
             // m_grpFolderDefaults
             // 
@@ -228,7 +285,7 @@
             this.m_grpFolderDefaults.Controls.Add(this.m_txtFolderDefault);
             this.m_grpFolderDefaults.Controls.Add(this.m_lblDefaultFolderLabel);
             this.m_grpFolderDefaults.Controls.Add(this.m_lblDefFolderColor);
-            this.m_grpFolderDefaults.Location = new System.Drawing.Point(6, 248);
+            this.m_grpFolderDefaults.Location = new System.Drawing.Point(6, 98);
             this.m_grpFolderDefaults.Name = "m_grpFolderDefaults";
             this.m_grpFolderDefaults.Size = new System.Drawing.Size(538, 86);
             this.m_grpFolderDefaults.TabIndex = 32;
@@ -333,6 +390,7 @@
             // 
             // m_grpDriveAuth
             // 
+            this.m_grpDriveAuth.Controls.Add(this.m_chkUseLegacyCreds);
             this.m_grpDriveAuth.Controls.Add(this.m_chkDriveScope);
             this.m_grpDriveAuth.Controls.Add(this.m_lnkGoogle);
             this.m_grpDriveAuth.Controls.Add(this.m_lnkHelp);
@@ -341,17 +399,27 @@
             this.m_grpDriveAuth.Controls.Add(this.m_lblClientId);
             this.m_grpDriveAuth.Controls.Add(this.m_txtClientSecret);
             this.m_grpDriveAuth.Controls.Add(this.m_txtClientId);
-            this.m_grpDriveAuth.Location = new System.Drawing.Point(6, 65);
+            this.m_grpDriveAuth.Location = new System.Drawing.Point(6, 182);
             this.m_grpDriveAuth.Name = "m_grpDriveAuth";
-            this.m_grpDriveAuth.Size = new System.Drawing.Size(542, 179);
+            this.m_grpDriveAuth.Size = new System.Drawing.Size(540, 149);
             this.m_grpDriveAuth.TabIndex = 6;
             this.m_grpDriveAuth.TabStop = false;
-            this.m_grpDriveAuth.Text = "Group_DriveAuth";
+            // 
+            // m_chkUseLegacyCreds
+            // 
+            this.m_chkUseLegacyCreds.AutoSize = true;
+            this.m_chkUseLegacyCreds.Location = new System.Drawing.Point(6, 0);
+            this.m_chkUseLegacyCreds.Name = "m_chkUseLegacyCreds";
+            this.m_chkUseLegacyCreds.Size = new System.Drawing.Size(129, 17);
+            this.m_chkUseLegacyCreds.TabIndex = 27;
+            this.m_chkUseLegacyCreds.Text = "Btn_UseLegacyCreds";
+            this.m_chkUseLegacyCreds.UseVisualStyleBackColor = true;
+            this.m_chkUseLegacyCreds.CheckedChanged += new System.EventHandler(this.m_chkUseLegacyCreds_CheckedChanged);
             // 
             // m_chkDriveScope
             // 
             this.m_chkDriveScope.AutoSize = true;
-            this.m_chkDriveScope.Location = new System.Drawing.Point(131, 47);
+            this.m_chkDriveScope.Location = new System.Drawing.Point(131, 48);
             this.m_chkDriveScope.Name = "m_chkDriveScope";
             this.m_chkDriveScope.Size = new System.Drawing.Size(146, 17);
             this.m_chkDriveScope.TabIndex = 10;
@@ -361,7 +429,8 @@
             // m_lnkGoogle
             // 
             this.m_lnkGoogle.AutoSize = true;
-            this.m_lnkGoogle.Location = new System.Drawing.Point(192, 147);
+            this.m_lnkGoogle.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.m_lnkGoogle.Location = new System.Drawing.Point(192, 128);
             this.m_lnkGoogle.Name = "m_lnkGoogle";
             this.m_lnkGoogle.Size = new System.Drawing.Size(85, 13);
             this.m_lnkGoogle.TabIndex = 22;
@@ -371,7 +440,8 @@
             // m_lnkHelp
             // 
             this.m_lnkHelp.AutoSize = true;
-            this.m_lnkHelp.Location = new System.Drawing.Point(133, 147);
+            this.m_lnkHelp.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.m_lnkHelp.Location = new System.Drawing.Point(133, 128);
             this.m_lnkHelp.Name = "m_lnkHelp";
             this.m_lnkHelp.Size = new System.Drawing.Size(53, 13);
             this.m_lnkHelp.TabIndex = 20;
@@ -380,7 +450,7 @@
             // 
             // m_lblClientSecret
             // 
-            this.m_lblClientSecret.Location = new System.Drawing.Point(18, 106);
+            this.m_lblClientSecret.Location = new System.Drawing.Point(18, 107);
             this.m_lblClientSecret.Name = "m_lblClientSecret";
             this.m_lblClientSecret.Size = new System.Drawing.Size(104, 13);
             this.m_lblClientSecret.TabIndex = 12;
@@ -390,7 +460,7 @@
             // m_chkLegacyClientId
             // 
             this.m_chkLegacyClientId.AutoSize = true;
-            this.m_chkLegacyClientId.Location = new System.Drawing.Point(131, 24);
+            this.m_chkLegacyClientId.Location = new System.Drawing.Point(131, 25);
             this.m_chkLegacyClientId.Name = "m_chkLegacyClientId";
             this.m_chkLegacyClientId.Size = new System.Drawing.Size(137, 17);
             this.m_chkLegacyClientId.TabIndex = 12;
@@ -399,7 +469,7 @@
             // 
             // m_lblClientId
             // 
-            this.m_lblClientId.Location = new System.Drawing.Point(18, 80);
+            this.m_lblClientId.Location = new System.Drawing.Point(18, 81);
             this.m_lblClientId.Name = "m_lblClientId";
             this.m_lblClientId.Size = new System.Drawing.Size(104, 13);
             this.m_lblClientId.TabIndex = 10;
@@ -408,7 +478,7 @@
             // 
             // m_txtClientSecret
             // 
-            this.m_txtClientSecret.Location = new System.Drawing.Point(131, 103);
+            this.m_txtClientSecret.Location = new System.Drawing.Point(131, 104);
             this.m_txtClientSecret.Name = "m_txtClientSecret";
             this.m_txtClientSecret.Size = new System.Drawing.Size(391, 20);
             this.m_txtClientSecret.TabIndex = 8;
@@ -416,7 +486,7 @@
             // 
             // m_txtClientId
             // 
-            this.m_txtClientId.Location = new System.Drawing.Point(131, 77);
+            this.m_txtClientId.Location = new System.Drawing.Point(131, 78);
             this.m_txtClientId.Name = "m_txtClientId";
             this.m_txtClientId.Size = new System.Drawing.Size(391, 20);
             this.m_txtClientId.TabIndex = 6;
@@ -427,7 +497,7 @@
             this.m_grpEntry.Controls.Add(this.m_lblAccount);
             this.m_grpEntry.Location = new System.Drawing.Point(6, 6);
             this.m_grpEntry.Name = "m_grpEntry";
-            this.m_grpEntry.Size = new System.Drawing.Size(540, 53);
+            this.m_grpEntry.Size = new System.Drawing.Size(540, 81);
             this.m_grpEntry.TabIndex = 9;
             this.m_grpEntry.TabStop = false;
             this.m_grpEntry.Text = "Group_Entry";
@@ -436,14 +506,14 @@
             // 
             this.m_cbAccount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.m_cbAccount.FormattingEnabled = true;
-            this.m_cbAccount.Location = new System.Drawing.Point(131, 19);
+            this.m_cbAccount.Location = new System.Drawing.Point(131, 33);
             this.m_cbAccount.Name = "m_cbAccount";
             this.m_cbAccount.Size = new System.Drawing.Size(391, 21);
             this.m_cbAccount.TabIndex = 4;
             // 
             // m_lblAccount
             // 
-            this.m_lblAccount.Location = new System.Drawing.Point(18, 22);
+            this.m_lblAccount.Location = new System.Drawing.Point(18, 36);
             this.m_lblAccount.Name = "m_lblAccount";
             this.m_lblAccount.Size = new System.Drawing.Size(104, 13);
             this.m_lblAccount.TabIndex = 5;
@@ -455,9 +525,9 @@
             this.m_grpDriveOptions.Controls.Add(this.m_lblHintFolder);
             this.m_grpDriveOptions.Controls.Add(this.m_txtFolder);
             this.m_grpDriveOptions.Controls.Add(this.m_lblFolder);
-            this.m_grpDriveOptions.Location = new System.Drawing.Point(6, 250);
+            this.m_grpDriveOptions.Location = new System.Drawing.Point(6, 93);
             this.m_grpDriveOptions.Name = "m_grpDriveOptions";
-            this.m_grpDriveOptions.Size = new System.Drawing.Size(542, 82);
+            this.m_grpDriveOptions.Size = new System.Drawing.Size(540, 83);
             this.m_grpDriveOptions.TabIndex = 8;
             this.m_grpDriveOptions.TabStop = false;
             this.m_grpDriveOptions.Text = "Group_DriveOptions";
@@ -514,9 +584,19 @@
             this.m_tabAbout.Text = "Title_AboutTab";
             this.m_tabAbout.UseVisualStyleBackColor = true;
             // 
+            // m_lblAttribution
+            // 
+            this.m_lblAttribution.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.m_lblAttribution.Location = new System.Drawing.Point(326, 241);
+            this.m_lblAttribution.Name = "m_lblAttribution";
+            this.m_lblAttribution.Size = new System.Drawing.Size(215, 54);
+            this.m_lblAttribution.TabIndex = 20;
+            this.m_lblAttribution.Text = "Lbl_LegacyAttribution";
+            // 
             // m_lnkHome
             // 
             this.m_lnkHome.AutoSize = true;
+            this.m_lnkHome.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
             this.m_lnkHome.Location = new System.Drawing.Point(326, 184);
             this.m_lnkHome.Name = "m_lnkHome";
             this.m_lnkHome.Size = new System.Drawing.Size(59, 13);
@@ -568,57 +648,6 @@
             this.m_bannerImage.TabIndex = 1;
             this.m_bannerImage.TabStop = false;
             // 
-            // m_grpCmdEnabled
-            // 
-            this.m_grpCmdEnabled.Controls.Add(this.m_chkDownloadEnabled);
-            this.m_grpCmdEnabled.Controls.Add(this.m_chkUploadEnabled);
-            this.m_grpCmdEnabled.Controls.Add(this.m_chkSyncEnabled);
-            this.m_grpCmdEnabled.Location = new System.Drawing.Point(6, 6);
-            this.m_grpCmdEnabled.Name = "m_grpCmdEnabled";
-            this.m_grpCmdEnabled.Size = new System.Drawing.Size(266, 86);
-            this.m_grpCmdEnabled.TabIndex = 33;
-            this.m_grpCmdEnabled.TabStop = false;
-            this.m_grpCmdEnabled.Text = "Group_CmdEnabled";
-            // 
-            // m_chkUploadEnabled
-            // 
-            this.m_chkUploadEnabled.AutoSize = true;
-            this.m_chkUploadEnabled.Location = new System.Drawing.Point(18, 40);
-            this.m_chkUploadEnabled.Name = "m_chkUploadEnabled";
-            this.m_chkUploadEnabled.Size = new System.Drawing.Size(119, 17);
-            this.m_chkUploadEnabled.TabIndex = 2;
-            this.m_chkUploadEnabled.Text = "Lbl_UploadEnabled";
-            this.m_chkUploadEnabled.UseVisualStyleBackColor = true;
-            // 
-            // m_chkSyncEnabled
-            // 
-            this.m_chkSyncEnabled.AutoSize = true;
-            this.m_chkSyncEnabled.Location = new System.Drawing.Point(18, 18);
-            this.m_chkSyncEnabled.Name = "m_chkSyncEnabled";
-            this.m_chkSyncEnabled.Size = new System.Drawing.Size(109, 17);
-            this.m_chkSyncEnabled.TabIndex = 1;
-            this.m_chkSyncEnabled.Text = "Lbl_SyncEnabled";
-            this.m_chkSyncEnabled.UseVisualStyleBackColor = true;
-            // 
-            // m_chkDownloadEnabled
-            // 
-            this.m_chkDownloadEnabled.AutoSize = true;
-            this.m_chkDownloadEnabled.Location = new System.Drawing.Point(18, 62);
-            this.m_chkDownloadEnabled.Name = "m_chkDownloadEnabled";
-            this.m_chkDownloadEnabled.Size = new System.Drawing.Size(133, 17);
-            this.m_chkDownloadEnabled.TabIndex = 3;
-            this.m_chkDownloadEnabled.Text = "Lbl_DownloadEnabled";
-            this.m_chkDownloadEnabled.UseVisualStyleBackColor = true;
-            // 
-            // m_lblAttribution
-            // 
-            this.m_lblAttribution.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.m_lblAttribution.Location = new System.Drawing.Point(326, 241);
-            this.m_lblAttribution.Name = "m_lblAttribution";
-            this.m_lblAttribution.Size = new System.Drawing.Size(215, 54);
-            this.m_lblAttribution.TabIndex = 20;
-            this.m_lblAttribution.Text = "Lbl_LegacyAttribution";
-            // 
             // ConfigurationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -636,6 +665,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Google Sync Plugin";
             this.m_tabOptions.ResumeLayout(false);
+            this.m_grpCmdEnabled.ResumeLayout(false);
+            this.m_grpCmdEnabled.PerformLayout();
             this.m_grpDriveAuthDefaults.ResumeLayout(false);
             this.m_grpDriveAuthDefaults.PerformLayout();
             this.m_grpFolderDefaults.ResumeLayout(false);
@@ -653,8 +684,6 @@
             this.m_tabAbout.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.m_aboutPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
-            this.m_grpCmdEnabled.ResumeLayout(false);
-            this.m_grpCmdEnabled.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -714,5 +743,7 @@
         private System.Windows.Forms.CheckBox m_chkDownloadEnabled;
         private System.Windows.Forms.CheckBox m_chkUploadEnabled;
         private System.Windows.Forms.CheckBox m_chkSyncEnabled;
+        private System.Windows.Forms.CheckBox m_chkDefaultUseLegacyCreds;
+        private System.Windows.Forms.CheckBox m_chkUseLegacyCreds;
     }
 }

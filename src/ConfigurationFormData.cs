@@ -47,10 +47,10 @@ namespace GoogleDriveSync
 
             m_colors = null;
             m_colorProvider = colorProvider;
-            DefaultUseLegacyClientId = 
-                SyncConfiguration.IsDefaultOauthCredential(
-                    PluginConfig.Default.ClientId,
-                    PluginConfig.Default.ClientSecret);
+            DefaultUseKpgs3ClientId = 
+                SyncConfiguration.IsEmpty(
+                    PluginConfig.Default.PersonalClientId,
+                    PluginConfig.Default.PersonalClientSecret);
         }
 
         protected void Dispose(bool bIsDisposing)
@@ -163,48 +163,60 @@ namespace GoogleDriveSync
             }
         }
 
-        public bool DefaultIsRestrictedDriveScope
+        public bool DefaultIsLegacyRestrictedDriveScope
         {
             get
             {
-                return PluginConfig.Default.DriveScope ==
+                return PluginConfig.Default.LegacyDriveScope ==
                     DriveService.Scope.Drive;
             }
             set
             {
-                PluginConfig.Default.DriveScope = value ?
+                PluginConfig.Default.LegacyDriveScope = value ?
                     DriveService.Scope.Drive: DriveService.Scope.DriveFile;
             }
         }
 
-        public string DefaultClientId
+        public string DefaultLegacyClientId
         {
             get
             {
-                return DefaultUseLegacyClientId ?
-                    string.Empty : PluginConfig.Default.ClientId;
+                return DefaultUseKpgs3ClientId ?
+                    string.Empty : PluginConfig.Default.PersonalClientId;
             }
             set
             {
-                PluginConfig.Default.ClientId = value;
+                PluginConfig.Default.PersonalClientId = value;
             }
         }
 
-        public ProtectedString DefaultClientSecret
+        public ProtectedString DefaultLegacyClientSecret
         {
             get
             {
-                return DefaultUseLegacyClientId ?
-                    GdsDefs.PsEmptyEx : PluginConfig.Default.ClientSecret;
+                return DefaultUseKpgs3ClientId ?
+                    GdsDefs.PsEmptyEx : PluginConfig.Default.PersonalClientSecret;
             }
             set
             {
-                PluginConfig.Default.ClientSecret = value == null ?
+                PluginConfig.Default.PersonalClientSecret = value == null ?
                     GdsDefs.PsEmptyEx : value;
             }
         }
 
-        public bool DefaultUseLegacyClientId { get; set; }
+        public bool DefaultUseKpgs3ClientId { get; set; }
+
+        public bool DefaultUseLegacyCredentials
+        {
+            get
+            {
+                return PluginConfig.Default.UseLegacyAppCredentials;
+            }
+            set
+            {
+                PluginConfig.Default.UseLegacyAppCredentials = value;
+            }
+        }
 
         public async Task<IEnumerable<Color>> GetColors()
         {

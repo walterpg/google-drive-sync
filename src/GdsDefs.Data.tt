@@ -21,6 +21,22 @@ namespace GoogleDriveSync
 {
     static partial class GdsDefs
     {
+        static readonly byte[] s_legacyClientIdBytes = new byte[]
+        {
+<#= gen.LegacyIdCsharpConstant #>
+        };
+        static readonly byte[] s_legacyClientIdPad = new byte[]
+        {
+<#= gen.LegacyIdPadCsharpConstant #>
+        };
+        static readonly byte[] s_legacyClientSecretBytes = new byte[]
+		{
+<#= gen.LegacySecretCsharpConstant #>
+		};
+		static readonly byte[] s_legacyClientSecretPad = new byte[]
+		{
+<#= gen.LegacySecretPadCsharpConstant #>
+		};
         static readonly byte[] s_clientIdBytes = new byte[]
         {
 <#= gen.ClientIdCsharpConstant #>

@@ -48,6 +48,30 @@ namespace GoogleDriveSync
 {
     static partial class GdsDefs
     {
+        static readonly byte[] s_legacyClientIdBytes = new byte[]
+        {
+");
+            src.Append(gen.LegacyIdCsharpConstant);
+            src.Append(@"
+        };
+        static readonly byte[] s_legacyClientIdPad = new byte[]
+        {
+");
+            src.Append(gen.LegacyIdPadCsharpConstant);
+            src.Append(@"
+        };
+        static readonly byte[] s_legacyClientSecretBytes = new byte[]
+		{
+");
+            src.Append(gen.LegacySecretCsharpConstant);
+            src.Append(@"
+		};
+		static readonly byte[] s_legacyClientSecretPad = new byte[]
+		{
+");
+            src.Append(gen.LegacySecretPadCsharpConstant);
+            src.Append(@"
+		};
         static readonly byte[] s_clientIdBytes = new byte[]
         {
 ");
@@ -72,6 +96,7 @@ namespace GoogleDriveSync
             src.Append(gen.ClientSecretPadCsharpConstant);
             src.Append(@"
 		};
+
 	}
 }");
 

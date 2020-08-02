@@ -36,10 +36,11 @@ namespace GoogleDriveSync
     {
         public static PluginEntryFactory Create(string title,
             string driveScope, string clientId, ProtectedString clientSecret,
-            string folder)
+            string folder, bool useLegacyCreds)
         {
             return new PluginEntryFactory(title, driveScope, clientId,
-                                            clientSecret, folder);
+                                            clientSecret, folder,
+                                            useLegacyCreds);
         }
 
         public static PwEntry Import(IPluginHost host,
@@ -61,7 +62,7 @@ namespace GoogleDriveSync
         }
 
         PluginEntryFactory(string title, string driveScope, string clientId,
-            ProtectedString clientSecret, string folder)
+            ProtectedString clientSecret, string folder, bool useLegacyCreds)
         {
             Entry = new PwEntry(true, true);
             ProtectedStringDictionary strings = Entry.Strings;
@@ -75,11 +76,18 @@ namespace GoogleDriveSync
                 new ProtectedString(false, GdsDefs.AccountSearchString));
 
             StringDictionaryEx data = Entry.CustomData;
-            data.Set(GdsDefs.EntryDriveScope, driveScope);
+            if (useLegacyCreds)
+            {
+                data.Set(GdsDefs.EntryDriveScope, driveScope);
+                data.Set(GdsDefs.EntryClientId, clientId);
+                data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
+            }
             data.Set(GdsDefs.EntryActiveAppFolder, folder);
             data.Set(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
-            data.Set(GdsDefs.EntryClientId, clientId);
-            data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
+            data.Set(GdsDefs.EntryUseLegacyCreds, useLegacyCreds ?
+                GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            data.Set(GdsDefs.EntryVersion, 
+                SyncConfiguration.CurrentVersion.ToString(2));
 
             Entry.IconId = PwIcon.WorldComputer;
         }
@@ -120,7 +128,8 @@ namespace GoogleDriveSync
         {
             get
             {
-                return GetType().FullName;
+                return GetType().FullName + '-' +
+                    SyncConfiguration.CurrentVersion.ToString(2);
             }
         }
     }

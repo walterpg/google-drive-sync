@@ -56,6 +56,12 @@
     <Compile Include="AuthWaitOrCancel.Designer.cs">
       <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
     </Compile>
+    <Compile Include="AppCredsUpgrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AppCredsUpgrade.Designer.cs">
+      <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
+    </Compile>
     <Compile Include="GdsDefs.cs" />
     <None Include="GdsDefs.Data.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -107,6 +113,9 @@
     <EmbeddedResource Include="ConfigurationForm.resx">
       <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="AppCredsUpgrade.resx">
+      <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -138,11 +147,11 @@
     <Reference Include="Google.Apis.PlatformServices, Version=1.45.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.45.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.35.0.20042, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
-      <HintPath>..\lib\bin\KeePass.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+	  <Reference Include="KeePass, Version=2.35.0.20042, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+		  <HintPath>..\lib\bin\KeePass.exe</HintPath>
+		  <Private>False</Private>
+	  </Reference>
+	  <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
