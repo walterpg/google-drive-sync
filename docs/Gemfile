@@ -1,5 +1,5 @@
 source "https://rubygems.org"
 
-gem "jekyll", "~> 3.8.7"
-gem "github-pages", "~> 206", group: :jekyll_plugins
+gem "jekyll", "~> 3.9.0"
+gem "github-pages", "~> 207", group: :jekyll_plugins
 gem "jekyll-github-metadata", "~> 2.13.0", group: :jekyll_plugins
