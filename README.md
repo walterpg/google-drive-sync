@@ -1,12 +1,12 @@
-# [KeePass Google Drive Sync](https://gdrivesync.org)
+# [KeePass Sync for Google Drive™](https://kpsync.org)
 
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
 ---
-Current release downloads and full docs on [gdrivesync.org](https://gdrivesync.org) including:
-* [System Requirements](https://gdrivesync.org/install/require)
-* [Compatibility](https://gdrivesync.org/install/require#compatibility-with-google-sync-plugin)
-* [Installation](https://gdrivesync.org/install/normal)
+Current release downloads and full docs on [kpsync.org](https://kpsync.org) including:
+* [System Requirements](https://kpsync.org/install/require)
+* [Compatibility](https://kpsync.org/install/require#compatibility-with-google-sync-plugin)
+* [Installation](https://kpsync.org/install/normal)
 
 Visit the [CONTRIBUTING](https://github.com/walterpg/google-drive-sync/blob/master/CONTRIBUTING.md) page if you would like to get involved.
 
