@@ -3,21 +3,25 @@ layout: page
 title: Privacy Statements
 ---
 
-The content authors associated with this site are solely focused on
-publishing useful, free software. Your fundamental human right to 
-privacy is carefully protected by both this site and the sofware.
+The content authors associated with this site are primarily focused on
+publishing useful, free software. We believe *good* software always
+carefully protects its users' fundamental human right to privacy. 
 The software made available here neither collects nor abuses your
-personal information.
+personal information.  
+
+We also hope you find this site useful!  The site's purpose to is
+to ensure a completely safe, private browsing experience, while
+providing access to, and information about the software.
 
 Please review the [Site Privacy](#site-privacy) section below
-for information regarding website privacy, and in particular, the site
+for more information regarding website privacy and the site
 hosting service provider's policies.
 
 ---
 
 
 ### Plugin Privacy
-The plugin software uses Google-provided application programming
+The plugin software uses Google provided application programming
 interfaces that allow you to access your Google Drive account within
 KeePass.  It does so through the use of [open-standard authentication
 protocols and frameworks](https://tools.ietf.org/html/rfc6749). 
@@ -30,7 +34,7 @@ authentication service to explicitly obtain your consent to access
 Google Drive.  The plugin communicates with no other online services
 or software.
 
-When you authorize access, Google Drive gives the plugin
+When you authorize access, Google Drive sends the plugin
 a digital token representing your consent, granted only to the plugin.
 The token is saved to the currently open
 KeePass database, and subsequently used in plugin commands accessing
@@ -42,13 +46,13 @@ all other personal information there.
 Please note: by authorizing the plugin, Google implicitly grants access
 to some identifying details of your account, such as your email address.
 The plugin never requests this access, *and in no way exercises this 
-trusted privelege*. Though Google unavoidably grants the extraneous
+trusted privilege*. Though Google unavoidably grants the extraneous
 permission, the plugin ignores it and operates perfectly without it.
 
 The surest guard of your digital privacy is you.  And one of the great
 benefits of using open source software is your right to critically
 inspect [the code](https://github.com/walterpg/google-drive-sync).
-The authors enthusiastically invite this criticizm to help improve
+The authors enthusiastically invite this criticism to help improve
 the software and hopefully gain your trust. 
 
 ---

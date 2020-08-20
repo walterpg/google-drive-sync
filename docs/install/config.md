@@ -4,14 +4,14 @@ title: Configuration
 ---
 
 * [First Time Walkthroughs](#syncing-your-database)
-* [Upgrading from Google Sync 3.0](#databases-configured-to-use-keepass-google-sync)
+* [Upgrading from *Google Sync 3.0*](#databases-configured-to-use-keepass-google-sync)
 * [The Configuration Window](#configuration-window)
     * [Sync Authorization](#sync-authorization)
     * [Options and Defaults](#options-and-defaults)
 
 To understand the plugin's settings system or to synchronize your first
 database, please review the [walkthroughs](#syncing-your-database).
-Users familiar with Google Sync Plugin 3.0 should also find
+Users familiar with *Google Sync Plugin 3.0* should also find
 this information useful.
 
 The **Configuration** window customizes the plugin's
@@ -19,26 +19,20 @@ authorization and other settings for the current database, and sets
 default configurations for all new databases that will be used with the
 plugin. 
 
-* [Database-specific configuration](#sync-authorization)
+* [Database specific configuration](#sync-authorization)
 * [Default configuration for new databases](#options-and-defaults)
 
 ---
 
 ### Syncing Your Database
 So you just [installed](../install/normal) the plugin, and are ready to sync.
-
-Maybe you are a veteran of the Google Sync 3.0, or perhaps
+Maybe you are a veteran of the original *Google Sync 3.0*, or perhaps
 this is the first time you have used a plugin to [Sync with Drive](../usage/sync).
-These short walkthroughs may be helpful.
+Hopefully these short walkthroughs are helpful.
 
-* [New or Unconfigured Databases](#new-databases)
-* [Databases previously used with Google Sync 3.0](#databases-configured-to-use-keepass-google-sync)
+* [New or Non-configured Databases](#new-databases)
+* [Databases previously used with *Google Sync 3.0*](#databases-configured-to-use-keepass-google-sync)
 
-<div class="alert alert-secondary" role="alert">
-To get familiar with the plugin's new Google Drive authorization flow,
-new users (and users with new databases) should also review the 
-<a href="../usage/authorize#authorization-walkthrough">authorization walkthrough</a>.
-</div>
 ---
 
 #### New Databases
@@ -59,8 +53,8 @@ the plugin) have created it.
 </div>
 
 However, if the database already contains entries with the
-``acounts.google.com`` URL value, those entries are searched for plugin
-configuration information.  If this is a new or unconfigured database, 
+``accounts.google.com`` URL value, those entries are searched for plugin
+configuration information.  If this is a new or non-configured database, 
 the information will not be found, and you will be prompted to configure
 the entry of your choice:  
 
@@ -77,6 +71,12 @@ and let the plugin create an entry by consenting to the former
 **No Google Sync Entry Found** prompt.
 
 <div class="alert alert-secondary" role="alert">
+To get familiar with the plugin's new Google Drive authorization flow,
+new users (and users with new databases) should also review the 
+<a href="../usage/authorize#authorization-walkthrough">authorization walkthrough</a>.
+</div>
+
+<div class="alert alert-secondary" role="alert">
 Regardless of how the plugin entry is created for new databases, it is 
 highly recommended that the chosen KeePass entry include your Google Drive
 user name and password, so that when the plugin needs your permission for
@@ -91,12 +91,12 @@ If the database was previously synchronized with Google Sync 3.0,
 the plugin will find the old configuration, copy it, and adopt this as its own.
 If there is a *valid* [authorization token](../usage/authorize#authorization-tokens)
 in the old configuration, you will be able to synchronize exactly as before
-without needing to re-authorize.
+without needing to reauthorize.
 
 If you haven't used the old plugin for some time, or if you have recently
 experienced problems with the old plugin, you may be required to
 authorize the new plugin.  [Please review the authorization issues topics
-for guidance](../usage/authorize).
+for guidance](../usage/authorize#authorization-issues).
 
 <div class="alert alert-secondary" role="alert">
     <a href="../install/require#compatibility-with-google-sync-plugin">
@@ -164,7 +164,7 @@ to obtain in-app access to your Drive account.  These credentials only
 give the plugin the ability to ask your consent to access; you still
 must prove to Google, at least once, that you own the account (through
 Google Sign-in), and that you allow access to the plugin (through the
-authorization page shown after successful sign-in).
+authorization page shown after successful sign in).
 
 Checking the the **Use built-in OAuth 2.0 Client ID** check box will
 cause the plugin to use credentials it has been issued by Google. Currently,
@@ -198,7 +198,7 @@ used with the plugin, and default settings for new databases.
 [**Enabled Commands**](../usage/enabled-cmds) lets you choose the commands
 you want to use with the plugin, and the commands you would rather disable.
 
-The [**Auto-Sync**](../usage/autosync) group are options to completely
+The [**Auto Sync**](../usage/autosync) group are options to completely
 automate the [Sync with Drive](../usage/sync) command by invoking it
 automatically when Saving or Opening a database.
 
@@ -214,7 +214,7 @@ apply to new databases created with the plugin.
 
 The **Default New Folder Color** option provides a way for the plugin to
 colorize folders created by the plugin. For more information on this and
-other folder-related features, please review the
+other folder related features, please review the
 [**Designated Folder**](../usage/x-40#designated-folder-and-folder-colors)
 topic.
 

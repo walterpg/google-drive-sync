@@ -18,9 +18,9 @@ Alternatively, some may prefer the ["portable" installation method](portable).
 Please review the general [KeePass instructions for installing plugins](https://keepass.info/help/v2/plugins.html)
 before proceeding.  Also, ensure that all [system requirements](require) are met.
 
-Use the [Download .PLGX](/) button to obtain a file named
-GoogleDriveSync-x.x.x.plgx, where 'x.x.x' is the release version.  For
-example "GoogleDriveSync-4.0.1.plgx" or "GoogleDriveSync-4.0.1-beta.plgx".
+Use the [Download .PLGX button](/) to obtain a file named
+-x.x.x.plgx, where 'x.x.x' is the release version.  For
+example "KeePassSyncForDrive-4.0.1.plgx" or "KeePassSyncForDrive-4.0.1-beta.plgx".
 
 1. Copy the downloaded .plgx file to the KeePass installation directory, for
 example "C:\Program Files (x86)\KeePass Password Safe 2".  You probably need to
@@ -34,7 +34,7 @@ you have installed.  Verify that the plugin is installed by examining the
 KeePass Tools menu:
 
 {:refdef: style="text-align: center;"}
-![Google Drive Sync menu](../assets/img/tools-menu.png)
+![KeePass Tools menu with Plugin submenu](../assets/img/tools-menu.png)
 {: refdef}
 
 To ensure you have the most current version of the plugin, click

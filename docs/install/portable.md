@@ -16,7 +16,7 @@ This installation method is generally recommended only for advanced users.  It
 requires diligence to ensure [system requirements](require) are met for
 each computer, and to avoid [installation conflicts](#installation-conflicts).
 
-Alternatively, the ["normal" installation method](normal) may be preferrable.
+Alternatively, the ["normal" installation method](normal) may be preferable.
 
 
 ---
@@ -29,20 +29,20 @@ is valid and operating as desired.
 Please also review the general [KeePass instructions for installing plugins](https://keepass.info/help/v2/plugins.html).  
 
 Use the [Download .ZIP](/) button to obtain a file named
-GoogleDriveSync-x.x.x.zip, where 'x.x.x' is the release version.  For
-example "GoogleDriveSync-4.0.1.zip" or "GoogleDriveSync-4.0.1-beta.zip".
+KeePassSyncForDrive-x.x.x.zip, where 'x.x.x' is the release version.  For
+example "KeePassSyncForDrive-4.0.1.zip" or "KeePassSyncForDrive-4.0.1-beta.zip".
 
 1. Ensure KeePass is not running.
 2. Create a folder under the KeePass installation folder named 
-"GoogleDriveSync" (for example, if KeePass.exe is installed in a folder named
-"K:\sw\KeePass", create the folder "K:\sw\KeePass\GoogleDriveSync").
+"SyncForDrive" (for example, if KeePass.exe is installed in a folder named
+"K:\sw\KeePass", create the folder "K:\sw\KeePass\SyncForDrive").
 3. Extract the contents of the .zip file into the folder created in step 2.
 
 Verify that the plugin is installed by starting KeePass and examining the
 Tools menu:
 
 {:refdef: style="text-align: center;"}
-![Google Drive Sync menu](../assets/img/tools-menu.png)
+![KeePass Tools menu and KeePass Sync For Google Drive submenu](../assets/img/tools-menu.png)
 {: refdef}
 
 To ensure you have the most current version of the plugin, click

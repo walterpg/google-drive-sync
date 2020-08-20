@@ -26,7 +26,7 @@ See also:
 This is the 4th generation of the plugin, with updated Google Drive APIs,
 modern KeePass ingegration, and updated .NET Framework security.  Every
 effort is made to preserve functional compatibility with
-[Google Sync Plugin 3.0](https://sourceforge.net/projects/kp-googlesync/),
+[*Google Sync Plugin 3.0*](https://sourceforge.net/projects/kp-googlesync/),
 while also fixing issues with shifting Google authorization requirements.  
 
 <div class="alert alert-secondary" role="alert">
@@ -69,4 +69,4 @@ copied and migrated, one time, to the new settings format.
 #### Side-by-Side Compatibility
 Configuration settings of the old plugin are not modified by the new
 plugin.  Therefore, though not recommended, the new plugin may be safely
-installed side-by-side with Google Sync Plugin 3.0.
+installed side-by-side with *Google Sync Plugin 3.0*.

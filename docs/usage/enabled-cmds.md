@@ -7,7 +7,7 @@ title: Enable or Disable Commands
 ![The Synchronize Command](../assets/img/enabled-cmds.png)
 {: refdef}
 
-You might want a degree of safety when accessing the plugin menu.  The
+The Problem: the
 [**Sync with Drive**](sync) command is directly adjacent to the 
 [**Upload to Drive**](upload)
 command, and an accidental slip of the mouse might end in a minor catastrophe.

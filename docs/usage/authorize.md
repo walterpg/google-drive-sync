@@ -50,8 +50,21 @@ appearance if the browser is already signed on to Google.
 </div>
 
 After you successfully sign on in the browser, the Google authentication
-service may ask you to confirm you consent, showing a page similar
+service may prompt you confirm your consent, showing a page similar
 to the image below:
+
+{:refdef: style="text-align: center;"}
+![Google Authorization Confirmation](../assets/img/grant.png)
+{: refdef}
+
+While this warning is true, please understand that the plugin only
+accesses Drive files that have the same name as your KeePass
+database file.  The plugin does not access, create, or delete any
+Drive file or folder except the KeePass database it is [configured](../install/config)
+to access.  
+
+If you click **Allow** above, you may then be prompted to affirm, as 
+shown:
 
 {:refdef: style="text-align: center;"}
 ![Google Authorization Confirmation](../assets/img/auth-requested.png)
@@ -72,26 +85,29 @@ such as shown below.
 
 #### Authorization Issues
 
-If Google does not recognize the [OAuth 2.0 credentials](../usage/oauth)
-that the plugin is configured for, the browser may display one of various
-error pages.  For example, the plugin currently uses the legacy
-KeePass Google Sync 3.0 plugin's OAuth 2.0 credentials; unless the
-[**Use Limited Drive Access**](x-40#limited-drive-access) option
-is in use, the browser may display this message after sign on:
+If Google Sign-in does not authorize the plugin,
+the browser may display an error such as this:
 
 {:refdef: style="text-align: center;"}
 ![KGS 3.0 credentials retired](../assets/img/app-denied.png)
 {: refdef}
 
-If you see this message, you will likely either have to enable
-the **Use Limited Drive Access** option, or supply [your
-own OAuth 2.0 credentials](../usage/oauth) before attempting to authorize
-again.
+If this or a similar error message appears, try
+the following configuration options:
+
+* Disable "legacy" credential options (this should always work).
+* If you must use legacy credentials, enable the
+[**Use Limited Drive Access**](x-40#limited-drive-access) option.
+* Supply [your own OAuth 2.0 credentials](../usage/oauth).
 
 <div class="alert alert-secondary" role="alert">
-    The legacy plugin credentials currently used by the plugin will
-    be replaced in a future release, making obsolete the <b>Use Limited
-    Drive Access</b> option and personal OAuth 2.0 credentials.
+    The legacy
+    <a href="https://sourceforge.net/projects/kp-googlesync/">
+    <em>KeePass Google Sync Plugin 3.0</em></a> built-in credentials 
+    have been replaced, making obsolete the <b>Use Limited
+    Drive Access</b> workaround, and personal OAuth 2.0 credentials.
+    It is highly recommended to disable the legacy credentials
+    option and use the new built-in credentials.
 </div>
 
 ---
@@ -100,18 +116,25 @@ again.
 When you successfully authorize, the Google Sign-in service issues
 an authorization token which the plugin saves to the database.
 This token is proof of your consent, and 
-the plugin must send it in each request to use the Google Drive API.
+the plugin will henceforth send it in each request to use the Google
+Drive API.
 
 Because the token is securely saved in the database, you can use
-plugin commands without re-authorizing each KeePass session.
+plugin commands without reauthorizing each KeePass session.
 
-Occasionally however, re-authorization will be required. There are
+Occasionally however, reauthorization will be required. There are
 basically only two conditions which require the plugin to obtain a new
 authorization token:
 
 * Syncing a new database.
-* Expired or Google-retired authorization tokens saved in an existing
+* Expired or authorization tokens retired by Google saved in an existing
 database.
 
-The plugin initiates the authorization sequence any time a command
-requires a new or refreshed token.
+The latter case can occur when an authorization granted to
+this or the old plugin for an existing database expires, or is 
+inadvertantly revoked by a Google
+["security checkup"](https://myaccount.google.com/security-checkup)
+initiated by an unwary user.
+
+The plugin initiates the [authorization sequence](#authorization-walkthrough)
+whenever a command requires a new or refreshed token.

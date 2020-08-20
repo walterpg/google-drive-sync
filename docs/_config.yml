@@ -13,10 +13,10 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: KeePass Google Drive Sync
+title: KeePass Sync for Google Drive™
 email: kp.g.drive.sync@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Secure sync automation with Google Drive.
+  Secure sync automation with Drive.
 #baseurl: "" # the subpath of your site, e.g. /blog
 #url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb

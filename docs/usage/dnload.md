@@ -16,7 +16,8 @@ lost.
 </div>
 
 ## What Happens
-* A Google Drive file with the same name as the local database is downloaded.
+* A Google Drive file with the same name as the local database, if such
+a Drive file exists, is downloaded to your computer.
 * The local database is replaced by the contents of the downloaded file.
 
 ## How it Works
@@ -25,4 +26,4 @@ Drive and downloads a file with the same name as the current database.
 * An error message is shown if the Drive file does not exist; otherwise,
 the current database is closed.
 * The local database file is deleted, and replaced by the downloaded file.
-* The database is re-opened.
+* The database is reopened.

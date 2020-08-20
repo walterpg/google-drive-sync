@@ -16,6 +16,6 @@ cookies in popular browsers.
 * [How to enable JavaScript in your browser](https://enable-javascript.com/)
 
 Because browsers evolve quickly, the instructions above may become outdated.
-Below are some Google search links which may be helpful in finding
+Below are some search links which may be helpful in finding
 current information for [some major browsers](https://en.wikipedia.org/wiki/Usage_share_of_web_browsers#Summary_tables).
 

@@ -16,7 +16,7 @@ description: Copy the current database to Google Drive.
 
 ## What Happens
 * Database changes (if any) are saved.
-* The local file is uploaded to Google Drive.
+* The local file is uploaded to Drive.
 * If the database file already exists on Drive, its contents are overwritten
 with the contents of the local file.
 * If the database file does not exist on Drive, it is created.

@@ -1,16 +1,16 @@
 ---
 layout: page
-title: Welcome KeePass Google Sync 3.0 Users!
+title: Welcome Legacy Plugin Users!
 description: Now is the Time to Upgrade App Authorization Credentials
 ---
 
 You may be here because KeePass displayed this message:
 
 {:refdef: style="text-align: center;"}
-![The Upload Command](../assets/img/upload.png)
+![The Upload Command](../assets/img/upgrade1.png)
 {: refdef}
 
-The old plugin served us well for many years, but it hasn't
+*KeePass Google Sync 3.0* served us well for many years, but it hasn't
 kept pace with the modern Google Drive API. Filling the gap and
 retaining compatibility was the founding motivation for this project.
 
@@ -71,13 +71,9 @@ that Google will verify an app that uses them, because of their
 use in the old, unverified software.
 
 As a result, you can no longer synchronize new databases using the
-old plugin's app credentials. In some cases, authorizations granted to
-the old plugin for existing databases continue to work; in other
-cases the authorization expired, or was inadvertantly retired 
-by a Google ["security checkup"](https://myaccount.google.com/security-checkup)
-initiated by an unwary user.  Thus some users unexpectedly find that
-their databases are no longer usable with the plugin without
-workarounds provided by this and the previous plugin. 
+old plugin's app credentials. Thus [some users unexpectedly find that
+their databases are no longer usable](../usage/authorize#authorization-tokens)
+without workarounds provided by this and the previous plugin. 
 
 Unfortunately, workarounds like personal credentials, or "limited
 access" authorization, bring their own difficulties, such
@@ -111,7 +107,7 @@ the Configuration dialog, disable "legacy credentials" as shown below,
 and click OK.
 
 {:refdef: style="text-align: center;"}
-![The Upload Command](../assets/img/upload.png)
+![Clear Checkbox to upgrade manually.](../assets/img/manual-upgrade1.png)
 {: refdef}
 
 The next time you synchronize, you will have to authorize via Sign-in,
