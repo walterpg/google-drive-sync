@@ -71,21 +71,21 @@ namespace GoogleDriveSync {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Bitmap gdsync {
+        internal static System.Drawing.Icon DriveIcon {
             get {
-                object obj = ResourceManager.GetObject("gdsync", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("DriveIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap google_signin_light {
+        internal static System.Drawing.Bitmap gdsync {
             get {
-                object obj = ResourceManager.GetObject("google_signin_light", resourceCulture);
+                object obj = ResourceManager.GetObject("gdsync", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

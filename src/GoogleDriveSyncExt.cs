@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Upload;
+using GoogleDriveSync;
 using KeePass;
 using KeePass.DataExchange;
 using KeePass.Forms;
@@ -58,7 +59,7 @@ using System.Windows.Forms;
 using File = System.IO.File;
 using GDriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
 	[Flags]
 	public enum AutoSyncMode
@@ -82,7 +83,7 @@ namespace GoogleDriveSync
 	/// <summary>
 	/// main plugin class
 	/// </summary>
-	public sealed class GoogleDriveSyncExt : Plugin, IDriveServiceProvider
+	public sealed class KeePassSyncForDriveExt : Plugin, IDriveServiceProvider
 	{
 		private IPluginHost m_host = null;
 
@@ -147,7 +148,7 @@ namespace GoogleDriveSync
 			m_tsmiPopup = new ToolStripMenuItem
 			{
 				Text = GdsDefs.ProductName,
-				Image = Resources.GetBitmap("google_signin_light")
+				Image = Images.DriveIcon.ToBitmap()
 			};
 			tsMenu.Add(m_tsmiPopup);
 
@@ -1722,7 +1723,7 @@ namespace GoogleDriveSync
 						window.BeginInvoke(new MethodInvoker(window.Activate));
 					});
 					form.Shown += (o, e) => t.Start();
-					GoogleDriveSyncExt.ShowModalDialogAndDestroy(form);
+					KeePassSyncForDriveExt.ShowModalDialogAndDestroy(form);
 				}
 			}
 			return context;

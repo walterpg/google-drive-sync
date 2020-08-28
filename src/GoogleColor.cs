@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -73,7 +73,8 @@ namespace GoogleDriveSync
 
         static Color[] m_knownColors = null;
         static Dictionary<Color, string> m_colorNames = null;
-        static GoogleColor m_default = new GoogleColor(Color.White, "Google Default");
+        static GoogleColor m_default = new GoogleColor(Color.White,
+                        Resources.GetString("DropDown_GoogleDefaultColor"));
 
         static Color[] KnownColors
         {

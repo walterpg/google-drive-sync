@@ -36,6 +36,7 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.lnkMoreInfo = new System.Windows.Forms.LinkLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lnkPrivacy = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -82,7 +83,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(377, 291);
+            this.btnCancel.Location = new System.Drawing.Point(377, 320);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 28;
@@ -92,7 +93,7 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(296, 291);
+            this.btnOK.Location = new System.Drawing.Point(296, 320);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 29;
@@ -104,7 +105,7 @@
             // 
             this.lnkMoreInfo.AutoSize = true;
             this.lnkMoreInfo.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.lnkMoreInfo.Location = new System.Drawing.Point(6, 132);
+            this.lnkMoreInfo.Location = new System.Drawing.Point(6, 166);
             this.lnkMoreInfo.Name = "lnkMoreInfo";
             this.lnkMoreInfo.Size = new System.Drawing.Size(140, 13);
             this.lnkMoreInfo.TabIndex = 30;
@@ -114,13 +115,25 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lnkPrivacy);
             this.groupBox1.Controls.Add(this.lnkMoreInfo);
             this.groupBox1.Controls.Add(this.lblMessage);
             this.groupBox1.Location = new System.Drawing.Point(15, 128);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(437, 157);
+            this.groupBox1.Size = new System.Drawing.Size(437, 186);
             this.groupBox1.TabIndex = 31;
             this.groupBox1.TabStop = false;
+            // 
+            // lnkPrivacy
+            // 
+            this.lnkPrivacy.AutoSize = true;
+            this.lnkPrivacy.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.lnkPrivacy.Location = new System.Drawing.Point(6, 141);
+            this.lnkPrivacy.Name = "lnkPrivacy";
+            this.lnkPrivacy.Size = new System.Drawing.Size(134, 13);
+            this.lnkPrivacy.TabIndex = 31;
+            this.lnkPrivacy.TabStop = true;
+            this.lnkPrivacy.Text = "Lnk_HelpAppCredsPrivacy";
             // 
             // AppCredsUpgrade
             // 
@@ -128,7 +141,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(464, 326);
+            this.ClientSize = new System.Drawing.Size(464, 351);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.rbNoCredsUpgrade);
@@ -160,5 +173,6 @@
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.LinkLabel lnkMoreInfo;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.LinkLabel lnkPrivacy;
     }
 }

@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GoogleDriveSync</RootNamespace>
-    <AssemblyName>GoogleDriveSync</AssemblyName>
+    <AssemblyName>KeePassSyncForDrive</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>GoogleSyncPlugin.pfx</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -166,8 +166,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\btn_google_signin_dark_pressed_web.png" />
+    <Content Include="Images\DriveIcon.ico" />
     <Content Include="Images\gdsync.png" />
-    <Content Include="Images\google_signin_light.png" />
     <Content Include="Images\keepass_thumbnail.png" />
     <Content Include="Images\outline_security_black_18dp.png" />
     <Content Include="Images\outline_settings_black_18dp.png" />

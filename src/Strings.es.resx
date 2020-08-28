@@ -130,7 +130,7 @@
     <value>&amp;OK</value>
   </data>
   <data name="Btn_GetColors" xml:space="preserve">
-    <value>Obtén colores para las carpetas de Google</value>
+    <value>Obtén colores para las carpetas de Drive</value>
   </data>
   <data name="Btn_UseLegacyCreds" xml:space="preserve">
     <value>Habilitar credenciales de OAuth 2.0 heredadas</value>
@@ -139,7 +139,7 @@
     <value>Continúe usando las credenciales KeePass Google Sync 3.0.</value>
   </data>
   <data name="Btn_UseNewCredsUpgrade" xml:space="preserve">
-    <value>Actualice la autorización de Google del complemento (recomendado).</value>
+    <value>Actualice la autorización de Google Drive del complemento (recomendado).</value>
   </data>
   <data name="Descr_KpDbFile" xml:space="preserve">
     <value>Base de datos segura de contraseña de KeePass</value>
@@ -174,7 +174,7 @@
 El nombre de la carpeta debe ser único.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
-    <value>Se encontró más de un archivo llamado '{0}'. Esto puede ocurrir cuando los archivos son copiados / creados por otro programa, o usando diferentes credenciales de autorización. Deberá resolver este conflicto manualmente (por ejemplo, examinar los últimos tiempos de modificación) y asegurarse de que solo exista un archivo llamado '{0}' en la carpeta de destino de Google. Otra forma de resolver el conflicto es guardar la base de datos en un nombre de archivo diferente y luego subirla a Google con el complemento, aunque podría perder los cambios si el archivo de la base de datos de Google existente se modificara antes de los cambios en KeePass.</value>
+    <value>Se encontró más de un archivo llamado '{0}'. Esto puede ocurrir cuando los archivos son copiados / creados por otro programa, o usando diferentes credenciales de autorización. Deberá resolver este conflicto manualmente (por ejemplo, examinar los últimos tiempos de modificación) y asegurarse de que solo exista un archivo llamado '{0}' en la carpeta de destino de Drive. Otra forma de resolver el conflicto es guardar la base de datos en un nombre de archivo diferente y luego subirla a Drive con el complemento, aunque podría perder los cambios si el archivo de la base de datos de Drive existente se modificara antes de los cambios en KeePass.</value>
   </data>
   <data name="Exc_NoImportPermission" xml:space="preserve">
     <value>La sincronización falló.
@@ -211,9 +211,6 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
   <data name="Lbl_FolderName" xml:space="preserve">
     <value>Carpeta de Drive:</value>
   </data>
-  <data name="Lbl_GoogleAccount" xml:space="preserve">
-    <value>Google Account:</value>
-  </data>
   <data name="Lbl_KpUuid" xml:space="preserve">
     <value>KeePass UUID:</value>
   </data>
@@ -231,7 +228,7 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
     <value>Más información de actualización disponible en {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
-    <value>Hogar</value>
+    <value>Los sitio web.</value>
   </data>
   <data name="Lnk_SignInHelp" xml:space="preserve">
     <value>¿Problema de Sign-In?</value>
@@ -270,7 +267,7 @@ Esta ventana de notificación se cierra automáticamente después de completar l
     <value>Base de datos guardada en archivo local.</value>
   </data>
   <data name="Msg_DownloadFileFmt" xml:space="preserve">
-    <value>Obteniendo una copia del archivo '{0}' de Google ...</value>
+    <value>Obteniendo una copia del archivo '{0}' de Drive ...</value>
   </data>
   <data name="Msg_FileNotDownloaded" xml:space="preserve">
     <value>El archivo no se pudo descargar.</value>
@@ -303,7 +300,7 @@ Considere agregar su usuario y contraseña de Google a esta entrada.
 Esto le permitirá acceder a ellos si alguna vez necesita autorizar el complemento nuevamente.</value>
   </data>
   <data name="Msg_NoAcct" xml:space="preserve">
-    <value>No se encontró ninguna entrada de Google Sync
+    <value>Sin entrada de configuración de Plugin
 
 El complemento requiere una entrada KeePass para almacenar los datos de autorización de Google Drive. Es conveniente si esta entrada también contiene su usuario / contraseña de Google Sign-in. Para crear una entrada sin credenciales (puede agregarlas más tarde), haga clic en Sí.
 
@@ -313,7 +310,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>No se encontró una configuración válida. Sincronización automática ignorada.</value>
   </data>
   <data name="Msg_OauthCredsInvalidFmt" xml:space="preserve">
-    <value>Ingrese un ID de cliente personalizado de Google OAuth 2.0 válido y un Secreto de cliente para {0} o use los valores predeterminados.</value>
+    <value>Ingrese un ID de cliente personalizado de OAuth 2.0 válido y un Secreto de cliente para {0} o use los valores predeterminados.</value>
   </data>
   <data name="Msg_PasswdUuidEntryMissingFmt" xml:space="preserve">
     <value>No se encontró la entrada de contraseña con UUID '{0}'.</value>
@@ -327,9 +324,6 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   <data name="Msg_RefreshTokenAuth" xml:space="preserve">
     <value>Intentando la autorización previa de Google Drive ...</value>
   </data>
-  <data name="Msg_RemoveCfgConfirm" xml:space="preserve">
-    <value>¿Eliminar la asociación de la cuenta de Google de la configuración de KeePass?</value>
-  </data>
   <data name="Msg_ReopenDatabase" xml:space="preserve">
     <value>Reapertura de la base de datos ...</value>
   </data>
@@ -340,7 +334,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>La base de datos '{0}' se reemplazó por una copia del archivo de Google Drive.</value>
   </data>
   <data name="Msg_ReplaceFileFmt" xml:space="preserve">
-    <value>Reemplazando el archivo '{0}' en Google ...</value>
+    <value>Reemplazando el archivo '{0}' en Drive ...</value>
   </data>
   <data name="Msg_ReplacingFile" xml:space="preserve">
     <value>Reemplazar la copia local del archivo con el archivo descargado ...</value>
@@ -349,7 +343,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Abriendo la carpeta '{0}' ...</value>
   </data>
   <data name="Msg_RetrievingGDriveFileFmt" xml:space="preserve">
-    <value>Buscando el archivo '{0}' en Google ...</value>
+    <value>Buscando el archivo '{0}' en Drive ...</value>
   </data>
   <data name="Msg_SaveUserAuth" xml:space="preserve">
     <value>Agregar token de autorización de usuario a la base de datos ...</value>
@@ -358,16 +352,16 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Guardando la base de datos actual en el disco ...</value>
   </data>
   <data name="Msg_Synchronizing" xml:space="preserve">
-    <value>Sincronizando la base de datos actual con Google copy ...</value>
+    <value>Sincronizando la base de datos actual con Drive copy ...</value>
   </data>
   <data name="Msg_TempClose" xml:space="preserve">
     <value>Cerrar temporalmente la base de datos ...</value>
   </data>
   <data name="Msg_UploadingFileFmt" xml:space="preserve">
-    <value>Subiendo el archivo '{0}' a Google ...</value>
+    <value>Subiendo el archivo '{0}' a Drive ...</value>
   </data>
   <data name="Msg_UploadingSync" xml:space="preserve">
-    <value>Subiendo copia de la base de datos sincronizada a Google ...</value>
+    <value>Subiendo copia de la base de datos sincronizada a Drive ...</value>
   </data>
   <data name="Msg_UserAuth" xml:space="preserve">
     <value>El usuario debe autorizar el acceso a Google Drive.</value>
@@ -462,7 +456,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Actualizar la autorización de Sign-in</value>
   </data>
   <data name="Group_Entry" xml:space="preserve">
-    <value>Entrada de contraseña de Google</value>
+    <value>Entrada de contraseña de Plugin</value>
   </data>
   <data name="Lbl_LegacyAttribution" xml:space="preserve">
     <value>Basado y compatible con el complemento KeePass Google Sync, Copyright © 2016 DesignsInnovate.</value>
@@ -480,12 +474,15 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Subir</value>
   </data>
   <data name="Msg_NoActiveAccount" xml:space="preserve">
-    <value>Cuentas de Google encontradas
+    <value>Se encontraron entradas compatibles con complementos
 
 Una o más entradas en esta base de datos pueden almacenar datos de autorización de Google Drive. Haga clic en Aceptar para abrir el cuadro de diálogo Configuración, que permite la selección y configuración de una entrada de complemento activa.
 
 De lo contrario, haga clic en Cancelar para abandonar esta operación.
 
 En cualquier caso, puede seleccionar otra entrada más tarde para que sea la entrada activa del complemento, con el comando Configuración en el menú del complemento.</value>
+  </data>
+	<data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
+	  <value>Política de privacidad de KeePass Sync para Google Drive.</value>
   </data>
 </root>

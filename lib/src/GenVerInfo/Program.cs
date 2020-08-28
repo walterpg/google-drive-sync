@@ -1,5 +1,5 @@
 ﻿/**
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -58,7 +58,8 @@ namespace GenVerInfo
             {
                 throw new ArgumentException(
                     "Expected one input assembly file and one output file " +
-                    "path");
+                    "path.  Instead got:" + 
+                    args.Aggregate((l,r) => l + Environment.NewLine + r));
             }
             string input = args[0];
             if (!File.Exists(input))

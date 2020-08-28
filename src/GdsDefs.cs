@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -191,13 +191,13 @@ namespace GoogleDriveSync
 		public const string EntryUseLegacyCreds = ConfigUseLegacyCreds;
 		public const string EntryVersion = ConfigVersion;
 		public const string AccountSearchString = "accounts.google.com";
-		public const string UrlDomainRoot = "gdrivesync.org";
+		public const string UrlDomainRoot = "kpsync.org";
 		public const string UrlDomain = "www." + UrlDomainRoot;
 		public const string UrlHome = "https://" + UrlDomain;
 		public const string UrlLegacyHome = "https://sourceforge.net/p/kp-googlesync";
 		public const string UrlHelp = UrlHome;
 		public const string UrlGoogleDev = "https://console.developers.google.com/start";
-		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/current_version_manifest.txt";
+		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_version_4.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
 		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";
 		public const string GsyncBackupExt = ".gsyncbak";

@@ -1,5 +1,5 @@
 ﻿/**
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify

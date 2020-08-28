@@ -21,8 +21,8 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Google Drive Sync")]
-[assembly: AssemblyDescription("Easily synchronize KeePass database files with Google Drive.")]
+[assembly: AssemblyTitle("KeePass Sync for Google Drive")]
+[assembly: AssemblyDescription("Safely synchronize KeePass database files with Google Drive™.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("KeePass Plugin")]
@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("966575FC-0771-438d-B406-27C2E231F902")]
 
-[assembly: AssemblyVersion("4.0.1.0")]
-[assembly: AssemblyFileVersion("4.0.1.0")]
-[assembly: AssemblyInformationalVersion("4.0.1-unstable")]
+[assembly: AssemblyVersion("4.0.2.0")]
+[assembly: AssemblyFileVersion("4.0.2.0")]
+[assembly: AssemblyInformationalVersion("4.0.2-unstable")]

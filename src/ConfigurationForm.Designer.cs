@@ -76,6 +76,8 @@
             this.m_lblFolder = new System.Windows.Forms.Label();
             this.m_tabMain = new System.Windows.Forms.TabControl();
             this.m_tabAbout = new System.Windows.Forms.TabPage();
+            this.m_lblCopyright = new System.Windows.Forms.Label();
+            this.m_lnkPrivacy = new System.Windows.Forms.LinkLabel();
             this.m_lblAttribution = new System.Windows.Forms.Label();
             this.m_lnkHome = new System.Windows.Forms.LinkLabel();
             this.m_lblAboutVer = new System.Windows.Forms.Label();
@@ -572,6 +574,8 @@
             // 
             // m_tabAbout
             // 
+            this.m_tabAbout.Controls.Add(this.m_lblCopyright);
+            this.m_tabAbout.Controls.Add(this.m_lnkPrivacy);
             this.m_tabAbout.Controls.Add(this.m_lblAttribution);
             this.m_tabAbout.Controls.Add(this.m_lnkHome);
             this.m_tabAbout.Controls.Add(this.m_lblAboutVer);
@@ -584,10 +588,30 @@
             this.m_tabAbout.Text = "Title_AboutTab";
             this.m_tabAbout.UseVisualStyleBackColor = true;
             // 
+            // m_lblCopyright
+            // 
+            this.m_lblCopyright.AutoSize = true;
+            this.m_lblCopyright.Location = new System.Drawing.Point(298, 77);
+            this.m_lblCopyright.Name = "m_lblCopyright";
+            this.m_lblCopyright.Size = new System.Drawing.Size(92, 13);
+            this.m_lblCopyright.TabIndex = 22;
+            this.m_lblCopyright.Text = "Copyright @ 2020";
+            // 
+            // m_lnkPrivacy
+            // 
+            this.m_lnkPrivacy.AutoSize = true;
+            this.m_lnkPrivacy.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.m_lnkPrivacy.Location = new System.Drawing.Point(298, 165);
+            this.m_lnkPrivacy.Name = "m_lnkPrivacy";
+            this.m_lnkPrivacy.Size = new System.Drawing.Size(134, 13);
+            this.m_lnkPrivacy.TabIndex = 21;
+            this.m_lnkPrivacy.TabStop = true;
+            this.m_lnkPrivacy.Text = "Lnk_HelpAppCredsPrivacy";
+            // 
             // m_lblAttribution
             // 
             this.m_lblAttribution.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.m_lblAttribution.Location = new System.Drawing.Point(326, 241);
+            this.m_lblAttribution.Location = new System.Drawing.Point(298, 241);
             this.m_lblAttribution.Name = "m_lblAttribution";
             this.m_lblAttribution.Size = new System.Drawing.Size(215, 54);
             this.m_lblAttribution.TabIndex = 20;
@@ -597,7 +621,7 @@
             // 
             this.m_lnkHome.AutoSize = true;
             this.m_lnkHome.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.m_lnkHome.Location = new System.Drawing.Point(326, 184);
+            this.m_lnkHome.Location = new System.Drawing.Point(298, 141);
             this.m_lnkHome.Name = "m_lnkHome";
             this.m_lnkHome.Size = new System.Drawing.Size(59, 13);
             this.m_lnkHome.TabIndex = 19;
@@ -607,7 +631,7 @@
             // m_lblAboutVer
             // 
             this.m_lblAboutVer.AutoSize = true;
-            this.m_lblAboutVer.Location = new System.Drawing.Point(326, 148);
+            this.m_lblAboutVer.Location = new System.Drawing.Point(298, 111);
             this.m_lblAboutVer.Name = "m_lblAboutVer";
             this.m_lblAboutVer.Size = new System.Drawing.Size(50, 13);
             this.m_lblAboutVer.TabIndex = 2;
@@ -617,7 +641,7 @@
             // 
             this.m_lblAboutProd.AutoSize = true;
             this.m_lblAboutProd.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_lblAboutProd.Location = new System.Drawing.Point(325, 110);
+            this.m_lblAboutProd.Location = new System.Drawing.Point(297, 57);
             this.m_lblAboutProd.Name = "m_lblAboutProd";
             this.m_lblAboutProd.Size = new System.Drawing.Size(147, 20);
             this.m_lblAboutProd.TabIndex = 1;
@@ -627,7 +651,7 @@
             // 
             this.m_aboutPic.Image = global::GoogleDriveSync.Images.gdsync;
             this.m_aboutPic.InitialImage = null;
-            this.m_aboutPic.Location = new System.Drawing.Point(39, 40);
+            this.m_aboutPic.Location = new System.Drawing.Point(11, 40);
             this.m_aboutPic.Name = "m_aboutPic";
             this.m_aboutPic.Size = new System.Drawing.Size(255, 255);
             this.m_aboutPic.TabIndex = 0;
@@ -663,7 +687,7 @@
             this.Name = "ConfigurationForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "Google Sync Plugin";
+            this.Text = "Form_Text";
             this.m_tabOptions.ResumeLayout(false);
             this.m_grpCmdEnabled.ResumeLayout(false);
             this.m_grpCmdEnabled.PerformLayout();
@@ -745,5 +769,7 @@
         private System.Windows.Forms.CheckBox m_chkSyncEnabled;
         private System.Windows.Forms.CheckBox m_chkDefaultUseLegacyCreds;
         private System.Windows.Forms.CheckBox m_chkUseLegacyCreds;
+        private System.Windows.Forms.LinkLabel m_lnkPrivacy;
+        private System.Windows.Forms.Label m_lblCopyright;
     }
 }

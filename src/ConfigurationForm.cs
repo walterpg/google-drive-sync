@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * Google Drive Sync for KeePass Password Safe
+ * KeePass Sync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace GoogleDriveSync
@@ -53,6 +54,10 @@ namespace GoogleDriveSync
             DatabaseFilePath = string.Empty;
             m_lblAboutVer.Text = GdsDefs.Version;
             m_lblAboutProd.Text = GdsDefs.ProductName;
+            m_lblCopyright.Text = Assembly
+                .GetAssembly(typeof(ConfigurationForm))
+                .GetCustomAttribute<AssemblyCopyrightAttribute>()
+                .Copyright;
 
             // Localize the form
             Control[] textCx = new Control[]
@@ -60,6 +65,7 @@ namespace GoogleDriveSync
                 m_lnkGoogle,
                 m_lnkHelp,
                 m_lnkHome,
+                m_lnkPrivacy,
                 m_lnkGoogle2,
                 m_lnkHelp2,
                 m_tabGSignIn,
