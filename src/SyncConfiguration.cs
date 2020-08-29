@@ -249,11 +249,11 @@ namespace GoogleDriveSync
                 {
                     switch (kv.Key)
                     {
+                        case GdsDefs.EntryUseLegacyCreds:
                         case GdsDefs.EntryActiveAccount:
                         case GdsDefs.EntryClientId:
                         case GdsDefs.EntryActiveAppFolder:
                         case GdsDefs.EntryDriveScope:
-                        case GdsDefs.EntryUseLegacyCreds:
                         case GdsDefs.EntryVersion:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
@@ -298,7 +298,8 @@ namespace GoogleDriveSync
             get
             {
                 return m_changes.Keys.Any(k => k == GdsDefs.EntryClientId ||
-                                            k == GdsDefs.EntryClientSecret);
+                                            k == GdsDefs.EntryClientSecret ||
+                                            k == GdsDefs.EntryUseLegacyCreds);
             }
         }
 

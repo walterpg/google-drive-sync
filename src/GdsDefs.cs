@@ -197,6 +197,7 @@ namespace GoogleDriveSync
 		public const string UrlLegacyHome = "https://sourceforge.net/p/kp-googlesync";
 		public const string UrlHelp = UrlHome;
 		public const string UrlGoogleDev = "https://console.developers.google.com/start";
+		public const string UrlGoogleDrive = "https://drive.google.com";
 		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_version_4.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
 		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";

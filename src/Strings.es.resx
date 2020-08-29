@@ -192,7 +192,7 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
 &lt;html lang="es" xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
     &lt;meta charset="utf-8" http-equiv='refresh'
-          content='20;url=https://google.com'&gt;
+          content='5;url={0}'&gt;
     &lt;title&gt;Autorización de Google Sign-In&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;&lt;h1&gt;Autorización de Google Sign-In Completa&lt;/h1&gt;&lt;div&gt;Por favor regrese a KeePass.&lt;/div&gt;&lt;/body&gt;

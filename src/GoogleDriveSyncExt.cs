@@ -1045,7 +1045,7 @@ namespace KeePassSyncForDrive
 			UserCredential credential = null;
 
 			string status;
-			if (config.RefreshToken != null && !config.RefreshToken.IsEmpty)
+			if (!config.RefreshToken.IsNullOrEmpty())
 			{
 				// Try using an existing Refresh Token to get a new Access Token
 				status = Resources.GetString("Msg_RefreshTokenAuth");
@@ -1344,7 +1344,8 @@ namespace KeePassSyncForDrive
 				}
 
 				// Migrate older settings if needed.
-				if (!OfferEntryMigrationIfNeeded(entryConfig))
+				if (entryConfig != null &&
+					!OfferEntryMigrationIfNeeded(entryConfig))
 				{
 					return null;
 				}
@@ -1756,7 +1757,8 @@ namespace KeePassSyncForDrive
 
 			// Send acknowledgement response to the browser user.
 			string responseString;
-			responseString = Resources.GetString("Html_AuthResponseString");
+			responseString = Resources.GetFormat("Html_AuthResponseString",
+											GdsDefs.UrlGoogleDrive);
 			byte[] buffer = Encoding.UTF8.GetBytes(responseString);
 			HttpListenerResponse response = context.Response;
 			response.KeepAlive = false;

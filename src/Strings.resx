@@ -207,7 +207,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
     &lt;meta charset="utf-8" http-equiv='refresh'
-          content='20;url=https://google.com'&gt;
+          content='5;url={0}'&gt;
     &lt;title&gt;Google Sign-In Authorization&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;

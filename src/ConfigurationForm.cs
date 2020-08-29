@@ -536,7 +536,7 @@ namespace GoogleDriveSync
             // present, confirm the user's intention.
             if  (DialogResult == DialogResult.OK &&
                 m_data.SelectedAccountShadow.IsModifiedOauthCreds &&
-                !m_data.SelectedAccountShadow.RefreshToken.IsEmpty)
+                !m_data.SelectedAccountShadow.RefreshToken.IsNullOrEmpty())
             {
                 DialogResult = MessageBox.Show(
                     Resources.GetString("Msg_ChangedCredsDeletesToken"),

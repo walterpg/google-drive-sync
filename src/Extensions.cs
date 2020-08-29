@@ -144,6 +144,11 @@ namespace GoogleDriveSync
             return bEq;
         }
 
+        public static bool IsNullOrEmpty(this ProtectedString ps)
+        {
+            return ps == null || ps.IsEmpty;
+        }
+
         public static bool ModIfNeeded(this PwEntry entry,
             string key, ProtectedString value)
         {
