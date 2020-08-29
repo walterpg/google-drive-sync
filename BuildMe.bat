@@ -19,6 +19,7 @@ if not exist build\bin mkdir build\bin
 if not exist build\dist mkdir build\dist
 if not exist build\log mkdir build\log
 del /s /f /q build\bin\*
+rmdir /s /q  build\bin\*
 del /s /f /q build\dist\*
 del /s /f /q build\log\*
 
@@ -26,9 +27,9 @@ nuget.exe restore
 msbuild -t:clean,build -p:Configuration=Release;Platform="Any CPU" -flp:logfile=build\log\build.log GoogleDriveSync.sln
 if %errorlevel% NEQ 0 goto error
 
-xcopy src\bin\Release\*.* build\bin
+xcopy src\bin\Release\*.* build\bin /e /h
 copy src\bin\Release\%archname%.plgx build\dist\%archname%-%version%.plgx
-%sevenzip% a -tzip build\dist\%archname%-%version%.zip .\build\bin\*.dll .\build\bin\*.pdb
+%sevenzip% a -tzip -r build\dist\%archname%-%version%.zip .\build\bin\*.dll .\build\bin\*.pdb .\build\bin\es\*
 .\lib\src\GenVerInfo\bin\Release\GenVerInfo.exe .\build\bin\%archname%.dll .\%kp_version_manifest_name%.txt
 
 if not exist %pandoc% goto end
