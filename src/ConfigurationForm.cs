@@ -53,7 +53,7 @@ namespace GoogleDriveSync
             Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
             m_lblAboutVer.Text = GdsDefs.Version;
-            m_lblAboutProd.Text = GdsDefs.ProductName;
+            m_lblAboutProd.Text = GdsDefs.ProductAttributedTitle;
             m_lblCopyright.Text = Assembly
                 .GetAssembly(typeof(ConfigurationForm))
                 .GetCustomAttribute<AssemblyCopyrightAttribute>()

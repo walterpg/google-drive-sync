@@ -574,6 +574,7 @@
             // 
             // m_tabAbout
             // 
+            this.m_tabAbout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(78)))), ((int)(((byte)(93)))), ((int)(((byte)(108)))));
             this.m_tabAbout.Controls.Add(this.m_lblCopyright);
             this.m_tabAbout.Controls.Add(this.m_lnkPrivacy);
             this.m_tabAbout.Controls.Add(this.m_lblAttribution);
@@ -581,29 +582,34 @@
             this.m_tabAbout.Controls.Add(this.m_lblAboutVer);
             this.m_tabAbout.Controls.Add(this.m_lblAboutProd);
             this.m_tabAbout.Controls.Add(this.m_aboutPic);
+            this.m_tabAbout.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_tabAbout.Location = new System.Drawing.Point(4, 23);
             this.m_tabAbout.Name = "m_tabAbout";
             this.m_tabAbout.Size = new System.Drawing.Size(552, 337);
             this.m_tabAbout.TabIndex = 4;
             this.m_tabAbout.Text = "Title_AboutTab";
-            this.m_tabAbout.UseVisualStyleBackColor = true;
             // 
             // m_lblCopyright
             // 
             this.m_lblCopyright.AutoSize = true;
+            this.m_lblCopyright.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblCopyright.ForeColor = System.Drawing.Color.White;
             this.m_lblCopyright.Location = new System.Drawing.Point(298, 77);
             this.m_lblCopyright.Name = "m_lblCopyright";
-            this.m_lblCopyright.Size = new System.Drawing.Size(92, 13);
+            this.m_lblCopyright.Size = new System.Drawing.Size(99, 13);
             this.m_lblCopyright.TabIndex = 22;
             this.m_lblCopyright.Text = "Copyright @ 2020";
             // 
             // m_lnkPrivacy
             // 
+            this.m_lnkPrivacy.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             this.m_lnkPrivacy.AutoSize = true;
+            this.m_lnkPrivacy.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_lnkPrivacy.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.m_lnkPrivacy.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(105)))), ((int)(((byte)(26)))));
             this.m_lnkPrivacy.Location = new System.Drawing.Point(298, 165);
             this.m_lnkPrivacy.Name = "m_lnkPrivacy";
-            this.m_lnkPrivacy.Size = new System.Drawing.Size(134, 13);
+            this.m_lnkPrivacy.Size = new System.Drawing.Size(143, 13);
             this.m_lnkPrivacy.TabIndex = 21;
             this.m_lnkPrivacy.TabStop = true;
             this.m_lnkPrivacy.Text = "Lnk_HelpAppCredsPrivacy";
@@ -611,6 +617,8 @@
             // m_lblAttribution
             // 
             this.m_lblAttribution.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.m_lblAttribution.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblAttribution.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(171)))), ((int)(((byte)(182)))), ((int)(((byte)(194)))));
             this.m_lblAttribution.Location = new System.Drawing.Point(298, 241);
             this.m_lblAttribution.Name = "m_lblAttribution";
             this.m_lblAttribution.Size = new System.Drawing.Size(215, 54);
@@ -619,11 +627,14 @@
             // 
             // m_lnkHome
             // 
+            this.m_lnkHome.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             this.m_lnkHome.AutoSize = true;
+            this.m_lnkHome.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_lnkHome.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.m_lnkHome.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(223)))), ((int)(((byte)(105)))), ((int)(((byte)(26)))));
             this.m_lnkHome.Location = new System.Drawing.Point(298, 141);
             this.m_lnkHome.Name = "m_lnkHome";
-            this.m_lnkHome.Size = new System.Drawing.Size(59, 13);
+            this.m_lnkHome.Size = new System.Drawing.Size(62, 13);
             this.m_lnkHome.TabIndex = 19;
             this.m_lnkHome.TabStop = true;
             this.m_lnkHome.Text = "Lnk_Home";
@@ -631,24 +642,28 @@
             // m_lblAboutVer
             // 
             this.m_lblAboutVer.AutoSize = true;
+            this.m_lblAboutVer.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblAboutVer.ForeColor = System.Drawing.Color.White;
             this.m_lblAboutVer.Location = new System.Drawing.Point(298, 111);
             this.m_lblAboutVer.Name = "m_lblAboutVer";
-            this.m_lblAboutVer.Size = new System.Drawing.Size(50, 13);
+            this.m_lblAboutVer.Size = new System.Drawing.Size(45, 13);
             this.m_lblAboutVer.TabIndex = 2;
             this.m_lblAboutVer.Text = "vX.X.X.X";
             // 
             // m_lblAboutProd
             // 
             this.m_lblAboutProd.AutoSize = true;
-            this.m_lblAboutProd.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblAboutProd.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblAboutProd.ForeColor = System.Drawing.Color.White;
             this.m_lblAboutProd.Location = new System.Drawing.Point(297, 57);
             this.m_lblAboutProd.Name = "m_lblAboutProd";
-            this.m_lblAboutProd.Size = new System.Drawing.Size(147, 20);
+            this.m_lblAboutProd.Size = new System.Drawing.Size(222, 20);
             this.m_lblAboutProd.TabIndex = 1;
-            this.m_lblAboutProd.Text = "Google Sync Plugin";
+            this.m_lblAboutProd.Text = "KeePass Sync for Google Drive™";
             // 
             // m_aboutPic
             // 
+            this.m_aboutPic.ErrorImage = null;
             this.m_aboutPic.Image = global::GoogleDriveSync.Images.gdsync;
             this.m_aboutPic.InitialImage = null;
             this.m_aboutPic.Location = new System.Drawing.Point(11, 40);

@@ -71,6 +71,14 @@ namespace GoogleDriveSync
 			}
 		}
 
+		public static string ProductAttributedTitle
+        {
+            get
+            {
+				return "KeePass Sync for Google Drive™";
+			}
+        }
+
 		public static string Version
 		{
 			get
@@ -202,7 +210,7 @@ namespace GoogleDriveSync
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
 		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";
 		public const string GsyncBackupExt = ".gsyncbak";
-		public const string AppDefaultFolderName = "KeePass Google Sync";
+		public const string AppDefaultFolderName = "KeePass Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
 		public const string FolderMimeType = "application/vnd.google-apps.folder";
 		public const int DefaultDotNetFileBufferSize = 4096;
