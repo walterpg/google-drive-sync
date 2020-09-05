@@ -1,6 +1,37 @@
+# 4.0.2-beta
+* Ship Google-verified OAuth 2.0 creds (woo-hooo!!).
+* Add upgrade prompt, shown once for those using the legacy creds.
+* Rebranding as required by the service provider.
+* Fix satellite resource dll deployment.
+* Change binary distribution blob names.
+* Migrate to proposed OAuth 2.0 client_id.
+* Add "limited access" detail docs.
+* Publish [https://kpsync.org](https://kpsync.org) (nee gdrivesync.org).
+* Warn user when changing auth method if there is a refresh_token
+present.
+* Add "issue" templates, CONTRIBUTING, and CODE_OF_CONDUCT.
+* Beautify "about" tab.
 
+##### Release Note
+New builtin OAuth 2.0 creds are here, and about time too!
+These are freshly minted, fully Google-approved, and project
+(re)branded for your security and simple pleasure!  Full 
+compatibility with prior creds is retained (both old-plugin builtin,
+and user customized), but the new creds will be the default option
+going forward.  NO MORE scary sign-in screens! (Unless that's what
+you prefer!)
 
-# 4.0.1-alpha.2
+Unfortunately, rebranding required for verification changed
+some names and such.  Please review the UPGRADE docs for more
+info.
+
+Also, everything worth documenting is now found at
+[kpsync.org](https://kpsync.org).  As always, we want to know
+how the plugin works for **you**, whether bad or good (please
+submit an "issue").
+
+---
+## 4.0.1-alpha.2
 * Fix [MRU bug](https://github.com/walterpg/google-drive-sync/issues/2).
 * Fix broken links, typos.  Some doc changes.
 * Implement selective command disabling feature.

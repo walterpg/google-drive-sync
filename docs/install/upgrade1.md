@@ -1,17 +1,21 @@
 ---
 layout: page
 title: Welcome Legacy Plugin Users!
-description: Now is the Time to Upgrade App Authorization Credentials
+description: Upgrade to Built-in Authorization Credentials
 ---
 
-You may be here because KeePass displayed this message:
+You are probably only interested in this page if KeePass displayed
+this message:
 
 {:refdef: style="text-align: center;"}
 ![The Upload Command](../assets/img/upgrade1.png)
 {: refdef}
 
-*KeePass Google Sync 3.0* served us well for many years, but it hasn't
-kept pace with the modern Google Drive API. Filling the gap and
+If you have *not* seen this message, it's all good; continue
+using the plugin with the assurance that you are up-to-date.
+
+*KeePass Google Sync 3.0* served us well for many years, but it didn't
+keep pace with the modern Google Drive API. Filling that gap and
 retaining compatibility was the founding motivation for this project.
 
 * [Why upgrade?](#why-this-upgrade-is-recommended) (Why This Upgrade
