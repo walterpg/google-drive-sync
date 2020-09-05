@@ -4,14 +4,16 @@ title: Welcome Legacy Plugin Users!
 description: Upgrade to Built-in Authorization Credentials
 ---
 
-You are probably only interested in this page if KeePass displayed
-this message:
+KeePass displays the message below (only once) the first time
+the plugin detects that a database is configured to use one
+of the legacy authorization methods.  The check occurs when
+you use or configure the plugin.
 
 {:refdef: style="text-align: center;"}
 ![The Upload Command](../assets/img/upgrade1.png)
 {: refdef}
 
-If you have *not* seen this message, it's all good; continue
+If you do *not* encounter this message, it's all good; continue
 using the plugin with the assurance that you are up-to-date.
 
 *KeePass Google Sync 3.0* served us well for many years, but it didn't
@@ -20,7 +22,7 @@ retaining compatibility was the founding motivation for this project.
 
 * [Why upgrade?](#why-this-upgrade-is-recommended) (Why This Upgrade
 Is Recommended)
-* [But I'm not having problems, so WHY?](#what-app-credentials-are-and-why-they-need-to-change) (What App
+* [But I'm not having problems, so WHY?](#what-app-credentials-are-and-why-they-changed) (What App
 Credentials Are and Why They Need to Change)
 * [What does the upgrade do?](#the-automatic-upgrade)
 (Automatic Upgrade)
@@ -51,13 +53,13 @@ will never delete data or access files other than the ones you specify
 to synchronize with your KeePass database.
 
 ---
-### What App Credentials Are and Why They Need to Change
+### What App Credentials Are and Why They Changed
 The plugin's built-in app credentials, used to interoperate with
 Google Sign-in interfaces, allow you to authorize the plugin to
 access your Google Drive account.
 
 Google requires that app credentials be authorized by a
-verification process. The old plugin will not pass this for a
+verification process. The old plugin cannot pass this test for
 several reasons:
 
 * The rules regulating verified apps did not exist, or were less
@@ -65,17 +67,17 @@ restrictive, when it was originally released.
 * When faced with an earlier form of app verification, the old
 plugin's maintainers elected to provide a workaround using
 "personal" OAuth 2.0 credentials. This worked well, but in recent
-years it has become more difficult to obtain the credentials and use
-this workaround.
+years it has become more difficult to obtain and configure the
+credentials required by this workaround.
 * The old plugin's maintainers have exclusive access to the old
 app credentials, and there is no way to transfer them to the current
 plugin's maintainers.
 * Even if the old credentials could be transferred, it is unlikely
 that Google will verify an app that uses them, because of their
-use in the old, unverified software.
+continued use in the old, unverified plugin software.
 
-As a result, you can no longer synchronize new databases using the
-old plugin's app credentials. Thus [some users unexpectedly find that
+As a result, synchronizing new databases using the old plugin's app
+credentials is not possible. [Some users unexpectedly find that
 their databases are no longer usable](../usage/authorize#authorization-tokens)
 without workarounds provided by this and the previous plugin. 
 
@@ -85,24 +87,30 @@ as [file duplication](https://github.com/walterpg/google-drive-sync/issues/12)
 and complex configuration steps, which most users, and especially
 *new* users, would rather not endure.
 
+#### The New Built-in Credentials
+The Google-verified, built-in credentials used by the new plugin
+are *not* subject to the quota limits and security warnings which can
+occur with "personal" OAuth 2.0 credentials.  And unlike the legacy 
+plugin credentials, the new built-in credentials *actually work*,
+with your explicit consent, in new database configurations, and in 
+databases with revoked authorization tokens. 
+
 ---
 ### The Automatic Upgrade
 If you upgrade, the plugin will from then on use its own,
 Google-verified OAuth 2.0 credentials each time it uses the Google
-Drive API.  By the time you read this, the plugin will hopefully have
-passed Google verification, and quota limits and security warnings
-will have been removed.  
+Drive API.  
 
 The upgrade also removes any current authorization token obtained
 either by the old plugin, or by this plugin via the workarounds.
 Again, if you currently don't have synchronization problems with
 the new plugin, you can elect to ignore the upgrade now, while still
 retaining the option to [manually upgrade](#manually-upgrading-a-database)
-later.
+later. You will only be nagged by the above message once.
 
 But whether you do it now or later, the new credentials will require
-re-authorization, so you will be required to authenticate your
-account with Google Sign-in when you sync after the upgrade.
+re-authorization, so you will be prompted to authenticate your
+account with Google Sign-in when you run a sync command after the upgrade.
 
 ---
 ### Manually Upgrading a Database

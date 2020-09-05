@@ -20,7 +20,7 @@ Visit the [CONTRIBUTING](https://github.com/walterpg/google-drive-sync/blob/mast
 
 Some Project ToDo's:
 * More documentation generally.
-* Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).
+* ~~Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).~~
 * Secure storage of default user-specified OAuth ClientId/Secret.
 * Specify sign-in browser of choice.
 * Language translations[*](#localization).

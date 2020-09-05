@@ -5,8 +5,9 @@ title: DEPRCATED Personal OAuth 2.0 Credential Support
 
 <div class="alert alert-secondary" role="alert">
 This feature is retained for compatiblity only.
-The use of personal credentials should no longer be necessary for most
-users.
+The use of legacy authorization methods, employing either personal or
+<em>KeePass Google Sync 3.0</em> app credentials, should no 
+longer be necessary for most users.
 </div>
 
 This workaround was devised in the
@@ -78,4 +79,3 @@ enter yet more info, particularly "Application type", which you should indicate
 as "other" or "native" (not "web" or "mobile").  Finally, click CREATE.
 6. A screen showing your new credentials (the text named "client ID" and "client
 secret") should appear.  Copy the credential somewhere safe (hi there KeePass!).
-See the next section for hints about this.
