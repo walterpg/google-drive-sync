@@ -3,6 +3,15 @@ layout: home
 title: KeePass Sync for Google Drive™
 ---
 
+<div class="alert alert-secondary" role="alert">
+    <div>Attention ALPHA release users!</div>
+    If you have installed an alpha release of the plugin,
+    please
+    <a href="./install/upgrade0">review this page</a>
+    for important info regarding upgrading to the latest
+    release.
+</div>
+
 This [KeePass Password Safe v2](https://keepass.info) plugin provides safe,
 automated synchronization of a KeePass database with a
 corresponding file of the same name on your [Google Drive](https://drive.google.com). 
