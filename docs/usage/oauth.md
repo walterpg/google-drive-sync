@@ -1,10 +1,10 @@
 ---
 layout: page
-title: DEPRCATED Personal OAuth 2.0 Credential Support
+title: DEPRECATED Personal OAuth 2.0 Credential Support
 ---
 
 <div class="alert alert-secondary" role="alert">
-This feature is retained for compatiblity only.
+This feature is retained for compatibility only.
 The use of legacy authorization methods, employing either personal or
 <em>KeePass Google Sync 3.0</em> app credentials, should no 
 longer be necessary for most users.
