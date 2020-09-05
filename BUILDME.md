@@ -6,6 +6,7 @@ but any updated version/edition of Visual Studio 2017 or later should suffice.
 * [nuget.exe](https://www.nuget.org/downloads/) command-line tool in the current PATH.
 * [Zip](https://en.wikipedia.org/wiki/ZIP_(file_format)) command-line tool
 ([7zip](https://www.7-zip.org/) recommended).
+* (optional) [Pandoc](https://pandoc.org/) command-line tool
 
 ### Setup
 Review these ``set`` commands in ``BuildMe.bat``:
@@ -13,10 +14,12 @@ Review these ``set`` commands in ``BuildMe.bat``:
 ```
 set sevenzip="C:\Program Files (x86)\7-Zip\7z.exe"
 set msbuildcmd="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsMSBuildCmd.bat"
+set pandoc="%LOCALAPPDATA%\Pandoc\pandoc.exe"
 ```
 
 Modify them if necessary to match the paths to the ``VsMSBuildCmd.bat`` and zip
-tool.
+tool.  Note that ``pandoc`` is used to generate an "ascii" version of README.md
+and is not required to successfully build the project.
 
 ### Build
 Run ``BuildMe.bat``.
@@ -28,7 +31,7 @@ If successful, the ``build`` directory contains three subdirectories:
 * ``log``: contains build status logging.
 
 As a convenience, the build script also updates the version manifest
-file ``current_version_manifest.txt``.  See
+file ``kpsync_version_4.txt``.  See
 [Posting a Release](#posting-a-release) below for details.
 
 ### Preparing for Release
@@ -77,11 +80,11 @@ number changed.
 
 *DO NOT* commit changes, if any, to the following files:
 ```
-current_version_manifest.txt
+kpsync_version_4.txt
 src/GdsDefs.OAuthCreds.txt
 ```
 
-You may eventually commit ``current_version_manifest.txt``,
+You may eventually commit ``kpsync_version_4.txt``,
 if you [post a release](#posting-a-release), **but the other file
 must never be committed to remote**. And it should remain in the repo
 as-is.
@@ -110,7 +113,7 @@ before they are actually available.
 1. Upload the binaries.  At the moment these are simply appended as
 "assets" to the github tag/release post.
 2. Update the links to the new binaries in the repo README and website.
-3. Ensure ``current_version_manifest.txt`` is correct before committing it.
+3. Ensure ``kpsync_version_4.txt`` is correct before committing it.
 It is mechanically updated by ``BuildMe.bat``, and if it doesn't match the
 tagged release version, there is something wrong in ``AssemblyInfo.cs``; fix
 it, run ``BuildMe.bat`` again, and start again at step 1.

@@ -33,5 +33,10 @@
       url: install/portable
     - caption: Configuration
       url: install/config
+    - caption: _separator_
+    - caption: Authorization Upgrade
+      url: install/upgrade1
+    - caption: Plugin Upgrade (from ALPHA)
+      url: install/upgrade0
 - caption: Privacy
   url: privacy
