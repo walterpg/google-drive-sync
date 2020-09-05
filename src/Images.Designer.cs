@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GoogleDriveSync {
+namespace KeePassSyncForDrive {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace GoogleDriveSync {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("GoogleDriveSync.Images", typeof(Images).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("KeePassSyncForDrive.Images", typeof(Images).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

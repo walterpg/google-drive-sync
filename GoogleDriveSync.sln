@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleDriveSync", "src\GoogleDriveSync.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassSyncForDrive", "src\KeePassSyncForDrive.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F7B92FBF-F5D8-45E0-B357-4CA8F05AD652} = {F7B92FBF-F5D8-45E0-B357-4CA8F05AD652}
 	EndProjectSection

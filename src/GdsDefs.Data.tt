@@ -17,7 +17,7 @@
 // Design-time generated file.  Do not modify or check into source control.
 // <#= DateTime.Now #>
 //
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     static partial class GdsDefs
     {

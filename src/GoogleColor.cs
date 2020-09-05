@@ -34,7 +34,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     /// <summary>
     /// Google doesn't provide names in it's folder color list - only rgb

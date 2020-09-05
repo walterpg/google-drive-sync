@@ -30,7 +30,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     class ConfigurationFormData : IDisposable
     {

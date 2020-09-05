@@ -24,7 +24,7 @@ using Google.Apis.Drive.v3;
 using System;
 using System.Threading.Tasks;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     public interface IDriveServiceProvider
     {

@@ -24,7 +24,7 @@ using KeePassLib.Security;
 using System;
 using System.Reflection;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
 	static partial class GdsDefs
 	{

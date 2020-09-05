@@ -27,7 +27,7 @@ using KeePassSyncForDrive;
 using System;
 using System.Globalization;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
 	class PluginConfig
 	{

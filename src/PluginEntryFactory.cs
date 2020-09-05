@@ -30,7 +30,7 @@ using KeePassLib.Serialization;
 using System.IO;
 using System.Windows.Forms;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     internal class PluginEntryFactory : FileFormatProvider
     {

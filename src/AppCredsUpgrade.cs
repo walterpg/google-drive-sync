@@ -24,7 +24,7 @@ using KeePass.UI;
 using System;
 using System.Windows.Forms;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     public partial class AppCredsUpgrade : Form
     {

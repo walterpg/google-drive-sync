@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     public abstract class SyncConfiguration
     {

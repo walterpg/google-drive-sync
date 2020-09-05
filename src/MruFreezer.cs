@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     class MruListAsList : List<KeyValuePair<string, object>> { }
 

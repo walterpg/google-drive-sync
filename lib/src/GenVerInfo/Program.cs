@@ -35,7 +35,7 @@ namespace GenVerInfo
             // Two modes of operation:
             // 1. If no parameters are passed, a new RSA key pair in XML format
             // is printed to the console.  Use this data in PrivateKey.xml (in 
-            // this project) and PubKey.xml (in GoogleDriveSync project) to
+            // this project) and PubKey.xml (in KeePassSyncForDrive project) to
             // sign a version info file in Mode 2.
             //
             // 2. Create a signed version info file, by specifying:

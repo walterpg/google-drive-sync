@@ -44,7 +44,7 @@ namespace GenClientId
             gen.Run();
 
             StringBuilder src = new StringBuilder(@"
-namespace GoogleDriveSync
+namespace KeePassSyncForDrive
 {
     static partial class GdsDefs
     {

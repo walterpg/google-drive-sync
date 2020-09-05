@@ -1,4 +1,4 @@
-﻿namespace GoogleDriveSync
+﻿namespace KeePassSyncForDrive
 {
     partial class AuthWaitOrCancel
     {
