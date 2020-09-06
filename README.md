@@ -1,20 +1,20 @@
-# [KeePass Sync for Google Drive™](https://kpsync.org)
+# [KeePass Sync for Google Drive™](https://www.kpsync.org)
 
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
 ---
 Beta release now available! If you currently have an Alpha release
 installed, you should
-[review the upgrade notes](https://kpsync.org/install/upgrade0).
+[review the upgrade notes](https://www.kpsync.org/install/upgrade0).
 
 If you currently authorize Drive access with the prior plugin's built-in
 OAuth credentials, you may want to
-[review the creds upgrade notes](https://kpsync.org/install/upgrade1).
+[review the creds upgrade notes](https://www.kpsync.org/install/upgrade1).
 
-Current release downloads and full docs on [kpsync.org](https://kpsync.org) including:
-* [System Requirements](https://kpsync.org/install/require)
-* [Compatibility](https://kpsync.org/install/require#compatibility-with-google-sync-plugin)
-* [Installation](https://kpsync.org/install/normal)
+Current release downloads and full docs on [kpsync.org](https://www.kpsync.org) including:
+* [System Requirements](https://www.kpsync.org/install/require)
+* [Compatibility](https://www.kpsync.org/install/require#compatibility-with-google-sync-plugin)
+* [Installation](https://www.kpsync.org/install/normal)
 
 Visit the [CONTRIBUTING](https://github.com/walterpg/google-drive-sync/blob/master/CONTRIBUTING.md) page if you would like to get involved.
 
