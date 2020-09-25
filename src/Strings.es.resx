@@ -174,7 +174,7 @@
 El nombre de la carpeta debe ser único.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
-    <value>Se encontró más de un archivo llamado '{0}'. Esto puede ocurrir cuando los archivos son copiados / creados por otro programa, o usando diferentes credenciales de autorización. Deberá resolver este conflicto manualmente (por ejemplo, examinar los últimos tiempos de modificación) y asegurarse de que solo exista un archivo llamado '{0}' en la carpeta de destino de Drive. Otra forma de resolver el conflicto es guardar la base de datos en un nombre de archivo diferente y luego subirla a Drive con el complemento, aunque podría perder los cambios si el archivo de la base de datos de Drive existente se modificara antes de los cambios en KeePass.</value>
+    <value>La operación se canceló porque se encontró más de un archivo llamado '{0}' en la carpeta de destino. Esto puede ocurrir cuando los archivos son copiados o creados por otro programa con credenciales de autorización limitadas. Resuelva el conflicto manualmente (p. Ej., Examine los tiempos de modificación del archivo de Drive) y asegúrese de que solo exista un archivo llamado "{0}" en la carpeta de Drive de destino.</value>
   </data>
   <data name="Exc_NoImportPermission" xml:space="preserve">
     <value>La sincronización falló.
@@ -419,7 +419,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Carpeta de sincronización de destino predeterminada:</value>
   </data>
   <data name="Lbl_DefaultTargetFolderHint" xml:space="preserve">
-    <value>(Deje esto en blanco para usar la carpeta "raíz" de Mi unidad).</value>
+    <value>(Déjelo en blanco para usar un solo archivo con un nombre único en cualquier carpeta).</value>
   </data>
   <data name="Lbl_DefaultTgtFolderColor" xml:space="preserve">
     <value>Color predeterminado de la nueva carpeta:</value>
@@ -484,5 +484,8 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
   </data>
 	<data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
 	  <value>Política de privacidad de KeePass Sync para Google Drive.</value>
+  </data>
+  <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
+    <value>Se encontró más de un archivo llamado "{0}" en Google Drive. Asegúrese de que el nombre del archivo sea único en todas las carpetas o utilice la función Carpeta de destino.</value>
   </data>
 </root>

@@ -174,7 +174,7 @@
 The folder name must be unique.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
-    <value>More than one file named '{0}' found. This can occur when files are copied/created by another program, or using different authorization credentials.  You will need to resolve this conflict manually (e.g., examine last modification times) and ensure only one file named '{0}' exists in the target Drive folder.  Another way to resolve the conflict is to save the database to a different file name, then upload to Drive with the plugin, though you might lose changes if the existing Drive database file was modified prior to your changes in KeePass.</value>
+    <value>The operation was cancelled because more than one file named '{0}' was found in the Target Folder. This can occur when files are copied or created by another program with limited authorization credentials.  Resolve the conflict manually (e.g., examine Drive file modification times) and ensure only one file named '{0}' exists in the target Drive folder.</value>
   </data>
   <data name="Exc_NoImportPermission" xml:space="preserve">
     <value>Synchronization failed.
@@ -247,7 +247,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>Default Target Sync Folder:</value>
   </data>
   <data name="Lbl_DefaultTargetFolderHint" xml:space="preserve">
-    <value>(Leave this blank to use My Drive "root" folder.)</value>
+    <value>(Leave blank to use a single, uniquely named file across all folders.)</value>
   </data>
   <data name="Lbl_DefaultTgtFolderColor" xml:space="preserve">
     <value>Default New Folder Color:</value>
@@ -485,9 +485,12 @@ In either case, you can select another entry later to be the active plugin entry
     <value>Sync Authorization</value>
   </data>
   <data name="DropDown_GoogleDefaultColor" xml:space="preserve">
-	<value>Drive Default</value>
+    <value>Drive Default</value>
   </data>
   <data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
-	  <value>KeePass Sync for Google Drive privacy policy.</value>
+    <value>KeePass Sync for Google Drive privacy policy.</value>
+  </data>
+  <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
+    <value>More than one file named '{0}' found on Google Drive. Please make sure the file name is unique across all folders, or use the Target Folder feature.</value>
   </data>
 </root>

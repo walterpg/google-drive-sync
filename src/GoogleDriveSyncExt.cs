@@ -650,6 +650,8 @@ namespace KeePassSyncForDrive
 				try
 				{
 					m_currentDownload = file;
+					// $$BUG check return value for exception, in particular
+					// the "shortcut" exception.
 					await request.DownloadAsync(fileStream);
 				}
 				finally
@@ -697,6 +699,13 @@ namespace KeePassSyncForDrive
 		{
 			if (string.IsNullOrEmpty(folderName))
 			{
+				return null;
+			}
+			folderName = folderName.Trim(
+					Path.DirectorySeparatorChar,
+					Path.AltDirectorySeparatorChar);
+			if (folderName.Length == 0)
+            {
 				return new GDriveFile()
 				{
 					Id = "root" // alias for root folder in v3
@@ -716,7 +725,7 @@ namespace KeePassSyncForDrive
 			FileList appFolders = await req.ExecuteAsync();
 			if (appFolders.Files.Count == 1)
 			{
-				return appFolders.Files[0];
+				return appFolders.Files.First();
 			}
 			if (appFolders.Files.Count > 1)
 			{
@@ -757,8 +766,20 @@ namespace KeePassSyncForDrive
 			ShowMessage(status, true);
 
 			FilesResource.ListRequest req = service.Files.List();
-			req.Q = "name='" + filename.Replace("'", "\\'") + "' and '" + 
-				folder.Id + "' in parents and trashed=false";
+			StringBuilder sb = new StringBuilder()
+				.Append("name='")
+				.Append(filename.Replace("'", "\\'"))
+				.Append("' and ");
+			if (folder != null)
+            {
+				// Folders are only relevant when targeted.
+				// https://github.com/walterpg/google-drive-sync/issues/14#issuecomment-696170908
+				sb.Append('\'')
+					.Append(folder.Id)
+					.Append("' in parents and ");
+            }
+			sb.Append("trashed=false");
+			req.Q = sb.ToString();
 			req.Fields = "files(id,name,size)";
 			FileList filesObj = await req.ExecuteAsync();
 
@@ -769,7 +790,10 @@ namespace KeePassSyncForDrive
 			}
 			else if (files.Count() > 1)
 			{
-				status = Resources.GetFormat("Exc_MultipleGDriveFilesFmt", filename);
+				string fmtName = folder != null ?
+					"Exc_MultipleGDriveFilesFmt" :
+					"Exc_MultipleGDriveFilesFmt_NoFolder";
+				status = Resources.GetFormat(fmtName, filename);
 				throw new PlgxException(status);
 			}
 			return files.First();
@@ -857,9 +881,15 @@ namespace KeePassSyncForDrive
 				MimeType = contentType,
 				Name = string.IsNullOrEmpty(fileName) ?
 					Path.GetFileName(filePath) : fileName,
-				Parents = new List<string>(new[] { folder.Id }),
 				ContentHints = thumbnailImage
 			};
+			if (folder != null)
+            {
+				temp.Parents = new List<string>()
+				{
+					folder.Id
+				};
+            }
 
 			string message = Resources.GetFormat("Msg_UploadingFileFmt", temp.Name);
 			ShowMessage(message, true);
