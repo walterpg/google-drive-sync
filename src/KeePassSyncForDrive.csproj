@@ -95,6 +95,7 @@
     <Compile Include="MruFreezer.cs" />
     <Compile Include="PluginConfig.cs" />
     <Compile Include="PluginException.cs" />
+    <Compile Include="ProxyHttpClientFactory.cs" />
     <Compile Include="SyncConfiguration.cs" />
     <Compile Include="PluginEntryFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

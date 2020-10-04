@@ -480,7 +480,8 @@ namespace KeePassSyncForDrive
 				DriveService service = new DriveService(new BaseClientService.Initializer()
 				{
 					HttpClientInitializer = credAndToken.Item1,
-					ApplicationName = GdsDefs.ProductName
+					ApplicationName = GdsDefs.ProductName,
+					HttpClientFactory = new ProxyHttpClientFactory()
 				});
 				status = await use(service, authData.ActiveFolder);
 			}
@@ -1107,7 +1108,8 @@ namespace KeePassSyncForDrive
 					ClientId = clientId,
 					ClientSecret = secret.ReadString().Trim()
 				},
-				Scopes = new[] { scope }
+				Scopes = new[] { scope },
+				HttpClientFactory = new ProxyHttpClientFactory()
 			};
 			GoogleAuthorizationCodeFlow codeFlow = new GoogleAuthorizationCodeFlow(init);
 			NativeCodeReceiver codeReceiver = new NativeCodeReceiver(host, config);
