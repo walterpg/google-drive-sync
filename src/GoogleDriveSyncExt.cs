@@ -724,7 +724,7 @@ namespace KeePassSyncForDrive
 
 		private async Task<List<Folder>> GetFolders(DriveService service, string folderPath)
 		{
-			if (string.IsNullOrEmpty(folderPath))
+			if (string.IsNullOrWhiteSpace(folderPath))
 			{
 				return null;
 			}
