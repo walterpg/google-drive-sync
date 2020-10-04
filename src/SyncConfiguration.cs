@@ -360,7 +360,8 @@ namespace KeePassSyncForDrive
                     string userName = User;
                     if (!string.IsNullOrEmpty(userName))
                     {
-                        return string.Format("{0} - {1}", userName, m_title);
+                        m_title = string.Format("{0} - {1}",
+                                                userName, m_title);
                     }
                 }
                 return m_title;
