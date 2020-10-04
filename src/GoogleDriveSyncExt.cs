@@ -99,10 +99,10 @@ namespace KeePassSyncForDrive
 		volatile ResumableUpload<GDriveFile, GDriveFile> m_currentUpload = null;
 		volatile GDriveFile m_currentDownload = null;
 
-		/// <summary>
-		/// URL of a version information file
-		/// </summary>
-		public override string UpdateUrl
+        /// <summary>
+        /// URL of a version information file
+        /// </summary>
+        public override string UpdateUrl
 		{
 			get
 			{
@@ -547,16 +547,17 @@ namespace KeePassSyncForDrive
 			status = await ConfigAndUseDriveService(async (service, targetFolder) =>
 			{
 				string filePath = m_host.Database.IOConnectionInfo.Path;
+				string fileName = Path.GetFileName(filePath);
 				string contentType = "application/x-keepass2";
 				status = null;
 
-				GDriveFile folder = await GetFolder(service, targetFolder);
-				GDriveFile file = await GetFile(service, folder, filePath);
+				List<Folder> folders = await GetFolders(service, targetFolder);
+				GDriveFile file = await GetFile(service, folders, fileName);
 				if (file == null)
 				{
 					if (sync == SyncCommands.DOWNLOAD)
 					{
-						status = Resources.GetString("Msg_GDriveFileNotFound");
+						return Resources.GetString("Msg_GDriveFileNotFound");
 					}
 					else // upload
 					{
@@ -564,6 +565,17 @@ namespace KeePassSyncForDrive
 						{
 							SaveDatabase();
 						}
+						GDriveFile folder = null;
+						if (folders != null && folders.Any())
+                        {
+							if (folders.Count > 1)
+                            {
+								status = Resources.GetFormat("Exc_MultipleFoldersFmt",
+									fileName, folders.First().ToString());
+								throw new PluginException(status);
+                            }
+							folder = folders.First().DriveEntry;
+                        }
 						status = await UploadFile(service, folder,
 							Resources.GetString("Descr_KpDbFile"),
 							string.Empty, contentType, filePath,
@@ -612,8 +624,8 @@ namespace KeePassSyncForDrive
 			});
 
 			m_host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
-			if (!string.IsNullOrEmpty(status) &&
-				status != "ERROR")
+			if (!string.IsNullOrEmpty(status))// &&
+				//status != "ERROR")
 			{
 				ShowMessage(status, true);
 			}
@@ -650,9 +662,23 @@ namespace KeePassSyncForDrive
 				try
 				{
 					m_currentDownload = file;
-					// $$BUG check return value for exception, in particular
-					// the "shortcut" exception.
-					await request.DownloadAsync(fileStream);
+					IDownloadProgress progress 
+						= await request.DownloadAsync(fileStream);
+					if (progress.Status != DownloadStatus.Completed)
+                    {
+						status = string.Format("Download not completed: {0}",
+							progress.Exception == null ? "Unknown error." :
+							progress.Exception.Message);
+						ShowMessage(status, true);
+						if (progress.Exception != null)
+                        {
+							status = string.Format("Exception occurred " +
+								"downloading Drive file '{0}' to temporary " +
+								"file '{1}'.", file.Name, downloadFilePath);
+							throw new PluginException(status,
+										progress.Exception);
+                        }
+                    }
 				}
 				finally
 				{
@@ -695,89 +721,91 @@ namespace KeePassSyncForDrive
 			}
 		}
 
-		private async Task<GDriveFile> GetFolder(DriveService service, string folderName)
+		private async Task<List<Folder>> GetFolders(DriveService service, string folderPath)
 		{
-			if (string.IsNullOrEmpty(folderName))
+			if (string.IsNullOrEmpty(folderPath))
 			{
 				return null;
 			}
-			folderName = folderName.Trim(
-					Path.DirectorySeparatorChar,
-					Path.AltDirectorySeparatorChar);
-			if (folderName.Length == 0)
+			folderPath = folderPath.TrimLeadingAndTrailingSeparators();
+			if (folderPath.Length == 0)
             {
-				return new GDriveFile()
+				return new List<Folder>()
 				{
-					Id = "root" // alias for root folder in v3
+					Folder.RootFolder
 				};
 			}
-
-			string status;
-			status = Resources.GetFormat("Msg_RetrievingFolderFmt",
-													folderName);
-			ShowMessage(status, true);
-
-			// Only look for root-level folders.
-			FilesResource.ListRequest req = service.Files.List();
-			req.Q = "mimeType='" + GdsDefs.FolderMimeType + "' and name='" +
-					folderName.Replace("'", "\\'") + 
-					"' and 'root' in parents and trashed=false";
-			FileList appFolders = await req.ExecuteAsync();
-			if (appFolders.Files.Count == 1)
+			
+			FolderName links = FolderName.GetFolderNameLinks(folderPath);
+			List<Folder> folders = await links.ResolveLeafFolders(service,
+				status => ShowMessage(status, true));
+			if (folders.Any())
 			{
-				return appFolders.Files.First();
+				return folders;
 			}
-			if (appFolders.Files.Count > 1)
+
+			FolderName endLink = links.FirstFolderNameWithoutFolders();
+
+			Folder createRoot = null;
+			if (endLink.ParentFolderName != null)
 			{
-				status = Resources.GetFormat("Exc_MultipleFoldersFmt",
-									appFolders.Files[0].Name);
-				throw new PlgxException(status);
+				createRoot = endLink.ParentFolderName.Folders.First();
+				if (endLink.ParentFolderName.Folders.Count > 1)
+				{
+					string status = Resources.GetFormat(
+									"Exc_MultipleFoldersFmt",
+									createRoot.ToString());
+					throw new PluginException(status);
+				}
 			}
 
 			// Create the app folder within our scope.
-			GDriveFile folderMetadata = new GDriveFile()
-			{
-				Name = folderName,
-				MimeType = GdsDefs.FolderMimeType
-			};
-			if (PluginConfig.Default.FolderColor != null)
-			{
-				folderMetadata.FolderColorRgb =
-					PluginConfig.Default.FolderColor.HtmlHexString;
-			}
-			FilesResource.CreateRequest folderCreate;
-			folderCreate = service.Files.Create(folderMetadata);
-			folderCreate.Fields = "id";
-			return await folderCreate.ExecuteAsync();
+			Folder newLeaf = await endLink.CreateNewFolderPathFrom(
+									createRoot, service,
+									status => ShowMessage(status, true));
+			return new List<Folder>(new[] { newLeaf });
 		}
 
 		/// <summary>
 		/// Get File from Google Drive
 		/// </summary>
 		/// <param name="service">DriveService</param>
-		/// <param name="folder">Folder containing file (may be null).</param>
-		/// <param name="filepath">Full path of the current database file</param>
+		/// <param name="folders">Folders which may contain the file (may be
+		/// null).</param>
+		/// <param name="filename">Full name (not path) of the current database
+		/// file</param>
 		/// <returns>Return Google File</returns>
 		private async Task<GDriveFile> GetFile(DriveService service,
-			GDriveFile folder, string filepath)
+			List<Folder> folders, string fileName)
 		{
-			string filename = Path.GetFileName(filepath);
-			string status = Resources.GetFormat("Msg_RetrievingGDriveFileFmt", filename);
+			string status = Resources.GetFormat("Msg_RetrievingGDriveFileFmt", fileName);
 			ShowMessage(status, true);
 
 			FilesResource.ListRequest req = service.Files.List();
 			StringBuilder sb = new StringBuilder()
 				.Append("name='")
-				.Append(filename.Replace("'", "\\'"))
+				.Append(fileName.QueryGdriveObjectName())
 				.Append("' and ");
-			if (folder != null)
+			if (folders != null && folders.Any())
             {
 				// Folders are only relevant when targeted.
 				// https://github.com/walterpg/google-drive-sync/issues/14#issuecomment-696170908
-				sb.Append('\'')
-					.Append(folder.Id)
-					.Append("' in parents and ");
-            }
+				folders.Aggregate(sb, (cb, f) =>
+				{
+					if (f != folders.First())
+                    {
+						cb.Append("or ");
+                    }
+					else
+                    {
+						cb.Append('(');
+                    }
+					return cb.Append('\'')
+						.Append(f.DriveEntry.Id)
+						.Append("' in parents ");
+				})
+				.Append(") and ");
+			}
 			sb.Append("trashed=false");
 			req.Q = sb.ToString();
 			req.Fields = "files(id,name,size)";
@@ -788,13 +816,26 @@ namespace KeePassSyncForDrive
 			{
 				return null;
 			}
-			else if (files.Count() > 1)
+			else if (files.Count() > 1 && 
+				!files.All(f => f.Id == files.First().Id))
 			{
-				string fmtName = folder != null ?
-					"Exc_MultipleGDriveFilesFmt" :
-					"Exc_MultipleGDriveFilesFmt_NoFolder";
-				status = Resources.GetFormat(fmtName, filename);
-				throw new PlgxException(status);
+				string targetFolder = string.Empty;
+				string fmtName;
+				if (folders == null)
+				{
+					fmtName = "Exc_MultipleGDriveFilesFmt_NoFolder";
+				}
+				else if (folders.Count > 1)
+				{
+					targetFolder = folders.First().ToString();
+					fmtName = "Exc_MultipleFilesAndFolderFmt";
+				}
+				else
+                {
+					fmtName = "Exc_MultipleGDriveFilesFmt";
+				}
+				status = Resources.GetFormat(fmtName, fileName, targetFolder);
+				throw new PluginException(status);
 			}
 			return files.First();
 		}
@@ -828,11 +869,11 @@ namespace KeePassSyncForDrive
 
 			if (!success.HasValue)
 			{
-				throw new PlgxException(Resources.GetString("Exc_NoImportPermission"));
+				throw new PluginException(Resources.GetString("Exc_NoImportPermission"));
 			}
 			if (!success.Value)
 			{
-				throw new PlgxException(Resources.GetString("Exc_SyncFailureOther"));
+				throw new PluginException(Resources.GetString("Exc_SyncFailureOther"));
 			}
 			return Resources.GetString("Msg_LocalSyncComplete");
 		}
@@ -866,6 +907,7 @@ namespace KeePassSyncForDrive
 		/// Upload a new file to Google Drive
 		/// </summary>
 		/// <param name="service">DriveService</param>
+		/// <param name="folder">The folder (if any) to contain the new file.</param>
 		/// <param name="description">File description</param>
 		/// <param name="fileName">File name</param>
 		/// <param name="contentType">File content type</param>

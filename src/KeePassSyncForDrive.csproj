@@ -62,6 +62,7 @@
     <Compile Include="AppCredsUpgrade.Designer.cs">
       <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
     </Compile>
+    <Compile Include="FolderHelpers.cs" />
     <Compile Include="GdsDefs.cs" />
     <None Include="GdsDefs.Data.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -93,6 +94,7 @@
     </Compile>
     <Compile Include="MruFreezer.cs" />
     <Compile Include="PluginConfig.cs" />
+    <Compile Include="PluginException.cs" />
     <Compile Include="SyncConfiguration.cs" />
     <Compile Include="PluginEntryFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -168,11 +168,6 @@
   <data name="Err_TokenUnsupportedGrant" xml:space="preserve">
     <value>The authorization grant type is not supported by the authorization server.</value>
   </data>
-  <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
-    <value>Multiple folders named '{0}' found.
-
-The folder name must be unique.</value>
-  </data>
   <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
     <value>The operation was cancelled because more than one file named '{0}' was found in the Target Folder. This can occur when files are copied or created by another program with limited authorization credentials.  Resolve the conflict manually (e.g., examine Drive file modification times) and ensure only one file named '{0}' exists in the target Drive folder.</value>
   </data>
@@ -414,7 +409,7 @@ In either case, you can select another entry later to be the active plugin entry
     <value>Replacing local copy of file with downloaded file...</value>
   </data>
   <data name="Msg_RetrievingFolderFmt" xml:space="preserve">
-    <value>Opening '{0}' folder...</value>
+    <value>Looking for folders named '{0}'...</value>
   </data>
   <data name="Msg_RetrievingGDriveFileFmt" xml:space="preserve">
     <value>Looking for '{0}' file on Drive...</value>
@@ -492,5 +487,14 @@ In either case, you can select another entry later to be the active plugin entry
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
     <value>More than one file named '{0}' found on Google Drive. Please make sure the file name is unique across all folders, or use the Target Folder feature.</value>
+  </data>
+  <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
+	<value>More than on folder named '{1}' was found on Google Drive, and multiple files named '{0}' are contained by them. Please make sure the file name is unique across all folders specified by Target Folder.</value>	
+  </data>
+  <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
+	<value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>	
+  </data>
+  <data name="Msg_CreatingFolderFmt" xml:space="preserve">
+  	<value>Creating new folder '{0}'...</value>
   </data>
 </root>

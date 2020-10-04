@@ -168,11 +168,6 @@
   <data name="Err_TokenUnsupportedGrant" xml:space="preserve">
     <value>El tipo de concesión de autorización no es compatible con el servidor de autorización.</value>
   </data>
-  <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
-    <value>Se encontraron varias carpetas llamadas '{0}'.
-
-El nombre de la carpeta debe ser único.</value>
-  </data>
   <data name="Exc_MultipleGDriveFilesFmt" xml:space="preserve">
     <value>La operación se canceló porque se encontró más de un archivo llamado '{0}' en la carpeta de destino. Esto puede ocurrir cuando los archivos son copiados o creados por otro programa con credenciales de autorización limitadas. Resuelva el conflicto manualmente (p. Ej., Examine los tiempos de modificación del archivo de Drive) y asegúrese de que solo exista un archivo llamado "{0}" en la carpeta de Drive de destino.</value>
   </data>
@@ -340,7 +335,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Reemplazar la copia local del archivo con el archivo descargado ...</value>
   </data>
   <data name="Msg_RetrievingFolderFmt" xml:space="preserve">
-    <value>Abriendo la carpeta '{0}' ...</value>
+    <value>Buscando carpetas llamadas '{0}' ...</value>
   </data>
   <data name="Msg_RetrievingGDriveFileFmt" xml:space="preserve">
     <value>Buscando el archivo '{0}' en Drive ...</value>
@@ -487,5 +482,14 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
     <value>Se encontró más de un archivo llamado "{0}" en Google Drive. Asegúrese de que el nombre del archivo sea único en todas las carpetas o utilice la función Carpeta de destino.</value>
+  </data>
+  <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
+	<value>Se encontró más que en la carpeta llamada '{1}' en Google Drive y contienen varios archivos llamados '{0}' Asegúrese de que el nombre del archivo sea único en todas las carpetas especificadas por la carpeta de destino.</value>	
+  </data>
+  <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
+	<value>Se encontró más que en la carpeta llamada "{1}" en Google Drive. La carpeta de destino debe ser única, ya sea mi nombre o contener exclusivamente un archivo llamado '{0}'.</value>	
+  </data>
+  <data name="Msg_CreatingFolderFmt" xml:space="preserve">
+  	<value>Creando nueva carpeta '{0}' ...</value>
   </data>
 </root>
