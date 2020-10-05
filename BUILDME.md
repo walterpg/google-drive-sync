@@ -112,12 +112,11 @@ before they are actually available.
 
 1. Upload the binaries.  At the moment these are simply appended as
 "assets" to the github tag/release post.
-2. Update the links to the new binaries in the repo README and website.
-3. Ensure ``kpsync_version_4.txt`` is correct before committing it.
+2. Ensure ``kpsync_version_4.txt`` is correct before committing it.
 It is mechanically updated by ``BuildMe.bat``, and if it doesn't match the
 tagged release version, there is something wrong in ``AssemblyInfo.cs``; fix
 it, run ``BuildMe.bat`` again, and start again at step 1.
-4. Update ``AssemblyInformationalVersion`` in ``AssemblyInfo.cs`` 
+3. Update ``AssemblyInformationalVersion`` in ``AssemblyInfo.cs`` 
 a final time, to reflect the next, post-release development cycle. For
 example, ``0.1.0-alpha`` &#x21D2; ``0.1.0-unstable``.
 

@@ -50,7 +50,7 @@ key when opening/saving the database file.
 * Custom OAuth 2.0 ClientId Credentials: Provide your own credentials, [obtained
 from Google](#obtaining-custom-oauth-20-credentials), for the ultimate control
 over KeePass-secured access to Google Drive, configured per-database.
-* Custom Drive folders: Specify a top-level Google Drive folder to contain the
+* Custom Drive folders: Specify a Google Drive folder to contain the
 uploaded copy of the database file.
 
 ## Compatibility
@@ -226,7 +226,7 @@ accessed in this mode.  This mode may be useful with OAuth 2.0 credentials
 that have been marked as "unverified" by Google, and thus not available for unrestricted
 use, such as the legacy plugin's built-in credentials.
 
-Another way to restrict plugin access is to specify a particular target top-level
+Another way to restrict plugin access is to specify a particular target 
 folder.  If you specify a folder in the "**Target Sync Folder**" text box, the
 plugin will read/write all sync files to this folder. If the folder does not
 exist, the plugin will attempt to create it before uploading data. Note that when used with the

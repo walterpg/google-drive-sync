@@ -1,4 +1,29 @@
-# 4.0.2-beta
+# 4.0.3-beta
+* Fixed Google Sync 3.0 regression (issue #14).
+* Implemented target subfolder feature.
+* Implemented KeePass proxy server configuration support (#15).
+* Fixed regression in Configuration drop-down control (issue #17).
+
+##### Release Note
+This release fixes a Google Drive Sync 3.0 compatibility problem introduced
+by the [Target Folder](https://kpsync.org/usage/target-folder)
+feature.  If you prefer not to use Target Folder, the database file
+can reside in any Drive folder, but its name cannot be duplicated in
+any other Drive folder.
+
+The plugin now respects KeePass proxy server settings when constructing
+connections to Drive.  This has undergone limited testing, so please share
+your experiences.
+
+The [Target Folder](https://kpsync.org/usage/target-folder) feature now 
+provides access to subfolders using a "file separator" syntax in the
+specification.
+
+**Thank you for your feedback.**
+
+
+---
+## 4.0.2-beta
 * Ship Google-verified OAuth 2.0 creds (woo-hooo!!).
 * Add upgrade prompt, shown once for those using the legacy creds.
 * Rebranding as required by the service provider.
