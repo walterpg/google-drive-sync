@@ -2,7 +2,7 @@
 
 set archname=KeePassSyncForDrive
 set kp_version_manifest_name=kpsync_version_4
-set version=4.0.3-unstable
+set version=4.0.4-unstable
 
 set sevenzip="%ProgramFiles(x86)%\7-Zip\7z.exe"
 set msbuildcmd="%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\Common7\Tools\VsMSBuildCmd.bat"
