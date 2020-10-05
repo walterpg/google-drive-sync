@@ -178,10 +178,10 @@ way.
 The **Use limited Drive access** check box determines the
 [permission level you allow the plugin when accessing Drive](../usage/x-40#limited-drive-access).
 
-In the **Google Drive Options** group is a [new feature](../usage/x-40#designated-folder-and-folder-colors), **Target Sync Folder**,
-to specify a top-level folder in Drive where the plugin synchronizes
-your database files.  Leave this blank for the traditional top-level
-location of your synchronized databases.
+In the **Google Drive Options** group is the [**Target Sync Folder**](../usage/target-folder)
+feature, with which to specify a folder in Drive where the plugin
+synchronizes your database files.  Leave this blank for the traditional
+Google Sync 3.0 "one sync file across all of Drive" semantics.
 
 {:refdef: style="text-align: center;"}
 ![Other Options](../assets/img/gdrive-opts.png)

@@ -11,6 +11,8 @@
     - caption: Download from Drive
       url: usage/dnload
     - caption: _separator_
+    - caption: Target Folder
+      url: usage/target-folder
     - caption: Auto Sync
       url: usage/autosync
     - caption: Enabled Commands
