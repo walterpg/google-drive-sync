@@ -7,7 +7,7 @@ Beta release now available! If you currently have an Alpha release
 installed, you should
 [review the upgrade notes](https://www.kpsync.org/install/upgrade0).
 
-If you currently authorize Drive access with Google Drive Sync 3.0's built-in
+If you currently authorize Drive access with Google Sync Plugin 3.0's built-in
 OAuth credentials, you may want to
 [review the creds upgrade notes](https://www.kpsync.org/install/upgrade1).
 
