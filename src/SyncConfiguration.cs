@@ -631,9 +631,7 @@ namespace KeePassSyncForDrive
 
             // Only upgrade the version if all properties associated with the
             // particular version level are present.
-            if (Version < new Version(Ver1) &&
-                !string.IsNullOrEmpty(GetValue(GdsDefs.EntryUseLegacyCreds,
-                                                    ReadSafe)))
+            if (Version < new Version(Ver1))
             {
                 SetValue(GdsDefs.EntryVersion, Ver1);
             }
