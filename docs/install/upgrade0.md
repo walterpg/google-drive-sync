@@ -109,7 +109,7 @@ The file to delete will have the old name, something like
         Ensure there are no copies of the <code>GoogleDriveSync...plgx</code> file
         there either.
     </div>
-6. Now follow the instructions on the [Normal Installation page](../normal#installation-steps).
+6. Now follow the instructions on the [Normal Installation page](../install/normal#installation-steps).
 That is, copy the new plugin file, named something like 
 `KeePassSyncForDrive-4.0.2.plgx`,
 to the KeePass installation directory, e.g.,
