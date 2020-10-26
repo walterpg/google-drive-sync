@@ -486,15 +486,24 @@ In either case, you can select another entry later to be the active plugin entry
     <value>KeePass Sync for Google Drive privacy policy.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
-    <value>More than one file named '{0}' found on Google Drive. Please make sure the file name is unique across all folders, or use the Target Folder feature.</value>
+    <value>More than one file or shortcut named '{0}' found on Google Drive. Please make sure the name is unique across all folders, or use the Target Folder feature.</value>
   </data>
   <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
-	<value>More than on folder named '{1}' was found on Google Drive, and multiple files named '{0}' are contained by them. Please make sure the file name is unique across all folders specified by Target Folder.</value>	
+	<value>More than on folder named '{1}' was found on Google Drive, and multiple files and/or shortcuts named '{0}' are contained by them. Please make sure the name is unique across all folders specified by Target Folder.</value>	
   </data>
   <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
 	<value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>	
   </data>
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
   	<value>Creating new folder '{0}'...</value>
+  </data>
+  <data name="Exc_ShortcutMissingTargetId" xml:space="preserve">
+	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to a file.</value>
+  </data>
+  <data name="Exc_ShortcutTargetIdNotFound" xml:space="preserve">
+	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but the file it links to was not found.</value>
+  </data>
+  <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
+    <value>Resolving Drive Shortcut '{0}' to ID:{1}...</value>
   </data>
 </root>

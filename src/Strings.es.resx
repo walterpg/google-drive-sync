@@ -481,15 +481,24 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
 	  <value>Política de privacidad de KeePass Sync para Google Drive.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
-    <value>Se encontró más de un archivo llamado "{0}" en Google Drive. Asegúrese de que el nombre del archivo sea único en todas las carpetas o utilice la función Carpeta de destino.</value>
+    <value>Se encontró más de un archivo o acceso directo llamado "{0}" en Google Drive. Asegúrese de que el nombre sea único en todas las carpetas o utilice la función Carpeta de destino.</value>
   </data>
   <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
-	<value>Se encontró más que en la carpeta llamada '{1}' en Google Drive y contienen varios archivos llamados '{0}' Asegúrese de que el nombre del archivo sea único en todas las carpetas especificadas por la carpeta de destino.</value>	
+	<value>Se encontró más que en la carpeta llamada "{1}" en Google Drive, y contienen varios archivos y / o accesos directos llamados "{0}". Asegúrese de que el nombre sea único en todas las carpetas especificadas por la carpeta de destino.</value>	
   </data>
   <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
 	<value>Se encontró más que en la carpeta llamada "{1}" en Google Drive. La carpeta de destino debe ser única, ya sea mi nombre o contener exclusivamente un archivo llamado '{0}'.</value>	
   </data>
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
   	<value>Creando nueva carpeta '{0}' ...</value>
+  </data>
+  <data name="Exc_ShortcutMissingTargetId" xml:space="preserve">
+	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no está vinculado a un archivo.</value>
+  </data>
+  <data name="Exc_ShortcutTargetIdNotFound" xml:space="preserve">
+	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no se encontró el archivo al que se vincula.</value>
+  </data>
+  <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
+    <value>Resolviendo el acceso directo de Drive '{0}' al ID: {1} ...</value>
   </data>
 </root>

@@ -809,17 +809,19 @@ namespace KeePassSyncForDrive
 			}
 			sb.Append("trashed=false");
 			req.Q = sb.ToString();
-			req.Fields = "files(id,name,size)";
+			req.Fields = "files(id,name,mimeType,shortcutDetails/targetId)";
+
 			FileList filesObj = await req.ExecuteAsync();
 
 			IEnumerable<GDriveFile> files = filesObj.Files;
 			if (!files.Any())
-			{
+            {
 				return null;
-			}
+            }
 			else if (files.Count() > 1 && 
 				!files.All(f => f.Id == files.First().Id))
 			{
+				// Duplicate ids: files or shortcuts.
 				string targetFolder = string.Empty;
 				string fmtName;
 				if (folders == null)
@@ -838,7 +840,43 @@ namespace KeePassSyncForDrive
 				status = Resources.GetFormat(fmtName, fileName, targetFolder);
 				throw new PluginException(status);
 			}
-			return files.First();
+			GDriveFile retVal = files.First();
+			while (retVal != null &&
+				GdsDefs.MimeTypeShortcut.Equals(retVal.MimeType,
+							StringComparison.OrdinalIgnoreCase))
+            {
+				// Resolve a shortcut link to a file.
+				if (retVal.ShortcutDetails == null ||
+					string.IsNullOrEmpty(retVal.ShortcutDetails.TargetId))
+                {
+					status = Resources.GetFormat(
+						"Exc_ShortcutMissingTargetId", fileName);
+					throw new PluginException(status);
+                }
+
+				status = Resources.GetFormat("Msg_RetrievingGDriveShortcutFmt",
+					fileName, retVal.ShortcutDetails.TargetId);
+				ShowMessage(status, true);
+
+				FilesResource.GetRequest listReq
+					= service.Files.Get(retVal.ShortcutDetails.TargetId);
+				listReq.Fields = "id,name,mimeType,shortcutDetails/targetId";
+                try
+                {
+					retVal = await listReq.ExecuteAsync();
+				}
+				catch (Google.GoogleApiException gexc)
+                {
+					if (gexc.Error.Code != 404)
+                    {
+						throw;
+                    }
+					status = Resources.GetFormat(
+						"Exc_ShortcutMissingTargetId", fileName);
+					throw new PluginException(status);
+				}
+			}
+			return retVal;
 		}
 
 		/// <summary>

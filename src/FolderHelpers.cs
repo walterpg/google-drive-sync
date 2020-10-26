@@ -254,7 +254,7 @@ namespace KeePassSyncForDrive
             GDriveFile folderMetadata = new GDriveFile()
             {
                 Name = m_name,
-                MimeType = GdsDefs.FolderMimeType
+                MimeType = GdsDefs.MimeTypeFolder
             };
             if (parent != null)
             {
@@ -317,7 +317,7 @@ namespace KeePassSyncForDrive
             foreach (Folder parent in parentFolders)
             {
                 FilesResource.ListRequest req = service.Files.List();
-                req.Q = "mimeType='" + GdsDefs.FolderMimeType +
+                req.Q = "mimeType='" + GdsDefs.MimeTypeFolder +
                         "' and name='" +
                         m_name.QueryGdriveObjectName() +
                         "' and '" +

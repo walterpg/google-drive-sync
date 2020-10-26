@@ -212,7 +212,8 @@ namespace KeePassSyncForDrive
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"
-		public const string FolderMimeType = "application/vnd.google-apps.folder";
+		public const string MimeTypeFolder = "application/vnd.google-apps.folder";
+		public const string MimeTypeShortcut = "application/vnd.google-apps.shortcut";
 		public const int DefaultDotNetFileBufferSize = 4096;
 	}
 
