@@ -497,13 +497,16 @@ In either case, you can select another entry later to be the active plugin entry
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
   	<value>Creating new folder '{0}'...</value>
   </data>
-  <data name="Exc_ShortcutMissingTargetId" xml:space="preserve">
-	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to a file.</value>
+  <data name="Exc_ShortcutNoLink" xml:space="preserve">
+	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to an accessible file.</value>
   </data>
-  <data name="Exc_ShortcutTargetIdNotFound" xml:space="preserve">
-	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but the file it links to was not found.</value>
+  <data name="Exc_ShortcutTargetIdMissing" xml:space="preserve">
+	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it does not contain a linked file ID.</value>
   </data>
   <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
     <value>Resolving Drive Shortcut '{0}' to ID:{1}...</value>
+  </data>
+  <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
+	<value>The Drive shortcut '{1}' links to file '{0}' in the Trash. To sync with '{0}', move it out of the Trash folder.</value>
   </data>
 </root>

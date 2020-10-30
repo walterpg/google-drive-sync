@@ -98,6 +98,7 @@ namespace KeePassSyncForDrive
 		// For UI status updates.
 		volatile ResumableUpload<GDriveFile, GDriveFile> m_currentUpload = null;
 		volatile GDriveFile m_currentDownload = null;
+		volatile bool m_ignoreDatabaseEvents;
 
         /// <summary>
         /// URL of a version information file
@@ -197,6 +198,7 @@ namespace KeePassSyncForDrive
 			// current database or opened a new one.
 			m_host.MainWindow.FileSaved += OnFileSaved;
 			m_host.MainWindow.FileOpened += OnFileOpened;
+			m_ignoreDatabaseEvents = false;
 
 			return true; // Initialization successful
 		}
@@ -288,7 +290,8 @@ namespace KeePassSyncForDrive
 		/// </summary>
 		private async void OnFileSaved(object sender, FileSavedEventArgs e)
 		{
-			if (e.Success && PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE))
+			if (!m_ignoreDatabaseEvents && e.Success &&
+				PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE))
 			{
 				await SyncOnOpenOrSaveCmd();
 			}
@@ -299,7 +302,8 @@ namespace KeePassSyncForDrive
 		/// </summary>
 		private async void OnFileOpened(object sender, FileOpenedEventArgs e)
 		{
-			if (PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN))
+			if (!m_ignoreDatabaseEvents &&
+				PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN))
 			{
 				await SyncOnOpenOrSaveCmd();
 			}
@@ -524,19 +528,14 @@ namespace KeePassSyncForDrive
 		{
 			// Suspend these events temporarily in case the configuration
 			// needs to be saved.
-			m_host.MainWindow.FileSaved -= OnFileSaved;
-			m_host.MainWindow.FileOpened -= OnFileOpened;
-			m_host.MainWindow.Enabled = false;
-
+			m_ignoreDatabaseEvents = true;
 			try
 			{
 				await ConfigAndSyncUnsafe(syncCommand, autoSync);
 			}
 			finally
 			{
-				m_host.MainWindow.Enabled = true;
-				m_host.MainWindow.FileSaved += OnFileSaved;
-				m_host.MainWindow.FileOpened += OnFileOpened;
+				m_ignoreDatabaseEvents = false;
 			}
 		}
 
@@ -840,58 +839,98 @@ namespace KeePassSyncForDrive
 				status = Resources.GetFormat(fmtName, fileName, targetFolder);
 				throw new PluginException(status);
 			}
-			GDriveFile retVal = files.First();
-			while (retVal != null &&
-				GdsDefs.MimeTypeShortcut.Equals(retVal.MimeType,
-							StringComparison.OrdinalIgnoreCase))
-            {
-				// Resolve a shortcut link to a file.
-				if (retVal.ShortcutDetails == null ||
-					string.IsNullOrEmpty(retVal.ShortcutDetails.TargetId))
+			return await ResolveShortcut(service, files.First());
+		}
+
+		/// <summary>
+		/// If the passed object is a Drive shortcut, resolve the file, if
+		/// any, that it is linked to.  Otherwise return the passed object.
+		/// </summary>
+		/// <param name="service">The authorized Drive service.</param>
+		/// <param name="driveObject">The potential shortcut. Must include
+		/// a valid "name" property.</param>
+		/// <returns>A Drive file object, or null.</returns>
+		async Task<GDriveFile> ResolveShortcut(DriveService service,
+			GDriveFile driveObject)
+        {
+			string shortcutName = null;
+			bool bFileFromShortcut = false;
+			string status;
+			while (driveObject != null &&
+				GdsDefs.MimeTypeShortcut.Equals(driveObject.MimeType,
+							StringComparison.Ordinal))
+			{
+				if (shortcutName == null)
                 {
-					status = Resources.GetFormat(
-						"Exc_ShortcutMissingTargetId", fileName);
-					throw new PluginException(status);
+					shortcutName = driveObject.Name;
                 }
 
+				// Resolve a shortcut link to a file.
+				if (driveObject.ShortcutDetails == null ||
+					string.IsNullOrEmpty(driveObject.ShortcutDetails.TargetId))
+				{
+					status = Resources.GetFormat(
+						"Exc_ShortcutTargetIdNotFound", shortcutName);
+					throw new PluginException(status);
+				}
+
 				status = Resources.GetFormat("Msg_RetrievingGDriveShortcutFmt",
-					fileName, retVal.ShortcutDetails.TargetId);
+					shortcutName, driveObject.ShortcutDetails.TargetId);
 				ShowMessage(status, true);
 
 				FilesResource.GetRequest listReq
-					= service.Files.Get(retVal.ShortcutDetails.TargetId);
-				listReq.Fields = "id,name,mimeType,shortcutDetails/targetId";
-                try
-                {
-					retVal = await listReq.ExecuteAsync();
+					= service.Files.Get(driveObject.ShortcutDetails.TargetId);
+				listReq.Fields = "id,name,trashed,mimeType," +
+					"shortcutDetails/targetId";
+				try
+				{
+					driveObject = await listReq.ExecuteAsync();
+					bFileFromShortcut = true;
 				}
 				catch (Google.GoogleApiException gexc)
-                {
+				{
 					if (gexc.Error.Code != 404)
-                    {
+					{
 						throw;
-                    }
+					}
 					status = Resources.GetFormat(
-						"Exc_ShortcutMissingTargetId", fileName);
+						"Exc_ShortcutNoLink", shortcutName);
 					throw new PluginException(status);
 				}
 			}
-			return retVal;
+			if (driveObject != null && bFileFromShortcut &&
+				driveObject.Trashed.HasValue && driveObject.Trashed.Value)
+			{
+				status = Resources.GetFormat("Exc_ShortcutTargetTrashed",
+					driveObject.Name, shortcutName);
+				throw new PluginException(status);
+			}
+			return driveObject;
 		}
 
 		/// <summary>
 		/// Sync given File with currently open Database file
 		/// </summary>
-		/// <param name="tempFilePath">Full path of database file to sync with</param>
+		/// <param name="tempFilePath">Full path of database file to sync
+		/// with</param>
 		/// <returns>Return status of the update</returns>
 		private string SyncFromThenDeleteFile(string tempFilePath)
 		{
+			Form fParent = m_host.MainWindow;
+			if (fParent.InvokeRequired)
+            {
+				return fParent.Invoke(new Func<string>(() =>
+				{
+					return SyncFromThenDeleteFile(tempFilePath);
+				})) as string;
+            }
+
 			string status = Resources.GetString("Msg_Synchronizing");
 			ShowMessage(status, true);
 
-			IOConnectionInfo connection = IOConnectionInfo.FromPath(tempFilePath);
+			IOConnectionInfo connection =
+				IOConnectionInfo.FromPath(tempFilePath);
 
-			Form fParent = m_host.MainWindow;
 			IUIOperations uiOps = m_host.MainWindow;
 			bool? success;
 			using (new MruFreezer(m_host))
@@ -908,11 +947,13 @@ namespace KeePassSyncForDrive
 
 			if (!success.HasValue)
 			{
-				throw new PluginException(Resources.GetString("Exc_NoImportPermission"));
+				throw new PluginException(
+					Resources.GetString("Exc_NoImportPermission"));
 			}
 			if (!success.Value)
 			{
-				throw new PluginException(Resources.GetString("Exc_SyncFailureOther"));
+				throw new PluginException(
+					Resources.GetString("Exc_SyncFailureOther"));
 			}
 			return Resources.GetString("Msg_LocalSyncComplete");
 		}
@@ -1087,11 +1128,25 @@ namespace KeePassSyncForDrive
 			{
 				// The key is different in the downloaded file, so allow user
 				// to open it via dialog.
-				m_host.MainWindow.OpenDatabase(
-					IOConnectionInfo.FromPath(currentFilePath), null, true);
+				KpOpenDatabase(currentFilePath);
 			}
 
 			return returnStatus;
+		}
+
+		void KpOpenDatabase(string file)
+        {
+			MainForm winform = m_host.MainWindow;
+			if (winform.InvokeRequired)
+			{
+				winform.Invoke(new Action(() =>
+				{
+					KpOpenDatabase(file);
+				}));
+				return;
+			}
+			m_host.MainWindow.OpenDatabase(
+				IOConnectionInfo.FromPath(file), null, true);
 		}
 
 		/// <summary>

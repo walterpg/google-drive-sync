@@ -492,13 +492,16 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
   	<value>Creando nueva carpeta '{0}' ...</value>
   </data>
-  <data name="Exc_ShortcutMissingTargetId" xml:space="preserve">
+  <data name="Exc_ShortcutNoLink" xml:space="preserve">
 	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no está vinculado a un archivo.</value>
   </data>
-  <data name="Exc_ShortcutTargetIdNotFound" xml:space="preserve">
-	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no se encontró el archivo al que se vincula.</value>
+  <data name="Exc_ShortcutTargetIdMissing" xml:space="preserve">
+	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no contiene un ID de archivo vinculado.</value>
   </data>
   <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
     <value>Resolviendo el acceso directo de Drive '{0}' al ID: {1} ...</value>
+  </data>
+  <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
+	<value>El acceso directo de Drive '{1}' se vincula al archivo '{0}' en la Papelera. Para sincronizar con '{0}', sáquelo de la carpeta Papelera.</value>
   </data>
 </root>
