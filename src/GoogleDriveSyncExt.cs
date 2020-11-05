@@ -916,16 +916,18 @@ namespace KeePassSyncForDrive
 		/// <returns>Return status of the update</returns>
 		private string SyncFromThenDeleteFile(string tempFilePath)
 		{
+			string status = null;
 			Form fParent = m_host.MainWindow;
 			if (fParent.InvokeRequired)
             {
-				return fParent.Invoke(new Func<string>(() =>
+				fParent.Invoke(new MethodInvoker(() =>
 				{
-					return SyncFromThenDeleteFile(tempFilePath);
-				})) as string;
+					status = SyncFromThenDeleteFile(tempFilePath);
+				}));
+				return status;
             }
 
-			string status = Resources.GetString("Msg_Synchronizing");
+			status = Resources.GetString("Msg_Synchronizing");
 			ShowMessage(status, true);
 
 			IOConnectionInfo connection =
@@ -1139,7 +1141,7 @@ namespace KeePassSyncForDrive
 			MainForm winform = m_host.MainWindow;
 			if (winform.InvokeRequired)
 			{
-				winform.Invoke(new Action(() =>
+				winform.Invoke(new MethodInvoker(() =>
 				{
 					KpOpenDatabase(file);
 				}));
@@ -1271,11 +1273,11 @@ namespace KeePassSyncForDrive
 		/// Find active configured Google Accounts, avoiding the recycle bin.
 		/// (Should only return one account.)
 		/// </summary>
-		private IEnumerable<EntryConfiguration> FindActiveAccounts()
+		private IList<EntryConfiguration> FindActiveAccounts()
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				return Enumerable.Empty<EntryConfiguration>();
+				return Enumerable.Empty<EntryConfiguration>().ToList();
 			}
 
 			List<EntryConfiguration> accounts = new List<EntryConfiguration>();
@@ -1690,18 +1692,41 @@ namespace KeePassSyncForDrive
 				return false;
 			}
 
-			// Disable all currently active accounts but the selected (if any)
-			IEnumerable<EntryConfiguration> accounts = FindActiveAccounts();
-			foreach (EntryConfiguration entry in accounts)
+			IList<EntryConfiguration> accounts = FindActiveAccounts();
+			EntryConfiguration currentConfig = accounts.FirstOrDefault(e =>
+				entryConfig.Entry.Uuid.Equals(e.Entry.Uuid));
+			if (accounts.Count > 0)
 			{
-				if (!object.ReferenceEquals(entry.Entry, entryConfig.Entry) && 
-					entry.ActiveAccount.GetValueOrDefault(false))
+				if (currentConfig != null)
 				{
-					entry.ActiveAccount = null;
-					entry.CommitChangesIfAny();
-					m_host.Database.Modified = entry.ChangesCommitted;
+					entryConfig = currentConfig;
+				}
+				else
+				{
+					// The active config entry was lost, certainly due to a
+					// "download" op.  Save a copy and make it active.
+
+					// $$CONSIDER: The user might want to know about this
+					// condition, and have the option of saving the lost
+					// entry or not...
+					PwEntry newEntry = entryConfig.Entry.CloneDeep();
+					newEntry.Uuid = new PwUuid(bCreateNew: true);
+					newEntry = PluginEntryFactory.Import(m_host,
+						new PluginEntryFactory(newEntry));
+					entryConfig = new EntryConfiguration(newEntry);
 				}
 			}
+
+			// Disable any previously active accounts.
+			foreach (EntryConfiguration entry in accounts.Where(e =>
+						e != entryConfig &&
+						e.ActiveAccount.GetValueOrDefault(false)))
+			{
+				entry.ActiveAccount = null;
+				entry.CommitChangesIfAny();
+				m_host.Database.Modified = entry.ChangesCommitted;
+			}
+
 			entryConfig.ActiveAccount = true;
 			entryConfig.CommitChangesIfAny();
 
@@ -1712,8 +1737,8 @@ namespace KeePassSyncForDrive
 
 			if (m_host.GetConfig(GdsDefs.ConfigUUID) != null)
 			{
-				// Remove deprecated uuiid setting now that the new-style
-				// setting ares saved to the database.
+				// Remove deprecated uuid setting now that the new-style
+				// setting are saved to the database.
 				m_host.SetConfig(GdsDefs.ConfigUUID, null);
 			}
 

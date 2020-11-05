@@ -38,9 +38,33 @@ namespace KeePassSyncForDrive
             string driveScope, string clientId, ProtectedString clientSecret,
             string folder, bool useLegacyCreds)
         {
-            return new PluginEntryFactory(title, driveScope, clientId,
-                                            clientSecret, folder,
-                                            useLegacyCreds);
+            PwEntry entry = new PwEntry(true, true);
+            ProtectedStringDictionary strings = entry.Strings;
+            strings.Set(PwDefs.TitleField,
+                new ProtectedString(false, title));
+            strings.Set(PwDefs.NotesField,
+                new ProtectedString(false,
+                    Resources.GetFormat("Msg_NewEntryNotesFmt",
+                                        GdsDefs.ProductName)));
+            strings.Set(PwDefs.UrlField,
+                new ProtectedString(false, GdsDefs.AccountSearchString));
+
+            StringDictionaryEx data = entry.CustomData;
+            if (useLegacyCreds)
+            {
+                data.Set(GdsDefs.EntryDriveScope, driveScope);
+                data.Set(GdsDefs.EntryClientId, clientId);
+                data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
+            }
+            data.Set(GdsDefs.EntryActiveAppFolder, folder);
+            data.Set(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
+            data.Set(GdsDefs.EntryUseLegacyCreds, useLegacyCreds ?
+                GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            data.Set(GdsDefs.EntryVersion,
+                SyncConfiguration.CurrentVersion.ToString(2));
+
+            entry.IconId = PwIcon.WorldComputer;
+            return new PluginEntryFactory(entry);
         }
 
         public static PwEntry Import(IPluginHost host,
@@ -61,35 +85,9 @@ namespace KeePassSyncForDrive
             return creator.Entry;
         }
 
-        PluginEntryFactory(string title, string driveScope, string clientId,
-            ProtectedString clientSecret, string folder, bool useLegacyCreds)
+        public PluginEntryFactory(PwEntry entry)
         {
-            Entry = new PwEntry(true, true);
-            ProtectedStringDictionary strings = Entry.Strings;
-            strings.Set(PwDefs.TitleField,
-                new ProtectedString(false, title));
-            strings.Set(PwDefs.NotesField,
-                new ProtectedString(false, 
-                    Resources.GetFormat("Msg_NewEntryNotesFmt",
-                                        GdsDefs.ProductName)));
-            strings.Set(PwDefs.UrlField,
-                new ProtectedString(false, GdsDefs.AccountSearchString));
-
-            StringDictionaryEx data = Entry.CustomData;
-            if (useLegacyCreds)
-            {
-                data.Set(GdsDefs.EntryDriveScope, driveScope);
-                data.Set(GdsDefs.EntryClientId, clientId);
-                data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
-            }
-            data.Set(GdsDefs.EntryActiveAppFolder, folder);
-            data.Set(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
-            data.Set(GdsDefs.EntryUseLegacyCreds, useLegacyCreds ?
-                GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
-            data.Set(GdsDefs.EntryVersion, 
-                SyncConfiguration.CurrentVersion.ToString(2));
-
-            Entry.IconId = PwIcon.WorldComputer;
+            Entry = entry;
         }
 
         public PwEntry Entry { get; private set; }
