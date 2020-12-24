@@ -102,9 +102,13 @@ namespace KeePassSyncForDrive
         public static bool OrdinalEquals(this ProtectedString This,
             ProtectedString ps, bool bCheckProtEqual)
         {
-            if (ps == null || This == null)
+            if (This == null)
             {
                 throw new ArgumentNullException();
+            }
+            if (ps == null)
+            {
+                return false;
             }
             if (ReferenceEquals(This, ps))
             {
