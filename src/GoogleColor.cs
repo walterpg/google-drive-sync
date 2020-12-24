@@ -20,18 +20,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-using KeePassLib.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace KeePassSyncForDrive
@@ -47,48 +42,26 @@ namespace KeePassSyncForDrive
     /// case of duplicates, which ColorProxy instance should take a
     /// "next-best" KnownColor name, via the PopTopColor() method.
     /// </summary>
-    [Serializable]
-    public class GoogleColor :
-        IComparer<Tuple<string, double>>, ISerializable
+    public class GoogleColor : IComparer<Tuple<string, double>>
     {
-        const string RGBKEY = "RGB";
-        const string NAMEKEY = "NAME";
-
-        class Binder : SerializationBinder
-        {
-            public override Type BindToType(string assemblyName, string typeName)
-            {
-                AssemblyName sname = new AssemblyName(assemblyName);
-                AssemblyName aname = typeof(GoogleColor).Assembly.GetName();
-                if (sname.Name == aname.Name &&
-                    sname.Version <= aname.Version &&
-                    sname.GetPublicKeyToken().SequenceEqual(aname.GetPublicKeyToken()) &&
-                    typeName == typeof(GoogleColor).FullName)
-                {
-                    return typeof(GoogleColor);
-                }
-                throw new SerializationException();
-            }
-        }
-
-        static Color[] m_knownColors = null;
-        static Dictionary<Color, string> m_colorNames = null;
-        static GoogleColor m_default = new GoogleColor(Color.White,
+        static Color[] s_knownColors = null;
+        static Dictionary<Color, string> s_colorNames = null;
+        static GoogleColor s_default = new GoogleColor(Color.White,
                         Resources.GetString("DropDown_GoogleDefaultColor"));
 
         static Color[] KnownColors
         {
             get
             {
-                if (m_knownColors == null)
+                if (s_knownColors == null)
                 {
                     Array colorIDs = Enum.GetValues(typeof(KnownColor));
-                    m_knownColors = colorIDs.Cast<KnownColor>()
+                    s_knownColors = colorIDs.Cast<KnownColor>()
                                             .Select(id => Color.FromKnownColor(id))
                                             .Where(kc => !kc.IsSystemColor)
                                             .ToArray();
                 }
-                return m_knownColors;
+                return s_knownColors;
             }
         }
 
@@ -96,9 +69,9 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                if (m_colorNames == null)
+                if (s_colorNames == null)
                 {
-                    m_colorNames = new Dictionary<Color, string>(KnownColors.Length);
+                    s_colorNames = new Dictionary<Color, string>(KnownColors.Length);
 
                     // KnownColor "names" are not localized, but are rather
                     // the pascal-cased enumerated value identifiers.  Make
@@ -116,10 +89,10 @@ namespace KeePassSyncForDrive
                             }
                             sb.Append(c);
                         }
-                        m_colorNames[kcVal] = sb.ToString();
+                        s_colorNames[kcVal] = sb.ToString();
                     }
                 }
-                return m_colorNames;
+                return s_colorNames;
             }
         }
 
@@ -127,51 +100,7 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return m_default;
-            }
-        }
-
-        public static string SerializeToString(GoogleColor c)
-        {
-            if (c == null)
-            {
-                return null;
-            }
-
-            IFormatter formatter = new BinaryFormatter()
-            {
-                Binder = new GoogleColor.Binder(),
-            };
-            MemoryStream ms = new MemoryStream();
-            using (ms)
-            {
-                formatter.Serialize(ms, c);
-                return MemUtil.ByteArrayToHexString(ms.ToArray());
-            }
-        }
-
-        public static GoogleColor DeserializeFromString(string s)
-        {
-            if (string.IsNullOrEmpty(s))
-            {
-                return null;
-            }
-            try
-            {
-                IFormatter formatter = new BinaryFormatter()
-                {
-                    Binder = new GoogleColor.Binder()
-                };
-                byte[] bytes = MemUtil.HexStringToByteArray(s);
-                MemoryStream ms = new MemoryStream(bytes);
-                using (ms)
-                {
-                    return formatter.Deserialize(ms) as GoogleColor;
-                }
-            }
-            catch
-            {
-                return null;
+                return s_default;
             }
         }
 
@@ -216,20 +145,6 @@ namespace KeePassSyncForDrive
         public GoogleColor(string htmlColor)
             : this(ParseHtmlColor(htmlColor))
         {
-        }
-
-        protected GoogleColor(SerializationInfo info, StreamingContext ctx)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            int rgb = info.GetInt32(RGBKEY);
-            Color = Color.FromArgb(rgb);
-
-            byte[] bytes = (byte[])info.GetValue(NAMEKEY, typeof(byte[]));
-            m_name = Encoding.UTF8.GetString(bytes);
         }
 
         public Color Color { get; private set; }
@@ -328,19 +243,6 @@ namespace KeePassSyncForDrive
         public int Compare(Tuple<string, double> x, Tuple<string, double> y)
         {
             return (int)(x.Item2 - y.Item2);
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            // Just save the name and rgb value.
-            info.AddValue(RGBKEY, Color.ToArgb());
-            byte[] nameBytes = Encoding.UTF8.GetBytes(Name);
-            info.AddValue(NAMEKEY, nameBytes, typeof(byte[]));
         }
     }
 
