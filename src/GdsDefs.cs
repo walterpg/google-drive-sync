@@ -176,28 +176,11 @@ namespace KeePassSyncForDrive
 		}
 
 		public const string GitHubProjectName = "google-drive-sync";
-		public const string ConfigAutoSync = "GoogleSync.AutoSync";
-		public const string ConfigEnabledCmds = "GoogleSync.EnabledCmds";
 		public const string ConfigUUID = "GoogleSync.AccountUUID";
-		public const string ConfigDefaultAppFolder = "GoogleSync.DefaultAppFolder";
-		public const string ConfigDefaultAppFolderColor = "GoogleSync.DefaultAppFolderColor";
-		public const string ConfigDriveScope = "GoogleSync.DriveApiScope";
-		public const string ConfigDefaultClientId = "GoogleSync.DefaultClientId";
-		public const string ConfigDefaultClientSecret = "GoogleSync.DefaultClientSecret";
-		public const string ConfigUseLegacyCreds = "GoogleSync.UseLegacyAppCreds";
-		public const string ConfigVersion = "GoogleSync.ConfigVersion";
+
 		public const string ConfigTrue = "TRUE";
 		public const string ConfigFalse = "FALSE";
-		public const string EntryClientId = "GoogleSync.ClientID";
-		public const string EntryClientSecret = "GoogleSync.ClientSecret";
-		public const string EntryRefreshToken = "GoogleSync.RefreshToken";
-		public const string EntryActiveAccount = "GoogleSync.ActiveAccount";
-		public const string EntryActiveAccountTrue = EntryActiveAccount + "." + ConfigTrue;
-		public const string EntryActiveAccountFalse = EntryActiveAccount + "." + ConfigFalse;
-		public const string EntryActiveAppFolder = "GoogleSync.ActiveAppFolder";
-		public const string EntryDriveScope = ConfigDriveScope;
-		public const string EntryUseLegacyCreds = ConfigUseLegacyCreds;
-		public const string EntryVersion = ConfigVersion;
+
 		public const string AccountSearchString = "accounts.google.com";
 		public const string UrlDomainRoot = "kpsync.org";
 		public const string UrlDomain = "www." + UrlDomainRoot;
@@ -208,6 +191,8 @@ namespace KeePassSyncForDrive
 		public const string UrlGoogleDrive = "https://drive.google.com";
 		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_version_4.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
+		public const string UrlSharedFileHelp = UrlHome + "/usage/oauth#shared-file-exclusions-and-exceptions";
+		public const string UrlPersonalAppCreds = UrlHome + "/usage/oauth";
 		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Sync";

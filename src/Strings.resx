@@ -436,7 +436,7 @@ In either case, you can select another entry later to be the active plugin entry
     <value>User must authorize Google Drive access.</value>
   </data>
   <data name="Msg_UserCancelledOpFmt" xml:space="preserve">
-    <value>{0} operation cancelled by user.</value>
+    <value>Operation cancelled by user.</value>
     <comment>0="KeePass Sync for Google Drive"</comment>
   </data>
   <data name="Msg_UuidEntryInvalid" xml:space="preserve">
@@ -508,5 +508,42 @@ In either case, you can select another entry later to be the active plugin entry
   </data>
   <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
 	<value>The Drive shortcut '{1}' links to file '{0}' in the Trash. To sync with '{0}', move it out of the Trash folder.</value>
+  </data>
+  <data name="Title_SharedFileWarning" xml:space="preserve">
+	<value>WARNING: Syncing a Shared File</value>
+  </data>
+  <data name="SubTitle_SharedFileWarning" xml:space="preserve">
+	<value>{0} is shared with other Drive accounts.</value>
+  </data>
+  <data name="Msg_SharedFileWarning" xml:space="preserve">
+	<value>The target Drive file is shared with other Drive users. Synchronizing this file can allow FULL ACCESS to your Drive account to anyone with whom the file and master password are shared.
+
+Synchronizing with shared files is generally disabled. However, for legacy use, synchronization is allowed using the configured personal OAuth 2.0 app credentials, after acknowledging this warning.
+
+Click Cancel to safely abandon the operation.
+Click OK to continue at your own risk, and potentially compromise your Drive account.
+    </value>
+  </data>
+  <data name="Lnk_SharedFileHelp" xml:space="preserve">
+	<value>Shared File Risks</value>
+  </data>
+  <data name="Lbl_DontWarnAboutSharedFileAgain" xml:space="preserve">
+	<value>Remember my choice and do not show this warning again.</value>
+	<comment>Check box label</comment>
+  </data>
+  <data name="Exc_SharedFile" xml:space="preserve">
+	<value>Sync operations with Drive files shared with other Drive accounts are not allowed.</value>
+  </data>
+  <data name="Msg_SavingConfig" xml:space="preserve">
+	<value>Saving configuration changes to the database...</value>
+  </data>
+  <data name="Msg_SavingSharedFileChoice" xml:space="preserve">
+	<value>Saving your choice in the database entry...</value>
+  </data>
+  <data name="Lnk_PersonalOauth" xml:space="preserve">
+	<value>Personal App Credentials</value>
+  </data>
+  <data name="Msg_MsgBoxLinkPrompt" xml:space="preserve">
+	<value>Click 'Yes' for more information.</value>
   </data>
 </root>

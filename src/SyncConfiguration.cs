@@ -48,6 +48,18 @@ namespace KeePassSyncForDrive
         public const string Ver0 = "0.0"; // virtual version
         public const string Ver1 = "1.0";
 
+        public const string EntryClientIdKey = "GoogleSync.ClientID";
+        public const string EntryClientSecretKey = "GoogleSync.ClientSecret";
+        public const string EntryRefreshTokenKey = "GoogleSync.RefreshToken";
+        public const string EntryActiveAccountKey = "GoogleSync.ActiveAccount";
+        public const string EntryActiveAccountFalseKey = EntryActiveAccountKey + "." + GdsDefs.ConfigFalse;
+        public const string EntryActiveAccountTrueKey = EntryActiveAccountKey + "." + GdsDefs.ConfigTrue;
+        public const string EntryActiveAppFolderKey = "GoogleSync.ActiveAppFolder";
+        public const string EntryDriveScopeKey = "GoogleSync.DriveApiScope";
+        public const string EntryUseLegacyCredsKey = "GoogleSync.UseLegacyAppCreds";
+        public const string EntrySharedWarningOptionKey = "GoogleSync.SharedWarningOption";
+        public const string EntryVersionKey = "GoogleSync.ConfigVersion";
+
         protected const string CurrentVer = Ver1;
 
         public static Version CurrentVersion
@@ -76,6 +88,15 @@ namespace KeePassSyncForDrive
             }
         }
 
+        public bool IsUsingPersonalOauthCreds
+        {
+            get
+            {
+                return UseLegacyCreds &&
+                    ClientId != GdsDefs.LegacyClientId.ReadString();
+            }
+        }
+
         // KeePass string fields.
         public abstract string Title { get; }
         public abstract string User { get; }
@@ -90,6 +111,7 @@ namespace KeePassSyncForDrive
         public abstract string ActiveFolder { get; set; }
         public abstract string LegacyDriveScope { get; set; }
         public abstract bool UseLegacyCreds { get; set; }
+        public abstract SharedFileWarning.Option SharedWarning { get; set; }
         public abstract Version Version { get; }
     }
 
@@ -186,6 +208,8 @@ namespace KeePassSyncForDrive
 
         public override string LegacyDriveScope { get; set; }
 
+        public override SharedFileWarning.Option SharedWarning { get; set; }
+
         public override Version Version 
         {
             get { return m_ver; }
@@ -201,14 +225,14 @@ namespace KeePassSyncForDrive
     {
         readonly Dictionary<string, object> m_changes;
         string m_title;
-        bool m_changesCommitted;
+        DateTime m_touched;
 
         public EntryConfiguration(PwEntry entry)
         {
             Entry = entry;
             m_changes = new Dictionary<string, object>(5);
             m_title = null;
-            m_changesCommitted = false;
+            m_touched = Entry.LastModificationTime;
 
             UseLegacyKp3ClientId = IsEmptyOauthCredentials;
             ChangesCommitted = false;
@@ -243,24 +267,35 @@ namespace KeePassSyncForDrive
                 ClientId = string.Empty;
                 ClientSecret = null;
             }
-            if (IsModified)
+            if (!IsModified)
             {
+                ChangesCommitted = false;
+            }
+            else
+            {
+                // Reset the shared file warning if client ID changes.
+                if (m_changes.Select(kv => kv.Key)
+                    .Contains(EntryClientIdKey))
+                {
+                    SharedWarning = SharedFileWarning.Option.AlwaysShow;
+                }
                 foreach (KeyValuePair<string, object> kv in m_changes)
                 {
                     switch (kv.Key)
                     {
-                        case GdsDefs.EntryUseLegacyCreds:
-                        case GdsDefs.EntryActiveAccount:
-                        case GdsDefs.EntryClientId:
-                        case GdsDefs.EntryActiveAppFolder:
-                        case GdsDefs.EntryDriveScope:
-                        case GdsDefs.EntryVersion:
+                        case EntryUseLegacyCredsKey:
+                        case EntryActiveAccountKey:
+                        case EntryClientIdKey:
+                        case EntryActiveAppFolderKey:
+                        case EntryDriveScopeKey:
+                        case EntryVersionKey:
+                        case EntrySharedWarningOptionKey:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
                                 stringVal == null ? string.Empty : stringVal);
                             break;
-                        case GdsDefs.EntryClientSecret:
-                        case GdsDefs.EntryRefreshToken:
+                        case EntryClientSecretKey:
+                        case EntryRefreshTokenKey:
                             ProtectedString ps = kv.Value as ProtectedString;
                             CustomData.Set(kv.Key,
                                 ps == null ? string.Empty : ps.ReadString());
@@ -291,15 +326,16 @@ namespace KeePassSyncForDrive
 
         /// <summary>
         /// Indicates there are uncommitted changes to the OAuth 2.0-related
-        /// properties.
+        /// properties and a refresh token that doesn't match them.
         /// </summary>
-        public bool IsModifiedOauthCreds
+        public bool IsStaleRefreshToken
         {
             get
             {
-                return m_changes.Keys.Any(k => k == GdsDefs.EntryClientId ||
-                                            k == GdsDefs.EntryClientSecret ||
-                                            k == GdsDefs.EntryUseLegacyCreds);
+                return m_changes.Keys.Any(k => k == EntryClientIdKey ||
+                                        k == EntryClientSecretKey ||
+                                        k == EntryUseLegacyCredsKey) &&
+                    !RefreshToken.IsNullOrEmpty();
             }
         }
 
@@ -314,16 +350,27 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return m_changesCommitted;
+                return m_touched < Entry.LastModificationTime;
             }
             private set
             {
-                m_changesCommitted = value || m_changesCommitted;
-                if (m_changesCommitted)
+                bool prevVal = ChangesCommitted;
+                if (value)
                 {
                     Entry.Touch(true);
                 }
+                else if (!prevVal)
+                {
+                    m_touched = Entry.LastModificationTime;
+                }
             }
+        }
+
+        public bool Reset()
+        {
+            DateTime prevTouch = m_touched;
+            m_touched = Entry.LastModificationTime;
+            return prevTouch < Entry.LastModificationTime;
         }
 
         public override string LoginHint
@@ -487,12 +534,12 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                string stringVal = GetValue(GdsDefs.EntryActiveAccount, ReadSafe);
-                if (stringVal == GdsDefs.EntryActiveAccountFalse)
+                string stringVal = GetValue(EntryActiveAccountKey, ReadSafe);
+                if (stringVal == EntryActiveAccountFalseKey)
                 {
                     return false;
                 }
-                else if (stringVal == GdsDefs.EntryActiveAccountTrue)
+                else if (stringVal == EntryActiveAccountTrueKey)
                 {
                     return true;
                 }
@@ -502,15 +549,15 @@ namespace KeePassSyncForDrive
             {
                 if (!value.HasValue)
                 {
-                    SetValue(GdsDefs.EntryActiveAccount, (string)null);
+                    SetValue(EntryActiveAccountKey, (string)null);
                 }
                 else if (value.Value)
                 {
-                    SetValue(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
+                    SetValue(EntryActiveAccountKey, EntryActiveAccountTrueKey);
                 }
                 else // !value.Value
                 {
-                    SetValue(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountFalse);
+                    SetValue(EntryActiveAccountKey, EntryActiveAccountFalseKey);
                 }
             }
         }
@@ -519,11 +566,11 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return GetValue(GdsDefs.EntryClientId, ReadSafe);
+                return GetValue(EntryClientIdKey, ReadSafe);
             }
             set
             {
-                SetValue(GdsDefs.EntryClientId, value);
+                SetValue(EntryClientIdKey, value);
             }
         }
 
@@ -533,11 +580,11 @@ namespace KeePassSyncForDrive
             {
                 // Use GetSafe so this property can be bound to
                 // SecureTextBoxEx.TextEx.
-                return GetValue(GdsDefs.EntryClientSecret, GetSafe);
+                return GetValue(EntryClientSecretKey, GetSafe);
             }
             set
             {
-                SetValue(GdsDefs.EntryClientSecret, value);
+                SetValue(EntryClientSecretKey, value);
             }
         }
 
@@ -547,11 +594,11 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return GetValue(GdsDefs.EntryRefreshToken, Get);
+                return GetValue(EntryRefreshTokenKey, Get);
             }
             set
             {
-                SetValue(GdsDefs.EntryRefreshToken, value);
+                SetValue(EntryRefreshTokenKey, value);
             }
         }
 
@@ -559,11 +606,11 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return GetValue(GdsDefs.EntryActiveAppFolder, ReadSafe);
+                return GetValue(EntryActiveAppFolderKey, ReadSafe);
             }
             set
             {
-                SetValue(GdsDefs.EntryActiveAppFolder, value);
+                SetValue(EntryActiveAppFolderKey, value);
             }
         }
 
@@ -571,11 +618,11 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return GetValue(GdsDefs.EntryDriveScope, ReadSafe);
+                return GetValue(EntryDriveScopeKey, ReadSafe);
             }
             set
             {
-                SetValue(GdsDefs.EntryDriveScope, value);
+                SetValue(EntryDriveScopeKey, value);
             }
         }
 
@@ -599,12 +646,28 @@ namespace KeePassSyncForDrive
             get
             {
                 return GdsDefs.ConfigTrue ==
-                    GetValue(GdsDefs.EntryUseLegacyCreds, ReadSafe);
+                    GetValue(EntryUseLegacyCredsKey, ReadSafe);
             }
             set
             {
-                SetValue(GdsDefs.EntryUseLegacyCreds,
+                SetValue(EntryUseLegacyCredsKey,
                     value ? GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            }
+        }
+
+        public override SharedFileWarning.Option SharedWarning
+        {
+            get
+            {
+                string strVal = GetValue(EntrySharedWarningOptionKey,
+                                            ReadSafe);
+                return SharedFileWarning.OptionFromString(strVal);
+            }
+
+            set
+            {
+                SetValue(EntrySharedWarningOptionKey,
+                    SharedFileWarning.StringFromOption(value));
             }
         }
 
@@ -612,7 +675,7 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                string strVer = GetValue(GdsDefs.EntryVersion, ReadSafe);
+                string strVer = GetValue(EntryVersionKey, ReadSafe);
                 Version retVal;
                 if (!Version.TryParse(strVer, out retVal))
                 {
@@ -633,7 +696,7 @@ namespace KeePassSyncForDrive
             // particular version level are present.
             if (Version < new Version(Ver1))
             {
-                SetValue(GdsDefs.EntryVersion, Ver1);
+                SetValue(EntryVersionKey, Ver1);
             }
         }
     }

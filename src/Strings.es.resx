@@ -435,7 +435,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Autorización de sincronización</value>
   </data>
   <data name="Msg_UserCancelledOpFmt" xml:space="preserve">
-    <value>Se canceló la operación {0}.</value>
+    <value>Se canceló la operación.</value>
     <comment>0="Google Sync Plugin"</comment>
   </data>
   <data name="Lbl_DefaultClientID" xml:space="preserve">
@@ -503,5 +503,42 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
   </data>
   <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
 	<value>El acceso directo de Drive '{1}' se vincula al archivo '{0}' en la Papelera. Para sincronizar con '{0}', sáquelo de la carpeta Papelera.</value>
+  </data>
+  <data name="Title_SharedFileWarning" xml:space="preserve">
+	<value>ADVERTENCIA: Sincronizar un archivo compartido</value>
+  </data>
+  <data name="SubTitle_SharedFileWarning" xml:space="preserve">
+	<value>{0} se comparte con otras cuentas de Drive.</value>
+  </data>
+  <data name="Msg_SharedFileWarning" xml:space="preserve">
+	<value>El archivo de Drive de destino se comparte con otros usuarios de Drive. La sincronización de este archivo puede permitir el ACCESO COMPLETO a su cuenta de Drive a cualquier persona con quien se comparta el archivo y la contraseña maestra.
+
+La sincronización con archivos compartidos generalmente está deshabilitada. Sin embargo, para el uso heredado, se permite la sincronización mediante las credenciales de la aplicación OAuth 2.0 personal configurada, después de reconocer esta advertencia.
+
+Haga clic en Cancelar para abandonar la operación de forma segura.
+Haga clic en Aceptar para continuar bajo su propio riesgo y potencialmente poner en peligro su cuenta de Drive.
+    </value>
+  </data>
+  <data name="Lnk_SharedFileHelp" xml:space="preserve">
+	<value>Riesgos de archivos compartidos</value>
+  </data>
+  <data name="Lbl_DontWarnAboutSharedFileAgain" xml:space="preserve">
+	<value>Recuerde mi elección y no vuelva a mostrar esta advertencia.</value>
+	<comment>Check box label</comment>
+  </data>
+  <data name="Exc_SharedFile" xml:space="preserve">
+	<value>No se permiten las operaciones de sincronización con archivos de Drive compartidos con otras cuentas de Drive.</value>
+  </data>
+  <data name="Msg_SavingConfig" xml:space="preserve">
+	<value>Guardando cambios de configuración en la base de datos ...</value>
+  </data>
+  <data name="Msg_SavingSharedFileChoice" xml:space="preserve">
+	<value>Guardando su elección en la entrada de la base de datos ...</value>
+  </data>
+  <data name="Lnk_PersonalOauth" xml:space="preserve">
+	<value>Credenciales de aplicaciones personales</value>
+  </data>
+  <data name="Msg_MsgBoxLinkPrompt" xml:space="preserve">
+	<value>Haga clic en "Sí" para obtener más información.</value>
   </data>
 </root>

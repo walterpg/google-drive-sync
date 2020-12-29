@@ -23,9 +23,12 @@
 using Google.Apis.Drive.v3;
 using KeePass.Plugins;
 using KeePassLib.Security;
-using KeePassSyncForDrive;
+using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Text;
 
 namespace KeePassSyncForDrive
 {
@@ -52,6 +55,76 @@ namespace KeePassSyncForDrive
 
 		const string CurrentVer = Ver1;
 
+		const string ConfigAutoSyncKey = "GoogleSync.AutoSync";
+		const string ConfigEnabledCmdsKey = "GoogleSync.EnabledCmds";
+		const string ConfigDefaultAppFolderKey = "GoogleSync.DefaultAppFolder";
+		const string ConfigDriveScopeKey = "GoogleSync.DriveApiScope";
+		const string ConfigDefaultClientIdKey = "GoogleSync.DefaultClientId";
+		const string ConfigDefaultClientSecretKey = "GoogleSync.DefaultClientSecret";
+		const string ConfigVersionKey = "GoogleSync.ConfigVersion";
+		const string ConfigPluginKey = "Plugin.KeePassSyncForDrive";
+
+		class ProtectedStringConverter : JsonConverter<ProtectedString>
+        {
+            public override ProtectedString ReadJson(JsonReader reader,
+				Type objectType, ProtectedString existingValue,
+				bool hasExistingValue, JsonSerializer serializer)
+            {
+				string stringVal = reader.Value as string;
+				return !string.IsNullOrEmpty(stringVal) ?
+					new ProtectedString(true, stringVal) : null;
+			}
+
+            public override void WriteJson(JsonWriter writer,
+				ProtectedString value, JsonSerializer serializer)
+            {
+				if (value == null || value == GdsDefs.PsEmptyEx)
+				{
+					writer.WriteNull();
+				}
+				else
+				{
+					writer.WriteValue(value.ReadString());
+				}
+			}
+		}
+
+		class ColorConverter : JsonConverter<GoogleColor>
+		{
+			public override GoogleColor ReadJson(JsonReader reader,
+				Type objectType, GoogleColor existingValue,
+				bool hasExistingValue, JsonSerializer serializer)
+			{
+				string colorStr = reader.Value as string;
+				if (string.IsNullOrEmpty(colorStr))
+                {
+					return null;
+                }
+				int iName = colorStr.IndexOf(',');
+				int argb;
+				if (iName == -1 || iName+1 == colorStr.Length ||
+					!int.TryParse(colorStr.Substring(0,iName), out argb))
+                {
+					return null;
+                }
+				System.Drawing.Color color
+					= System.Drawing.Color.FromArgb(argb);
+				string colorName = colorStr.Substring(iName + 1);
+				return new GoogleColor(color, colorName);
+			}
+
+			public override void WriteJson(JsonWriter writer,
+				GoogleColor value, JsonSerializer serializer)
+			{
+				Debug.Assert(value != null);
+				StringBuilder sb = new StringBuilder();
+				sb.Append(value.Color.ToArgb());
+				sb.Append(',');
+				sb.Append(value.Name);
+				writer.WriteValue(sb.ToString());
+			}
+		}
+
 		static PluginConfig()
 		{
 			Default = new PluginConfig();
@@ -71,6 +144,7 @@ namespace KeePassSyncForDrive
 		ProtectedString m_defaultClientSecret;
 		bool m_useLegacyCreds;
 		bool m_isDirty;
+		string m_ver;
 
 		PluginConfig()
 		{
@@ -83,6 +157,7 @@ namespace KeePassSyncForDrive
 			m_defaultClientSecret = GdsDefs.PsEmptyEx;
 			m_useLegacyCreds = false;
 			m_isDirty = true;
+			m_ver = null;
 		}
 
 		public bool IsCmdEnabled(SyncCommands cmd)
@@ -132,9 +207,10 @@ namespace KeePassSyncForDrive
 			get { return m_enabledCmds; }
 			set
 			{
-				if (m_enabledCmds != value)
+				SyncCommands normalized = value & SyncCommands.All;
+				if (m_enabledCmds != normalized)
 				{
-					m_enabledCmds = value;
+					m_enabledCmds = normalized;
 					m_isDirty = true;
 				}
 			}
@@ -154,6 +230,7 @@ namespace KeePassSyncForDrive
 			}
 		}
 
+		[JsonConverter(typeof(ColorConverter))]
 		public GoogleColor FolderColor
 		{
 			get { return m_defaultFolderColor; }
@@ -207,6 +284,7 @@ namespace KeePassSyncForDrive
 			}
 		}
 
+		[JsonConverter(typeof(ProtectedStringConverter))]
 		public ProtectedString PersonalClientSecret
 		{
 			get { return m_defaultClientSecret; }
@@ -243,48 +321,101 @@ namespace KeePassSyncForDrive
 			}
 		}
 
-		public static Version GetVersion(IPluginHost host)
+		public string ConfigVersion
 		{
-			string verString = host.GetConfig(GdsDefs.ConfigVersion, Ver0);
-			Version userVersion;
-			if (!Version.TryParse(verString, out userVersion))
-			{
-				userVersion = new Version(Ver0);
-			}
-			return userVersion;
+			get
+            {
+				return m_ver;
+            }
+			set
+            {
+				if (m_ver != value)
+                {
+					m_ver = value;
+					m_isDirty = true;
+                }
+            }
 		}
 
 		public void UpdateConfig(IPluginHost host)
 		{
-			if (!m_isDirty)
+			if (!m_isDirty && ConfigVersion == CurrentVer)
 			{
 				return;
 			}
-			host.SetConfig(GdsDefs.ConfigEnabledCmds,
-				((int)m_enabledCmds).ToString(NumberFormatInfo.InvariantInfo));
-			host.SetConfig(GdsDefs.ConfigAutoSync, m_autoSync.ToString());
-			host.SetConfig(GdsDefs.ConfigDefaultAppFolder, m_defaultFolder);
-			host.SetConfig(GdsDefs.ConfigDefaultAppFolderColor,
-				m_defaultFolderColor == null ? null :
-				GoogleColor.SerializeToString(m_defaultFolderColor));
-			host.SetConfig(GdsDefs.ConfigDriveScope, m_defaultDriveScope);
-			host.SetConfig(GdsDefs.ConfigDefaultClientId, m_defaultClientId);
-			host.SetConfig(GdsDefs.ConfigDefaultClientSecret,
-				m_defaultClientSecret == null ? string.Empty :
-				m_defaultClientSecret.ReadString());
-			host.SetConfig(GdsDefs.EntryUseLegacyCreds, m_useLegacyCreds ?
-				GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
 
-			// Only set CurrentVer if all properties are proper at that level.
-			host.SetConfig(GdsDefs.ConfigVersion, CurrentVer);
+			// No config updates from Ver0 to Ver1
+			ConfigVersion = CurrentVer;
+
+			JsonSerializerSettings serSettings = new JsonSerializerSettings()
+			{
+				//Formatting = Formatting.Indented
+			};
+			JsonSerializer ser = JsonSerializer.CreateDefault(serSettings);
+			StringWriter sw = new StringWriter();
+			using (sw)
+			{
+				ser.Serialize(sw, this);
+				host.SetConfig(ConfigPluginKey, sw.ToString());
+			}
+			Debug.Assert(!host.MainWindow.InvokeRequired);
+			host.MainWindow.SaveConfig();
+
 			m_isDirty = false;
 		}
 
 		public static PluginConfig InitDefault(IPluginHost host)
 		{
+			PluginConfig update;
+
+			string json = host.GetConfig(ConfigPluginKey);
+			if (string.IsNullOrEmpty(json) || 
+				InitFromJson(json, out update) == null)
+            {
+				update = InitLegacyDefault(host);
+
+				// Force update to new config.
+				update.m_isDirty = true;
+            }
+
+			update.UpdateConfig(host);
+			Default = update;
+			return Default;
+		}
+
+		static PluginConfig InitFromJson(string json, out PluginConfig update)
+        {
+			update = null;
+			JsonSerializerSettings serSettings = new JsonSerializerSettings()
+			{
+			};
+			JsonSerializer ser = JsonSerializer.CreateDefault(serSettings);
+			StringReader sr = new StringReader(json);
+			using (sr)
+            {
+				update = ser.Deserialize(sr, typeof(PluginConfig))
+								as PluginConfig;
+				if (update != null)
+                {
+					update.m_isDirty = false;
+				}
+			}
+			return update;
+        }
+
+		static PluginConfig InitLegacyDefault(IPluginHost host)
+		{
 			PluginConfig update = new PluginConfig();
 
-			string cmds = host.GetConfig(GdsDefs.ConfigEnabledCmds,
+			string verString = host.GetConfig(ConfigVersionKey, Ver0);
+			Version configVersion;
+			if (!Version.TryParse(verString, out configVersion))
+			{
+				configVersion = new Version(Ver0);
+				update.ConfigVersion = Ver0;
+			}
+
+			string cmds = host.GetConfig(ConfigEnabledCmdsKey,
 				((int)SyncCommands.All).ToString(
 					NumberFormatInfo.InvariantInfo));
 			int cmdsAsInt;
@@ -295,13 +426,13 @@ namespace KeePassSyncForDrive
 			}
 			update.EnabledCommands = (SyncCommands)cmdsAsInt;
 
-			string syncOption = host.GetConfig(GdsDefs.ConfigAutoSync,
-											AutoSyncMode.DISABLED.ToString());
+			string syncOption = host.GetConfig(ConfigAutoSyncKey,
+										AutoSyncMode.DISABLED.ToString());
 			AutoSyncMode mode;
 			if (!Enum.TryParse(syncOption, out mode))
 			{
 				// Support obsolete Sync on Save confg.
-				if (host.GetConfig(GdsDefs.ConfigAutoSync, false))
+				if (host.GetConfig(ConfigAutoSyncKey, false))
 				{
 					mode = AutoSyncMode.SAVE;
 				}
@@ -312,37 +443,29 @@ namespace KeePassSyncForDrive
 			}
 			update.AutoSync = mode;
 
-			update.Folder = host.GetConfig(GdsDefs.ConfigDefaultAppFolder,
-												string.Empty);
-			string encodedColor = host.GetConfig(
-				GdsDefs.ConfigDefaultAppFolderColor);
-			update.FolderColor = !string.IsNullOrEmpty(encodedColor) ?
-				GoogleColor.DeserializeFromString(encodedColor) : null;
+			update.Folder = host.GetConfig(ConfigDefaultAppFolderKey,
+											string.Empty);
+			update.FolderColor = null;
 
-			update.LegacyDriveScope = host.GetConfig(GdsDefs.ConfigDriveScope,
+			update.LegacyDriveScope
+				= host.GetConfig(ConfigDriveScopeKey,
 									DriveService.Scope.Drive);
 
 			// Default is no OAuth 2.0 credentials.
-			update.PersonalClientId = host.GetConfig(GdsDefs.ConfigDefaultClientId,
-												string.Empty);
-			string secretVal = host.GetConfig(GdsDefs.ConfigDefaultClientSecret,
-												string.Empty);
-			update.PersonalClientSecret = new ProtectedString(true, secretVal);
+			update.PersonalClientId
+				= host.GetConfig(ConfigDefaultClientIdKey, string.Empty);
+			string secretVal
+				= host.GetConfig(ConfigDefaultClientSecretKey, string.Empty);
+			update.PersonalClientSecret
+				= string.IsNullOrEmpty(update.PersonalClientId) ?
+					null : new ProtectedString(true, secretVal);
 
-			// Config version updates to occur up front.
-			if (GetVersion(host) < new Version(Ver1))
-			{
-				// Update the config with the new default "use new app creds".
-				update.m_isDirty = true;
-			}
-			else
-			{
-				update.m_isDirty = false;
-			}
+			// Legacy default is use legacy creds.
+			update.UseLegacyAppCredentials
+				= host.GetConfig(SyncConfiguration.EntryUseLegacyCredsKey,
+					update.ConfigVersion == Ver0);
 
-			update.UpdateConfig(host);
-			Default = update;
-			return Default;
+			return update;
 		}
 	}
 }

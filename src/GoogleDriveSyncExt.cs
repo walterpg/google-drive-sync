@@ -69,7 +69,7 @@ namespace KeePassSyncForDrive
 	}
 
 	[Flags]
-    enum SyncCommands : int
+    public enum SyncCommands : int
 	{
 		DOWNLOAD = 1,
 		SYNC = 2,
@@ -273,11 +273,13 @@ namespace KeePassSyncForDrive
 		{
 			if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
 			{
-				ShowMessage(Resources.GetString("Msg_AutoSyncIgnore"), true);
+				m_host.ShowStatusMessage(
+					Resources.GetString("Msg_AutoSyncIgnore"));
 			}
 			else if (LoadConfiguration() == null)
 			{
-				ShowMessage(Resources.GetString("Msg_NoAutoSyncConfig"), true);
+				m_host.ShowStatusMessage(
+					Resources.GetString("Msg_NoAutoSyncConfig"));
 			}
 			else
 			{
@@ -326,7 +328,8 @@ namespace KeePassSyncForDrive
 		{
 			if (!m_host.Database.IsOpen)
 			{
-				ShowMessage(Resources.GetString("Msg_FirstOpenDb"));
+				m_host.ShowDlgMessage(
+					Resources.GetString("Msg_FirstOpenDb"));
 			}
 			else
 			{
@@ -366,40 +369,44 @@ namespace KeePassSyncForDrive
 					break;
 				case "user_cancelled":
 					msg = Resources.GetFormat("Msg_UserCancelledOpFmt", GdsDefs.ProductName);
-					ShowMessage(msg, true);
+					m_host.ShowStatusMessage(msg);
 					return;
 				default:
 					msg = ex.Message;
 					break;
 			}
-			ShowMessage(msg);
+			m_host.ShowDlgMessage(msg);
 		}
 
-		private void SaveDatabase()
+		internal static void SaveDatabase(IPluginHost host, object sender,
+			string saveMessage = null)
 		{
-			if (!m_host.Database.Modified)
+			if (!host.Database.Modified)
 			{
 				return;
 			}
 
-			MainForm window = m_host.MainWindow;
+			MainForm window = host.MainWindow;
 			if (window.InvokeRequired)
 			{
-				window.Invoke(new MethodInvoker(() => SaveDatabase()));
+				window.Invoke(new MethodInvoker(
+					() => SaveDatabase(host, sender, saveMessage)));
 				return;
 			}
-			ShowWarningsLogger logger = window.CreateShowWarningsLogger();
-			string status = Resources.GetString("Msg_SavingDatabase");
+
+			string status = saveMessage;
+			if (string.IsNullOrEmpty(saveMessage))
+			{
+				status = Resources.GetString("Msg_SavingDatabase");
+			}
+
 			try
 			{
-				logger.StartLogging(status, true);
-				m_host.Database.Save(logger);
+				host.MainWindow.SaveDatabase(null, sender);
 			}
 			finally
 			{
 				status = Resources.GetString("Msg_DatabaseSaved");
-				logger.SetText(status, LogStatusType.Info);
-				logger.EndLogging();
 			}
 		}
 
@@ -409,7 +416,7 @@ namespace KeePassSyncForDrive
 		/// current configuration.
 		/// </summary>
 		public async Task<string> ConfigAndUseDriveService(
-						Func<DriveService, string, Task<string>> use)
+						Func<DriveService, SyncConfiguration, Task<string>> use)
 		{
 			if (!m_host.Database.IsOpen)
 			{
@@ -444,7 +451,7 @@ namespace KeePassSyncForDrive
 				// different than the granted token, save it to the
 				// database entry.
 				string status2 = Resources.GetString("Msg_SaveUserAuth");
-				ShowMessage(status2, true);
+				m_host.ShowStatusMessage(status2);
 
 
 				// Traditionally, the plugin's indicator for "use default 
@@ -467,7 +474,7 @@ namespace KeePassSyncForDrive
 		}
 
 		public async Task<string> UseDriveService(SyncConfiguration authData,
-						Func<DriveService, string, Task<string>> use)
+						Func<DriveService, SyncConfiguration, Task<string>> use)
 		{
 			string status;
 			try
@@ -487,7 +494,7 @@ namespace KeePassSyncForDrive
 					ApplicationName = GdsDefs.ProductName,
 					HttpClientFactory = new ProxyHttpClientFactory()
 				});
-				status = await use(service, authData.ActiveFolder);
+				status = await use(service, authData);
 			}
 			catch (TokenResponseException ex)
 			{
@@ -506,17 +513,29 @@ namespace KeePassSyncForDrive
 					}
 					else
 					{
-						ShowMessage(inner.Message);
+						HandleUseDriveServiceException(inner);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				status = "ERROR";
-				ShowMessage(ex.Message);
+				status = HandleUseDriveServiceException(ex);
 			}
 			return status;
 		}
+
+		string HandleUseDriveServiceException(Exception e)
+        {
+			SharedFileException sfe = e as SharedFileException;
+			if (null != sfe)
+            {
+				m_host.ShowDlgMessage(sfe.Message, new Uri(sfe.Link));
+				return sfe.Message;
+            }
+
+			m_host.ShowDlgMessage(e.Message);
+			return "ERROR";
+        }
 
 		/// <summary>
 		/// Configure if necessary, then execute synchronization of the current
@@ -542,17 +561,18 @@ namespace KeePassSyncForDrive
 		private async Task ConfigAndSyncUnsafe(SyncCommands sync, bool autoSync)
 		{
 			string status = Resources.GetString("Msg_PleaseWaitEllipsis");
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
-			status = await ConfigAndUseDriveService(async (service, targetFolder) =>
+			status = await ConfigAndUseDriveService(async (service, config) =>
 			{
 				string filePath = m_host.Database.IOConnectionInfo.Path;
 				string fileName = Path.GetFileName(filePath);
 				string contentType = "application/x-keepass2";
 				status = null;
 
-				List<Folder> folders = await GetFolders(service, targetFolder);
-				GDriveFile file = await GetFile(service, folders, fileName);
+				List<Folder> folders = await GetFolders(service, config.ActiveFolder);
+				GDriveFile file = await GetFile(service, folders, fileName, 
+											config);
 				if (file == null)
 				{
 					if (sync == SyncCommands.DOWNLOAD)
@@ -563,7 +583,7 @@ namespace KeePassSyncForDrive
 					{
 						if (!autoSync)
 						{
-							SaveDatabase();
+							SaveDatabase(m_host, this);
 						}
 						GDriveFile folder = null;
 						if (folders != null && folders.Any())
@@ -588,10 +608,10 @@ namespace KeePassSyncForDrive
 					{
 						if (!autoSync)
 						{
-							SaveDatabase();
+							SaveDatabase(m_host, this);
 						}
 						status = Resources.GetFormat("Msg_ReplaceFileFmt", file.Name);
-						ShowMessage(status, true);
+						m_host.ShowStatusMessage(status);
 						status = await UpdateFile(service, file,
 							filePath, contentType, ContentHints);
 					}
@@ -608,7 +628,7 @@ namespace KeePassSyncForDrive
 							{
 								string syncStatus = SyncFromThenDeleteFile(fileCopy);
 								status = Resources.GetString("Msg_UploadingSync");
-								ShowMessage(status, true);
+								m_host.ShowStatusMessage(status);
 								status = String.Format("{0} {1}", syncStatus,
 									await UpdateFile(service, file, filePath,
 													contentType, ContentHints));
@@ -627,7 +647,7 @@ namespace KeePassSyncForDrive
 			if (!string.IsNullOrEmpty(status))// &&
 				//status != "ERROR")
 			{
-				ShowMessage(status, true);
+				m_host.ShowStatusMessage(status);
 			}
 		}
 
@@ -649,7 +669,7 @@ namespace KeePassSyncForDrive
 			}
 
 			string status = Resources.GetFormat("Msg_DownloadFileFmt", file.Name);
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			FilesResource.GetRequest request = service.Files.Get(file.Id);
 			request.MediaDownloader.ProgressChanged += DownloadProgressChanged;
@@ -669,7 +689,7 @@ namespace KeePassSyncForDrive
 						status = string.Format("Download not completed: {0}",
 							progress.Exception == null ? "Unknown error." :
 							progress.Exception.Message);
-						ShowMessage(status, true);
+						m_host.ShowStatusMessage(status);
 						if (progress.Exception != null)
                         {
 							status = string.Format("Exception occurred " +
@@ -738,7 +758,7 @@ namespace KeePassSyncForDrive
 			
 			FolderName links = FolderName.GetFolderNameLinks(folderPath);
 			List<Folder> folders = await links.ResolveLeafFolders(service,
-				status => ShowMessage(status, true));
+				status => m_host.ShowStatusMessage(status));
 			if (folders.Any())
 			{
 				return folders;
@@ -761,8 +781,8 @@ namespace KeePassSyncForDrive
 
 			// Create the app folder within our scope.
 			Folder newLeaf = await endLink.CreateNewFolderPathFrom(
-									createRoot, service,
-									status => ShowMessage(status, true));
+								createRoot, service,
+								status => m_host.ShowStatusMessage(status));
 			return new List<Folder>(new[] { newLeaf });
 		}
 
@@ -776,10 +796,10 @@ namespace KeePassSyncForDrive
 		/// file</param>
 		/// <returns>Return Google File</returns>
 		private async Task<GDriveFile> GetFile(DriveService service,
-			List<Folder> folders, string fileName)
+			List<Folder> folders, string fileName, SyncConfiguration config)
 		{
 			string status = Resources.GetFormat("Msg_RetrievingGDriveFileFmt", fileName);
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			FilesResource.ListRequest req = service.Files.List();
 			StringBuilder sb = new StringBuilder()
@@ -808,7 +828,7 @@ namespace KeePassSyncForDrive
 			}
 			sb.Append("trashed=false");
 			req.Q = sb.ToString();
-			req.Fields = "files(id,name,mimeType,shortcutDetails/targetId)";
+			req.Fields = "files(id,name,mimeType,shortcutDetails/targetId,shared)";
 
 			FileList filesObj = await req.ExecuteAsync();
 
@@ -839,7 +859,22 @@ namespace KeePassSyncForDrive
 				status = Resources.GetFormat(fmtName, fileName, targetFolder);
 				throw new PluginException(status);
 			}
-			return await ResolveShortcut(service, files.First());
+			GDriveFile file = await ResolveShortcut(service, files.First());
+			Debug.Assert(file == null || file.Shared.HasValue,
+				"req.Fields 'shared property' not observed");
+			if (file != null && file.Shared.HasValue && file.Shared.Value &&
+				(!config.IsUsingPersonalOauthCreds ||
+					DialogResult.Cancel == 
+						SharedFileWarning.ShowIfNeeded(m_host, fileName,
+														config)))
+            {
+				// The file is a shared file or it's shared-ness cannot
+				// be determined.
+				throw !config.IsUsingPersonalOauthCreds ?
+					new SharedFileException() :
+					new PluginException(Resources.GetString("Exc_SharedFile"));
+			}
+			return file;
 		}
 
 		/// <summary>
@@ -876,12 +911,12 @@ namespace KeePassSyncForDrive
 
 				status = Resources.GetFormat("Msg_RetrievingGDriveShortcutFmt",
 					shortcutName, driveObject.ShortcutDetails.TargetId);
-				ShowMessage(status, true);
+				m_host.ShowStatusMessage(status);
 
 				FilesResource.GetRequest listReq
 					= service.Files.Get(driveObject.ShortcutDetails.TargetId);
 				listReq.Fields = "id,name,trashed,mimeType," +
-					"shortcutDetails/targetId";
+					"shortcutDetails/targetId,shared";
 				try
 				{
 					driveObject = await listReq.ExecuteAsync();
@@ -928,7 +963,7 @@ namespace KeePassSyncForDrive
             }
 
 			status = Resources.GetString("Msg_Synchronizing");
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			IOConnectionInfo connection =
 				IOConnectionInfo.FromPath(tempFilePath);
@@ -1016,7 +1051,7 @@ namespace KeePassSyncForDrive
             }
 
 			string message = Resources.GetFormat("Msg_UploadingFileFmt", temp.Name);
-			ShowMessage(message, true);
+			m_host.ShowStatusMessage(message);
 
 			GDriveFile file = await UploadFileImpl(
 				s => service.Files.Create(temp, s, contentType),
@@ -1092,13 +1127,13 @@ namespace KeePassSyncForDrive
 			string tempFilePath = currentFilePath + GdsDefs.GsyncBackupExt;
 
 			string status = Resources.GetString("Msg_TempClose");
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			KeePassLib.Keys.CompositeKey pwKey = m_host.Database.MasterKey;
 			m_host.Database.Close();
 
 			status = Resources.GetString("Msg_ReplacingFile");
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			string returnStatus = await Task.Run(() =>
 			{
@@ -1118,7 +1153,7 @@ namespace KeePassSyncForDrive
 			});
 
 			status = Resources.GetString("Msg_ReopenDatabase");
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			try
 			{
@@ -1217,7 +1252,7 @@ namespace KeePassSyncForDrive
 			{
 				// Try using an existing Refresh Token to get a new Access Token
 				status = Resources.GetString("Msg_RefreshTokenAuth");
-				host.ShowMessage(status, true);
+				host.ShowStatusMessage(status);
 
 				try
 				{
@@ -1253,7 +1288,7 @@ namespace KeePassSyncForDrive
 				// authorize the access to Drive.
 
 				status = Resources.GetString("Msg_UserAuth");
-				host.ShowMessage(status, true);
+				host.ShowStatusMessage(status);
 
 				credential = await authCode.AuthorizeAsync("user",
 												CancellationToken.None);
@@ -1281,25 +1316,44 @@ namespace KeePassSyncForDrive
 			}
 
 			List<EntryConfiguration> accounts = new List<EntryConfiguration>();
-			PwUuid recycler = m_host.Database.RecycleBinUuid;
+
 			m_host.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder,
-				null,
-				e =>
-				{
-					if (e.ParentGroup.Uuid.Equals(recycler))
-					{
-						// Ignore anything in the recycle bin.
-						return true;
-					}
-					EntryConfiguration entry = new EntryConfiguration(e);
-					if (entry.ActiveAccount.GetValueOrDefault(false))
-					{
-						accounts.Add(entry);
-					}
-					return true;
-				});
+				null, e => InsertActiveEntryHandler(accounts, e));
+
 			return accounts;
 		}
+
+		private bool InsertActiveEntryHandler(List<EntryConfiguration> accts,
+			PwEntry e)
+        {
+			PwUuid recycler = m_host.Database.RecycleBinUuid;
+			if (e.ParentGroup.Uuid.Equals(recycler))
+			{
+				// Ignore anything in the recycle bin.
+				return true;
+			}
+			EntryConfiguration entry = new EntryConfiguration(e);
+			if (entry.ActiveAccount.GetValueOrDefault(false))
+			{
+				// There should only be one active account.  Any extras
+				// have been introduced externally (e.g., Duplicate
+				// Entry command, merge, etc.). Insert-sort to return
+				// active accounts in the order of decreasing
+				// modification time span.
+				int i = accts.Select(c => c.Entry)
+					.TakeWhile(f =>
+					{
+						return (f.LastModificationTime ==
+							e.LastModificationTime &&
+							f.CreationTime < e.CreationTime) ||
+								f.LastModificationTime
+									< e.LastModificationTime;
+					})
+					.Count();
+				accts.Insert(i, entry);
+			}
+			return true;
+        }
 
 		// Tile over the main forms when StartPosition == Manual.
 		internal static DialogResult ShowModalDialogAndDestroy(Form f)
@@ -1361,7 +1415,7 @@ namespace KeePassSyncForDrive
 			int[] palette = new int[0];
 
 			string status;
-			status = await UseDriveService(authData, async (service, appfolder) =>
+			status = await UseDriveService(authData, async (service, config) =>
 			{
 				AboutResource aboutResource = new AboutResource(service);
 				AboutResource.GetRequest req = aboutResource.Get();
@@ -1374,7 +1428,7 @@ namespace KeePassSyncForDrive
 				return Resources.GetString("Msg_FolderColorsRetrieved");
 			});
 
-			ShowMessage(status, true);
+			m_host.ShowStatusMessage(status);
 
 			if (originalAuthData != null &&
 				(authData.RefreshToken == null || originalAuthData.RefreshToken == null ||
@@ -1531,7 +1585,7 @@ namespace KeePassSyncForDrive
 
 				// Update the chosen config entry.
 				entryConfig = options.SelectedAccountShadow;
-				if (entryConfig.IsModifiedOauthCreds)
+				if (entryConfig.IsStaleRefreshToken)
 				{
 					// When user changes credentials, the refresh token must be
 					// reset.
@@ -1692,37 +1746,22 @@ namespace KeePassSyncForDrive
 				return false;
 			}
 
-			IList<EntryConfiguration> accounts = FindActiveAccounts();
+			IEnumerable<EntryConfiguration> accounts = FindActiveAccounts();
 			EntryConfiguration currentConfig = accounts.FirstOrDefault(e =>
 				entryConfig.Entry.Uuid.Equals(e.Entry.Uuid));
-			if (accounts.Count > 0)
+			if (accounts.Any() && currentConfig != null)
 			{
-				if (currentConfig != null)
-				{
-					entryConfig = currentConfig;
-				}
-				else
-				{
-					// The active config entry was lost, certainly due to a
-					// "download" op.  Save a copy and make it active.
-
-					// $$CONSIDER: The user might want to know about this
-					// condition, and have the option of saving the lost
-					// entry or not...
-					PwEntry newEntry = entryConfig.Entry.CloneDeep();
-					newEntry.Uuid = new PwUuid(bCreateNew: true);
-					newEntry = PluginEntryFactory.Import(m_host,
-						new PluginEntryFactory(newEntry));
-					entryConfig = new EntryConfiguration(newEntry);
-				}
+				// entryConfig will replaces currentConfig, so take it
+				// out of list of accounts to "disable" below.
+				accounts = accounts.Except(new[] { currentConfig });
 			}
 
 			// Disable any previously active accounts.
 			foreach (EntryConfiguration entry in accounts.Where(e =>
-						e != entryConfig &&
-						e.ActiveAccount.GetValueOrDefault(false)))
+						e != entryConfig))
 			{
 				entry.ActiveAccount = null;
+				entry.SharedWarning = SharedFileWarning.Option.AlwaysShow;
 				entry.CommitChangesIfAny();
 				m_host.Database.Modified = entry.ChangesCommitted;
 			}
@@ -1733,7 +1772,8 @@ namespace KeePassSyncForDrive
 			m_host.Database.Modified = entryConfig.ChangesCommitted ||
 											m_host.Database.Modified;
 
-			SaveDatabase();
+			SaveDatabase(m_host, Resources.GetString("Msg_SavingConfig"));
+			entryConfig.Reset();
 
 			if (m_host.GetConfig(GdsDefs.ConfigUUID) != null)
 			{
@@ -1743,11 +1783,6 @@ namespace KeePassSyncForDrive
 			}
 
 			return true;
-		}
-
-		private void ShowMessage(string msg, bool isStatusMessage = false)
-		{
-			m_host.ShowMessage(msg, isStatusMessage);
 		}
 	}
 

@@ -35,11 +35,11 @@ namespace KeePassSyncForDrive
         /// </summary>
         /// <param name="use">Delegate is passed two parameters:
         /// DriveService: The authorized Google Drive API service object.
-        /// string: The name of target folder for sync activity, if any.
+        /// SyncConfiguration: The user's configuration for the current op.
         /// The delegate returns a final, localized status message, or null.</param>
         /// <returns>Error status string or null.</returns>
         Task<string> ConfigAndUseDriveService(
-            Func<DriveService, string, Task<string>> use);
+            Func<DriveService, SyncConfiguration, Task<string>> use);
 
         /// <summary>
 		/// Authenticate and authorize the drive service with given 
@@ -49,10 +49,10 @@ namespace KeePassSyncForDrive
         /// </summary>
         /// <param name="use">Delegate is passed two parameters:
         /// DriveService: The authorized Google Drive API service object.
-        /// string: The name of target folder for sync activity, if any.
+        /// SyncConfiguration: The user's configuration for the current op.
         /// The delegate returns a final, localized status message, or null.</param>
         /// <returns>Error status string or null.</returns>
         Task<string> UseDriveService(SyncConfiguration authData,
-            Func<DriveService, string, Task<string>> use);
+            Func<DriveService, SyncConfiguration, Task<string>> use);
     }
 }

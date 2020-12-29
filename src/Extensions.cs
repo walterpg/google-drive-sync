@@ -187,31 +187,57 @@ namespace KeePassSyncForDrive
         // UI
 
         /// <summary>
-        /// Show message as KeePass parented alert or in its status bar
+        /// Show a message in the KeePass status bar.
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="isStatusMessage"></param>
-        public static void ShowMessage(this IPluginHost host, string msg,
-            bool isStatusMessage = false)
+        public static void ShowStatusMessage(this IPluginHost host, string msg)
         {
             MainForm window = host.MainWindow;
             if (window.InvokeRequired)
             {
                 window.BeginInvoke(new MethodInvoker(() =>
                 {
-                    ShowMessage(host, msg, isStatusMessage);
+                    ShowStatusMessage(host, msg);
                 }));
                 return;
             }
-            if (isStatusMessage)
+            window.SetStatusEx(GdsDefs.ProductName + ": " + msg);
+        }
+
+        /// <summary>
+        /// Show message as KeePass parented alert dialog with optional
+        /// help link.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="link"></param>
+        public static void ShowDlgMessage(this IPluginHost host, string msg,
+            Uri link = null)
+        {
+            MainForm window = host.MainWindow;
+            if (window.InvokeRequired)
             {
-                window.SetStatusEx(GdsDefs.ProductName + ": " + msg);
+                window.BeginInvoke(new MethodInvoker(() =>
+                {
+                    ShowDlgMessage(host, msg, link);
+                }));
+                return;
             }
-            else
+            using(new CenterWin32Dlg(window))
             {
-                using(new CenterWin32Dlg(window))
+                if (link == null)
                 {
                     MessageBox.Show(window, msg, GdsDefs.ProductName);
+                }
+                else if (DialogResult.Yes ==
+                        MessageBox.Show(window, msg + Environment.NewLine +
+                            Environment.NewLine +
+                            Resources.GetString("Msg_MsgBoxLinkPrompt"),
+                            GdsDefs.ProductName,
+                            MessageBoxButtons.YesNo, MessageBoxIcon.None,
+                            MessageBoxDefaultButton.Button2))
+                {
+                    System.Diagnostics.Process.Start(link.AbsoluteUri);
                 }
             }
         }

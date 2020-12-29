@@ -535,8 +535,7 @@ namespace KeePassSyncForDrive
             // In the case of changing OAuth creds with a refresh token
             // present, confirm the user's intention.
             if  (DialogResult == DialogResult.OK &&
-                m_data.SelectedAccountShadow.IsModifiedOauthCreds &&
-                !m_data.SelectedAccountShadow.RefreshToken.IsNullOrEmpty())
+                m_data.SelectedAccountShadow.IsStaleRefreshToken)
             {
                 DialogResult = MessageBox.Show(
                     Resources.GetString("Msg_ChangedCredsDeletesToken"),

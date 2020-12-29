@@ -37,4 +37,17 @@ namespace KeePassSyncForDrive
         {
         }
     }
+
+    class SharedFileException : PluginException
+    {
+        public SharedFileException()
+            : base(Resources.GetString("Exc_SharedFile"))
+        {
+        }
+
+        public string Link
+        {
+            get { return GdsDefs.UrlSharedFileHelp; }
+        }
+    }
 }

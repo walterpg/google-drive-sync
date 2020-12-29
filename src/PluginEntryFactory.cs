@@ -52,15 +52,17 @@ namespace KeePassSyncForDrive
             StringDictionaryEx data = entry.CustomData;
             if (useLegacyCreds)
             {
-                data.Set(GdsDefs.EntryDriveScope, driveScope);
-                data.Set(GdsDefs.EntryClientId, clientId);
-                data.Set(GdsDefs.EntryClientSecret, clientSecret.ReadString());
+                data.Set(SyncConfiguration.EntryDriveScopeKey, driveScope);
+                data.Set(SyncConfiguration.EntryClientIdKey, clientId);
+                data.Set(SyncConfiguration.EntryClientSecretKey,
+                            clientSecret.ReadString());
             }
-            data.Set(GdsDefs.EntryActiveAppFolder, folder);
-            data.Set(GdsDefs.EntryActiveAccount, GdsDefs.EntryActiveAccountTrue);
-            data.Set(GdsDefs.EntryUseLegacyCreds, useLegacyCreds ?
+            data.Set(SyncConfiguration.EntryActiveAppFolderKey, folder);
+            data.Set(SyncConfiguration.EntryActiveAccountKey,
+                        SyncConfiguration.EntryActiveAccountTrueKey);
+            data.Set(SyncConfiguration.EntryUseLegacyCredsKey, useLegacyCreds ?
                 GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
-            data.Set(GdsDefs.EntryVersion,
+            data.Set(SyncConfiguration.EntryVersionKey,
                 SyncConfiguration.CurrentVersion.ToString(2));
 
             entry.IconId = PwIcon.WorldComputer;

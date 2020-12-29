@@ -31,6 +31,7 @@ using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Text;
+using System.Windows.Forms;
 
 namespace KeePassSyncForDrive
 {
@@ -204,6 +205,11 @@ namespace KeePassSyncForDrive
         {
             return Instance.m_strings.GetString(label,
                                         Instance.CurrentCulture);
+        }
+
+        public static void GetControlText(Control c)
+        {
+            c.Text = GetString(c.Text);
         }
 
         public static Bitmap GetBitmap(string name)
