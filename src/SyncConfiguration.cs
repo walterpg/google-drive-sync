@@ -273,9 +273,11 @@ namespace KeePassSyncForDrive
             }
             else
             {
-                // Reset the shared file warning if client ID changes.
+                // Reset the shared file warning if client ID changes or
+                // legacy creds option toggles.
                 if (m_changes.Select(kv => kv.Key)
-                    .Contains(EntryClientIdKey))
+                    .Any(k => k == EntryClientIdKey ||
+                        k == EntryUseLegacyCredsKey))
                 {
                     SharedWarning = SharedFileWarning.Option.AlwaysShow;
                 }
