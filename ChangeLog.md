@@ -1,4 +1,64 @@
-# 4.0.3-beta
+# 4.0.4-beta
+* Transparently support [Drive shortcuts](https://support.google.com/drive/answer/9700156?co=GENIE.Platform%3DDesktop&oco=1) (issue #20).
+* Fix unexpected "upgrade" popup dialog after changing the sync
+configuration entry.
+* Disable default sync ops to
+[shared files](https://support.google.com/drive/answer/2494822?co=GENIE.Platform%3DDesktop&hl=en)
+due to a potential security problem (issue #21).
+* Implement a [session-stored authorization token](https://www.kpsync.org/usage/authorize#session-stored-tokens)
+option.
+* Fixed privacy policy link on authorization upgrade form.
+* Many minor UI tweaks for better KP integration.
+
+##### Drive Shortcut Feature
+The release includes a solution for syncing databases to Drive files
+referred to by "internal" Drive shortcuts.  Please see the 
+[kpsync.org documentation](https://www.kpsync.org/usage/shortcuts) for
+details.
+
+##### Addressing Shared Database Security
+As of this release, the plugin, by default, will not synchronize with Drive files
+that are shared with other Drive accounts via Drive's
+[shared file feature](https://support.google.com/drive/answer/2494822?co=GENIE.Platform%3DDesktop&hl=en).
+As discussed in issue #21, and detailed in a published
+[security bulletin](https://www.kpsync.org/notices/sharedsec),
+such usage enables a means to obtain unauthorized access
+to the Drive account of the sharer (or a sharee). While there remain many
+less convenient ways to share a KP database containing valid Drive
+authorization tokens, the plugin is no longer complicit in such
+usages.
+
+Since the shared file issue is considered a long-standing *defect*, some
+users may already be aware of it.  Others may be unexpectedly impacted
+by the security implications and/or the change in default behavior mentioned
+above. The latter should follow the guidance contained in the 
+[security bulletin](https://www.kpsync.org/notices/sharedsec).
+
+To address security hazards, the **optional**
+[session-stored authorization token](https://www.kpsync.org/usage/authorize#session-stored-tokens)
+feature was implemented. *Safe* access to databases shared by any
+means, including Drive's shared file feature, can be enabled
+with this option. The security issue is mitigated by displacing 
+authorization tokens from the database into secure
+KeePass session storage. To synchronize with this feature, users are required
+to authorize the plugin with Google Sign-in once per open database at
+*each* restart of KeePass. It is thus an effective but inadequate solution.
+
+A more general solution for shared file security will be a subject
+of a future release.
+
+##### Still in Beta
+Maybe the last?
+
+Do you use shared KeePass databases? If you have ideas for safely,
+*conveniently* doing so with the plugin, please raise an issue or
+submit a pull request.
+
+*As always,*
+**Thank you for your feedback.**
+
+---
+## 4.0.3-beta
 * Fixed Google Sync 3.0 regression (issue #14).
 * Implemented target subfolder feature.
 * Implemented KeePass proxy server configuration support (#15).

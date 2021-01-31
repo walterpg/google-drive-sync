@@ -1,18 +1,17 @@
 # KeePass Sync for Google Drive™
 (formerly [*KeePass Google Sync*](https://sourceforge.net/projects/kp-googlesync/))
 
+(Note: This README is a bare-bones primer and may be outdated in terms of
+features and bugfixes. You should visit https://www.kpsync.org for the latest
+information and documentation.)
 
-This KeePass Password Safe v2 plugin permits easy, safe synchronization
-of the currently open KeePass database with a corresponding file in your Google
-Drive account.  Beyond simple "backup", this plugin automates use of KeePass'
-["synchronize" function](https://keepass.info/help/v2/sync.html),
-so that, say, changes made to the database by another PC or user are
-correctly merged with the local copy of the database.
-This simplifies distribution of group-shared password archives, and
-handy when using [mobile or other KeePass programs](https://keepass.info/download.html)
-that synchronize with Google Drive.  Note that this tool is *not* a
-general-purpose backup utility for your data; please use sensible
-backup procedures!
+Beyond simple backup or online storage, the plugin leverages KeePass'
+[synchronize function](https://keepass.info/help/v2/sync.html) to maintain
+perfect copies of the database in the Google Drive cloud and in Windows storage for
+extra security. Changes made to the database elsewhere can be accurately
+merged with the local copy of the database. Users of multiple devices and
+[mobile or other KeePass-compatible programs](https://keepass.info/download.html)
+that synchronize with Google Drive will find this plugin quite useful.
 
 * [Requirements](#requirements)
 * [Compatibility](#compatibility)
@@ -195,7 +194,7 @@ See the next section for hints about this.
 
 
 ## Configuration
-The plugin saves authorization tokens and other details in the KeePass
+The plugin saves configuration details in the KeePass
 database.  You should reserve one KeePass entry for this purpose.  It is highly
 recommended to use an entry containing the Google user/password for the
 Google Drive account that you will be syncing with.  The plugin recognizes
