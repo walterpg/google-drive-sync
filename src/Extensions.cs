@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,32 @@ namespace KeePassSyncForDrive
             string key, string value)
         {
             host.CustomConfig.SetString(key, value);
+        }
+
+        // Get or create a persistent ID for the database.
+        public static Guid GetDatabaseUuid(this IPluginHost host)
+        {
+            PwDatabase db = host.Database;
+            if (db == null || !db.IsOpen)
+            {
+                return Guid.Empty;
+            }
+
+            const string Key = "KeePassSyncForDrive.Extensions.GetDatabaseUuid";
+            const string guidFmt = "D";
+
+            string stringVal = db.CustomData.Get(Key);
+            if (stringVal == null)
+            {
+                stringVal = "";
+            }
+            Guid retVal;
+            if (!Guid.TryParseExact(stringVal, guidFmt, out retVal))
+            {
+                retVal = Guid.NewGuid();
+                db.CustomData.Set(Key, retVal.ToString(guidFmt));
+            }
+            return retVal;
         }
 
         /// <summary>
