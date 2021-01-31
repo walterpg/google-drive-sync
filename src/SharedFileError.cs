@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,82 +27,37 @@ using System.Windows.Forms;
 
 namespace KeePassSyncForDrive
 {
-    public partial class SharedFileWarning : Form
+    public partial class SharedFileError : Form
     {
-        public enum Option
-        {
-            SyncDontShow,
-            DontSyncDontShow,
-            AlwaysShow
-        }
-
-        internal static Option OptionFromString(string strVal,
-            Option defaultVal = Option.AlwaysShow)
-        {
-            Option result;
-            return Enum.TryParse(strVal, true, out result) ?
-                result : defaultVal;
-        }
-
-        internal static string StringFromOption(Option opt)
-        {
-            return Enum.GetName(typeof(Option), opt);
-        }
-
         internal static DialogResult ShowIfNeeded(IPluginHost host,
             string fileName, SyncConfiguration config)
         {
-            switch (config.SharedWarning)
+            if (config.DontSaveAuthToken ||
+                config.IsUsingPersonalOauthCreds)
             {
-                case Option.DontSyncDontShow:
-                    return DialogResult.Cancel;
-                case Option.SyncDontShow:
-                    return DialogResult.OK;
+                return DialogResult.None;
             }
 
-            SharedFileWarning dlg = new SharedFileWarning();
+            SharedFileError dlg = new SharedFileError();
             dlg.TargetFile = fileName;
-            DialogResult dr = 
-                KeePassSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
-            if (dlg.cbDontShowAgain.Checked)
-            {
-                config.SharedWarning = dr == DialogResult.OK ?
-                    Option.SyncDontShow : Option.DontSyncDontShow;
-            }
-
-            // Save the option selected to the database before the sync
-            // op proceeds.
-            EntryConfiguration entryConfig = config as EntryConfiguration;
-            if (entryConfig != null)
-            {
-                entryConfig.CommitChangesIfAny();
-                if (entryConfig.ChangesCommitted)
-                {
-                    host.Database.Modified = true;
-                    KeePassSyncForDriveExt.SaveDatabase(host,
-                        Resources.GetString("Msg_SavingSharedFileChoice"));
-                    entryConfig.Reset();
-                }
-            }
-
-            return dr;
+            KeePassSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
+            return DialogResult.OK;
         }
 
-        public SharedFileWarning()
+        public SharedFileError()
         {
             InitializeComponent();
 
             Text = GdsDefs.ProductName;
             Resources.GetControlText(lblMessage);
-            Resources.GetControlText(btnCancel);
             Resources.GetControlText(btnOK);
             Resources.GetControlText(lnkHelp);
             Resources.GetControlText(lnkPersonalOauth);
-            Resources.GetControlText(cbDontShowAgain);
+            Resources.GetControlText(lnkSessionAuthTokens);
 
             BannerFactory.CreateBannerEx(this, m_bannerImage,
                 Resources.GetBitmap("gdsync"),
-                Resources.GetString("Title_SharedFileWarning"),
+                Resources.GetString("Title_SharedFileError"),
                 string.Format("{0} {1}", GdsDefs.ProductName,
                                 GdsDefs.Version));
         }
@@ -112,7 +67,7 @@ namespace KeePassSyncForDrive
         protected override void OnLoad(EventArgs e)
         {
             lblSubTitle.Text
-                = Resources.GetFormat("SubTitle_SharedFileWarning",
+                = Resources.GetFormat("SubTitle_SharedFileError",
                                         TargetFile);
             base.OnLoad(e);
         }
@@ -127,6 +82,11 @@ namespace KeePassSyncForDrive
             LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(GdsDefs.UrlPersonalAppCreds);
+        }
+
+        private void lnkSessionAuthTokens_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(GdsDefs.UrlTokenHandling);
         }
     }
 }

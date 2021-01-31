@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,6 +102,13 @@ namespace KeePassSyncForDrive
                 m_lblAttribution,
                 m_chkDefaultUseLegacyCreds,
                 m_chkUseLegacyCreds,
+                m_grpAuthTokenSecurityDefaults,
+                m_chkDontSaveAuthDefault,
+                m_chkWarnAuthToken,
+                m_lnkAuthTokenDefaultsHelp,
+                m_grpAuthTokenSecurity,
+                m_chkDontSaveAuthToken,
+                m_lnkAuthTokenHelp,
             };
             foreach (Control c in textCx)
             {
@@ -221,6 +228,11 @@ namespace KeePassSyncForDrive
                 "UseLegacyCreds");
             binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
             m_chkUseLegacyCreds.DataBindings.Add(binding);
+            Debug.Assert(m_chkDontSaveAuthToken is CheckBox);
+            binding = new Binding("Checked", bindingSource,
+                "DontSaveAuthToken");
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnValidation;
+            m_chkDontSaveAuthToken.DataBindings.Add(binding);
 
             // Global default auth controls.
             Debug.Assert(m_txtFolderDefault is TextBox);
@@ -296,6 +308,14 @@ namespace KeePassSyncForDrive
             binding = new Binding("Enabled",
                 m_data, "CmdSyncEnabled");
             m_chkSyncOnSave.DataBindings.Add(binding);
+            Debug.Assert(m_chkDontSaveAuthDefault is CheckBox);
+            binding = new Binding("Checked", m_data,
+                "DefaultDontSaveAuthToken");
+            m_chkDontSaveAuthDefault.DataBindings.Add(binding);
+            Debug.Assert(m_chkWarnAuthToken is CheckBox);
+            binding = new Binding("Checked", m_data,
+                "WarnOnSavedAuthToken");
+            m_chkWarnAuthToken.DataBindings.Add(binding);
 
             // Select first "active" entry in the accounts combo.
             IEnumerable<EntryConfiguration> actives = m_data.Entries
@@ -314,6 +334,8 @@ namespace KeePassSyncForDrive
             m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlGoogleDev);
             m_lnkHelp2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHelp);
             m_lblAttribution.Click += (o, e) => Process.Start(GdsDefs.UrlLegacyHome);
+            m_lnkAuthTokenDefaultsHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlSharedFileHelp);
+            m_lnkAuthTokenHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlSharedFileHelp);
 
             // Manage tab changes to prevent invalid data entry.
             m_tabMain.Deselecting += HandleTabChangeValidation;
@@ -537,7 +559,7 @@ namespace KeePassSyncForDrive
             if  (DialogResult == DialogResult.OK &&
                 m_data.SelectedAccountShadow.IsStaleRefreshToken)
             {
-                DialogResult = MessageBox.Show(
+                DialogResult = MessageBox.Show(this,
                     Resources.GetString("Msg_ChangedCredsDeletesToken"),
                     GdsDefs.ProductName,
                     MessageBoxButtons.OKCancel,

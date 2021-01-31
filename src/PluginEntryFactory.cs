@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,18 @@ namespace KeePassSyncForDrive
 {
     internal class PluginEntryFactory : FileFormatProvider
     {
+        public static PluginEntryFactory CreateDefault(string title)
+        {
+            PluginConfig appConfig = PluginConfig.Default;
+            return Create(title, appConfig.LegacyDriveScope,
+                appConfig.PersonalClientId, appConfig.PersonalClientSecret,
+                appConfig.Folder, appConfig.UseLegacyAppCredentials,
+                appConfig.DontSaveAuthToken);
+        }
+
         public static PluginEntryFactory Create(string title,
             string driveScope, string clientId, ProtectedString clientSecret,
-            string folder, bool useLegacyCreds)
+            string folder, bool useLegacyCreds, bool dontSaveAuthToken)
         {
             PwEntry entry = new PwEntry(true, true);
             ProtectedStringDictionary strings = entry.Strings;
@@ -61,6 +70,9 @@ namespace KeePassSyncForDrive
             data.Set(SyncConfiguration.EntryActiveAccountKey,
                         SyncConfiguration.EntryActiveAccountTrueKey);
             data.Set(SyncConfiguration.EntryUseLegacyCredsKey, useLegacyCreds ?
+                GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            data.Set(SyncConfiguration.EntryDontCacheAuthTokenKey,
+                dontSaveAuthToken ?
                 GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
             data.Set(SyncConfiguration.EntryVersionKey,
                 SyncConfiguration.CurrentVersion.ToString(2));

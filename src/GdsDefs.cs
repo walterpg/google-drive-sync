@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,9 +191,11 @@ namespace KeePassSyncForDrive
 		public const string UrlGoogleDrive = "https://drive.google.com";
 		public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_version_4.txt";
 		public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
-		public const string UrlSharedFileHelp = UrlHome + "/usage/oauth#shared-file-exclusions-and-exceptions";
+		public const string UrlSharedFileHelp = UrlHome + "/notices/sharedsec";
 		public const string UrlPersonalAppCreds = UrlHome + "/usage/oauth";
+		public const string UrlTokenHandling = UrlHome + "/usage/authorize#authorization-tokens";
 		public const string UrlUpgradeV1 = UrlHome + "/install/upgrade1";
+		public const string UrlPrivacy = UrlHome + "/privacy";
 		public const string GsyncBackupExt = ".gsyncbak";
 		public const string AppDefaultFolderName = "KeePass Sync";
 		public const string AppFolderColor = "#4986e7"; // "Rainy Sky"

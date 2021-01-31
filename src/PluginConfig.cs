@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,30 +38,22 @@ namespace KeePassSyncForDrive
 		//	clientID/secret present => custom client id
 		//	clientID/secret missing => legacy client id
 		//
-		// Ver1
+		// Ver1.0
 		//	if Use legacy flag missing or false
 		//	 => new app client id
 		//  else
 		//	 clientID/secret present => custom client id
 		//	 clientID/secret missing => legacy client id
 		//
+		// Ver1.1
+		//   Add DontSaveAuthToken config.
+		//
 		//	Don't prompt for migration. Since Ver0 was not persisted,
 		//	there is no very simple way to know if this is a new install or
 		//	migration.  This was new functionality in Ver0, which was
 		//	pre-release software anyway....
 
-		const string Ver0 = "0.0"; // virtual version
-		const string Ver1 = "1.0";
-
-		const string CurrentVer = Ver1;
-
-		const string ConfigAutoSyncKey = "GoogleSync.AutoSync";
-		const string ConfigEnabledCmdsKey = "GoogleSync.EnabledCmds";
-		const string ConfigDefaultAppFolderKey = "GoogleSync.DefaultAppFolder";
-		const string ConfigDriveScopeKey = "GoogleSync.DriveApiScope";
-		const string ConfigDefaultClientIdKey = "GoogleSync.DefaultClientId";
-		const string ConfigDefaultClientSecretKey = "GoogleSync.DefaultClientSecret";
-		const string ConfigVersionKey = "GoogleSync.ConfigVersion";
+		const string CurrentVer = "1.1";
 		const string ConfigPluginKey = "Plugin.KeePassSyncForDrive";
 
 		class ProtectedStringConverter : JsonConverter<ProtectedString>
@@ -143,6 +135,8 @@ namespace KeePassSyncForDrive
 		string m_defaultClientId;
 		ProtectedString m_defaultClientSecret;
 		bool m_useLegacyCreds;
+		bool m_dontSaveAuthToken;
+		bool m_warnSavedAuthToken;
 		bool m_isDirty;
 		string m_ver;
 
@@ -156,6 +150,8 @@ namespace KeePassSyncForDrive
 			m_defaultClientId = string.Empty;
 			m_defaultClientSecret = GdsDefs.PsEmptyEx;
 			m_useLegacyCreds = false;
+			m_dontSaveAuthToken = false;
+			m_warnSavedAuthToken = false;
 			m_isDirty = true;
 			m_ver = null;
 		}
@@ -337,14 +333,51 @@ namespace KeePassSyncForDrive
             }
 		}
 
+		public bool DontSaveAuthToken
+        {
+			get
+            {
+				return m_dontSaveAuthToken;
+            }
+			set
+            {
+				if (m_dontSaveAuthToken != value)
+                {
+					m_dontSaveAuthToken = value;
+					m_isDirty = true;
+                }
+            }
+        }
+
+		public bool WarnOnSavedAuthToken
+		{
+			get
+			{
+				return m_warnSavedAuthToken;
+			}
+			set
+			{
+				if (m_warnSavedAuthToken != value)
+				{
+					m_warnSavedAuthToken = value;
+					m_isDirty = true;
+				}
+			}
+		}
+
 		public void UpdateConfig(IPluginHost host)
 		{
-			if (!m_isDirty && ConfigVersion == CurrentVer)
+			Version currentVer, configVer;
+			currentVer = new Version(CurrentVer);
+			configVer = new Version(ConfigVersion);
+
+			if (!m_isDirty && configVer >= currentVer)
 			{
 				return;
 			}
 
-			// No config updates from Ver0 to Ver1
+			// New properties take default values. No mods to existing
+			// properties required so far.
 			ConfigVersion = CurrentVer;
 
 			JsonSerializerSettings serSettings = new JsonSerializerSettings()
@@ -405,6 +438,15 @@ namespace KeePassSyncForDrive
 
 		static PluginConfig InitLegacyDefault(IPluginHost host)
 		{
+			const string ConfigAutoSyncKey = "GoogleSync.AutoSync";
+			const string ConfigEnabledCmdsKey = "GoogleSync.EnabledCmds";
+			const string ConfigDefaultAppFolderKey = "GoogleSync.DefaultAppFolder";
+			const string ConfigDriveScopeKey = "GoogleSync.DriveApiScope";
+			const string ConfigDefaultClientIdKey = "GoogleSync.DefaultClientId";
+			const string ConfigDefaultClientSecretKey = "GoogleSync.DefaultClientSecret";
+			const string ConfigVersionKey = "GoogleSync.ConfigVersion";
+			const string Ver0 = "0.0"; // virtual version
+
 			PluginConfig update = new PluginConfig();
 
 			string verString = host.GetConfig(ConfigVersionKey, Ver0);

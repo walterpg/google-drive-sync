@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,16 +37,21 @@ namespace KeePassSyncForDrive
         //	clientID/secret present => custom client id
         //	clientID/secret missing => legacy client id
         //
-        // Ver1
+        // Ver1.0
         //	if Use legacy flag missing or false
         //	 => new app client id
         //  else
         //	 clientID/secret present => custom client id
         //	 clientID/secret missing => legacy client id
         //
+        // Ver1.1
+        //  If refresh token present and cache flag
+        //  not present, cache flag == false is implied.
 
-        public const string Ver0 = "0.0"; // virtual version
-        public const string Ver1 = "1.0";
+        protected const string Ver0 = "0.0"; // virtual version
+        protected const string Ver1_0 = "1.0";
+        protected const string Ver1_1 = "1.1";
+        protected const string CurrentVer = Ver1_1;
 
         public const string EntryClientIdKey = "GoogleSync.ClientID";
         public const string EntryClientSecretKey = "GoogleSync.ClientSecret";
@@ -57,14 +62,17 @@ namespace KeePassSyncForDrive
         public const string EntryActiveAppFolderKey = "GoogleSync.ActiveAppFolder";
         public const string EntryDriveScopeKey = "GoogleSync.DriveApiScope";
         public const string EntryUseLegacyCredsKey = "GoogleSync.UseLegacyAppCreds";
-        public const string EntrySharedWarningOptionKey = "GoogleSync.SharedWarningOption";
         public const string EntryVersionKey = "GoogleSync.ConfigVersion";
-
-        protected const string CurrentVer = Ver1;
+        public const string EntryDontCacheAuthTokenKey = "GoogleSync.NoAuthTokens";
 
         public static Version CurrentVersion
         {
-            get { return new Version(CurrentVer); }
+            get { return Version.Parse(CurrentVer); }
+        }
+
+        public static bool IsPriorToVer1_0(SyncConfiguration config)
+        {
+            return config.Version < Version.Parse(Ver1_0);
         }
 
         public static SyncConfiguration GetEmpty()
@@ -111,7 +119,7 @@ namespace KeePassSyncForDrive
         public abstract string ActiveFolder { get; set; }
         public abstract string LegacyDriveScope { get; set; }
         public abstract bool UseLegacyCreds { get; set; }
-        public abstract SharedFileWarning.Option SharedWarning { get; set; }
+        public abstract bool DontSaveAuthToken { get; set; }
         public abstract Version Version { get; }
     }
 
@@ -144,7 +152,7 @@ namespace KeePassSyncForDrive
             RefreshToken = null;
             ActiveFolder = null;
             LegacyDriveScope = null;
-            m_ver = new Version(CurrentVer);
+            m_ver = Version.Parse(CurrentVer);
         }
 
         public TransientConfiguration(SyncConfiguration copyee)
@@ -208,7 +216,7 @@ namespace KeePassSyncForDrive
 
         public override string LegacyDriveScope { get; set; }
 
-        public override SharedFileWarning.Option SharedWarning { get; set; }
+        public override bool DontSaveAuthToken { get; set; }
 
         public override Version Version 
         {
@@ -226,6 +234,7 @@ namespace KeePassSyncForDrive
         readonly Dictionary<string, object> m_changes;
         string m_title;
         DateTime m_touched;
+        bool m_credsChanged;
 
         public EntryConfiguration(PwEntry entry)
         {
@@ -233,6 +242,7 @@ namespace KeePassSyncForDrive
             m_changes = new Dictionary<string, object>(5);
             m_title = null;
             m_touched = Entry.LastModificationTime;
+            m_credsChanged = false;
 
             UseLegacyKp3ClientId = IsEmptyOauthCredentials;
             ChangesCommitted = false;
@@ -273,13 +283,13 @@ namespace KeePassSyncForDrive
             }
             else
             {
-                // Reset the shared file warning if client ID changes or
-                // legacy creds option toggles.
+                // Handle client ID changes or legacy creds option toggle.
                 if (m_changes.Select(kv => kv.Key)
                     .Any(k => k == EntryClientIdKey ||
                         k == EntryUseLegacyCredsKey))
                 {
-                    SharedWarning = SharedFileWarning.Option.AlwaysShow;
+                    // Show that credentials were changed
+                    m_credsChanged = true;
                 }
                 foreach (KeyValuePair<string, object> kv in m_changes)
                 {
@@ -291,7 +301,7 @@ namespace KeePassSyncForDrive
                         case EntryActiveAppFolderKey:
                         case EntryDriveScopeKey:
                         case EntryVersionKey:
-                        case EntrySharedWarningOptionKey:
+                        case EntryDontCacheAuthTokenKey:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
                                 stringVal == null ? string.Empty : stringVal);
@@ -328,16 +338,22 @@ namespace KeePassSyncForDrive
 
         /// <summary>
         /// Indicates there are uncommitted changes to the OAuth 2.0-related
-        /// properties and a refresh token that doesn't match them.
+        /// properties and a refresh token that doesn't match them, or
+        /// an existing refresh token is being otherwise removed (by say,
+        /// session-stored tokens request).
         /// </summary>
         public bool IsStaleRefreshToken
         {
             get
             {
-                return m_changes.Keys.Any(k => k == EntryClientIdKey ||
+                return (m_changes.Keys.Any(k => k == EntryClientIdKey ||
                                         k == EntryClientSecretKey ||
                                         k == EntryUseLegacyCredsKey) &&
-                    !RefreshToken.IsNullOrEmpty();
+                    !RefreshToken.IsNullOrEmpty()) ||
+                    (m_changes.Keys.Any(k =>
+                        k == EntryRefreshTokenKey) &&
+                    RefreshToken.IsNullOrEmpty() &&
+                    !Get(EntryRefreshTokenKey).IsNullOrEmpty());
             }
         }
 
@@ -368,8 +384,23 @@ namespace KeePassSyncForDrive
             }
         }
 
+        /// <summary>
+        /// Indicates that changes have been committed to the entry which
+        /// include the app credentials-related properties.  Initially
+        /// false. Set true by CommitChangesIfAny() if necessary.  Set
+        /// to false by Reset().
+        /// </summary>
+        public bool CredentialsChanged
+        {
+            get
+            {
+                return m_credsChanged;
+            }
+        }
+
         public bool Reset()
         {
+            m_credsChanged = false;
             DateTime prevTouch = m_touched;
             m_touched = Entry.LastModificationTime;
             return prevTouch < Entry.LastModificationTime;
@@ -430,7 +461,7 @@ namespace KeePassSyncForDrive
         void SetValue(string key, string value)
         {
             string curVal = ReadSafe(key);
-            if (0 == string.CompareOrdinal(curVal, value))
+            if (string.Equals(curVal, value, StringComparison.Ordinal))
             {
                 m_changes.Remove(key);
             }
@@ -500,7 +531,7 @@ namespace KeePassSyncForDrive
                 ChangesCommitted = true;
                 return value;
             }
-            return ProtectedString.Empty;
+            return GdsDefs.PsEmptyEx;
         }
 
         ProtectedString Get(string key)
@@ -600,7 +631,9 @@ namespace KeePassSyncForDrive
             }
             set
             {
-                SetValue(EntryRefreshTokenKey, value);
+                ProtectedString newVal = DontSaveAuthToken ?
+                    GdsDefs.PsEmptyEx : value;
+                SetValue(EntryRefreshTokenKey, newVal);
             }
         }
 
@@ -657,19 +690,21 @@ namespace KeePassSyncForDrive
             }
         }
 
-        public override SharedFileWarning.Option SharedWarning
+        public override bool DontSaveAuthToken
         {
             get
             {
-                string strVal = GetValue(EntrySharedWarningOptionKey,
-                                            ReadSafe);
-                return SharedFileWarning.OptionFromString(strVal);
+                return GdsDefs.ConfigTrue ==
+                    GetValue(EntryDontCacheAuthTokenKey, ReadSafe);
             }
-
             set
             {
-                SetValue(EntrySharedWarningOptionKey,
-                    SharedFileWarning.StringFromOption(value));
+                SetValue(EntryDontCacheAuthTokenKey,
+                    value ? GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+                if (value)
+                {
+                    RefreshToken = GdsDefs.PsEmptyEx;
+                }
             }
         }
 
@@ -681,7 +716,7 @@ namespace KeePassSyncForDrive
                 Version retVal;
                 if (!Version.TryParse(strVer, out retVal))
                 {
-                    retVal = new Version(Ver0);
+                    retVal = Version.Parse(Ver0);
                 }
                 return retVal;
             }
@@ -689,17 +724,28 @@ namespace KeePassSyncForDrive
 
         void EnsureSettingsMigration()
         {
-            if (Version == CurrentVersion)
+            if (Version >= CurrentVersion)
             {
                 return;
             }
 
             // Only upgrade the version if all properties associated with the
             // particular version level are present.
-            if (Version < new Version(Ver1))
+            if (Version < Version.Parse(Ver1_0))
             {
-                SetValue(EntryVersionKey, Ver1);
+                SetValue(EntryVersionKey, Ver1_0);
             }
+
+            if (Version < Version.Parse(Ver1_1))
+            {
+                if (!CustomData.Exists(EntryDontCacheAuthTokenKey))
+                {
+                    DontSaveAuthToken = PluginConfig.Default.DontSaveAuthToken;
+                }
+                SetValue(EntryVersionKey, Ver1_1);
+            }
+
+            Debug.Assert(Version == CurrentVersion);
         }
     }
 }

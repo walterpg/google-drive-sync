@@ -256,7 +256,7 @@ Esta ventana de notificación se cierra automáticamente después de completar l
     <value>Tecla Shift presionada. Sincronización automática ignorada.</value>
   </data>
   <data name="Msg_ChangedCredsDeletesToken" xml:space="preserve">
-    <value>Está cambiando las credenciales de OAuth, pero hay un token de autorización asociado con las credenciales anteriores en la base de datos. Continuar borrará el token y deberá iniciar sesión la próxima vez que el complemento acceda a Drive. Haga clic en Aceptar para confirmar.</value>
+    <value>Ha cambiado la configuración que afecta al token de autorización de Drive guardado en la base de datos. Continuar borrará el token y es posible que deba iniciar sesión la próxima vez que el complemento acceda a Drive. Haga clic en Aceptar para confirmar. </value>
   </data>
   <data name="Msg_DatabaseSaved" xml:space="preserve">
     <value>Base de datos guardada en archivo local.</value>
@@ -393,7 +393,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Auto-Sync</value>
   </data>
   <data name="Group_DriveOptions" xml:space="preserve">
-    <value>Opciones de Google Drive</value>
+    <value>Funciones de Google Drive</value>
   </data>
   <data name="Group_FolderDefaults" xml:space="preserve">
     <value>Opciones predeterminadas de carpeta</value>
@@ -504,30 +504,22 @@ En cualquier caso, puede seleccionar otra entrada más tarde para que sea la ent
   <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
 	<value>El acceso directo de Drive '{1}' se vincula al archivo '{0}' en la Papelera. Para sincronizar con '{0}', sáquelo de la carpeta Papelera.</value>
   </data>
-  <data name="Title_SharedFileWarning" xml:space="preserve">
-	<value>ADVERTENCIA: Sincronizar un archivo compartido</value>
+  <data name="Title_SharedFileError" xml:space="preserve">
+	<value>Acceso archivos compartidos de Drive deshabilitado</value>
   </data>
-  <data name="SubTitle_SharedFileWarning" xml:space="preserve">
+  <data name="SubTitle_SharedFileError" xml:space="preserve">
 	<value>{0} se comparte con otras cuentas de Drive.</value>
   </data>
-  <data name="Msg_SharedFileWarning" xml:space="preserve">
-	<value>El archivo de Drive de destino se comparte con otros usuarios de Drive. La sincronización de este archivo puede permitir el ACCESO COMPLETO a su cuenta de Drive a cualquier persona con quien se comparta el archivo y la contraseña maestra.
+  <data name="Msg_SharedFileError" xml:space="preserve">
+	<value>Para la seguridad del complemento, la configuración actual prohíbe las operaciones de sincronización en este archivo.
 
-La sincronización con archivos compartidos generalmente está deshabilitada. Sin embargo, para el uso heredado, se permite la sincronización mediante las credenciales de la aplicación OAuth 2.0 personal configurada, después de reconocer esta advertencia.
-
-Haga clic en Cancelar para abandonar la operación de forma segura.
-Haga clic en Aceptar para continuar bajo su propio riesgo y potencialmente poner en peligro su cuenta de Drive.
-    </value>
+Para sincronizar de forma segura este archivo, debe habilitar los tokens de autorización de sesión (Manejo de tokens de autorización de unidad) en la pestaña Autorización de sincronización del cuadro de diálogo de configuración. Alternativamente, puede configurar el complemento para usar credenciales de aplicación OAuth 2.0 personales.</value>
   </data>
   <data name="Lnk_SharedFileHelp" xml:space="preserve">
 	<value>Riesgos de archivos compartidos</value>
   </data>
-  <data name="Lbl_DontWarnAboutSharedFileAgain" xml:space="preserve">
-	<value>Recuerde mi elección y no vuelva a mostrar esta advertencia.</value>
-	<comment>Check box label</comment>
-  </data>
   <data name="Exc_SharedFile" xml:space="preserve">
-	<value>No se permiten las operaciones de sincronización con archivos de Drive compartidos con otras cuentas de Drive.</value>
+	<value>Las operaciones de sincronización con archivos compartidos con otras cuentas de Drive no están configuradas.</value>
   </data>
   <data name="Msg_SavingConfig" xml:space="preserve">
 	<value>Guardando cambios de configuración en la base de datos ...</value>
@@ -540,5 +532,46 @@ Haga clic en Aceptar para continuar bajo su propio riesgo y potencialmente poner
   </data>
   <data name="Msg_MsgBoxLinkPrompt" xml:space="preserve">
 	<value>Haga clic en "Sí" para obtener más información.</value>
+  </data>
+  <data name="Group_AuthTokenSecurity" xml:space="preserve">
+	<value>Manejo del token de autorización de Drive</value>
+  </data>
+  <data name="Lbl_DontSaveAuthToken" xml:space="preserve">
+	<value>No guarde la autorización de Google Drive en la base de datos.</value>
+  </data>
+  <data name="Lnk_AuthTokenHelp" xml:space="preserve">
+	<value>¿Por qué debería habilitarse esto para las bases de datos compartidas?</value>
+  </data>
+  <data name="Group_AuthTokenSecurityDefaults" xml:space="preserve">
+	<value>Manejo predeterminado del token de autorización de Drive</value>
+  </data>
+  <data name="Lbl_DontSaveAuthDefault" xml:space="preserve">
+	<value>No guarde los tokens de autorización en bases de datos nuevas.</value>
+  </data>
+  <data name="Lbl_WarnEntryAuthToken" xml:space="preserve">
+	<value>Avisarme antes de usar un token de autorización almacenado.</value>
+  </data>
+  <data name="Lnk_AuthTokenAppHelp" xml:space="preserve">
+	<value>¿Por qué debería hacer esto si uso bases de datos compartidas?</value>
+  </data>
+  <data name="Msg_AuthTokenPrompting" xml:space="preserve">
+	<value>Token de autenticación encontrado: consulta al usuario para continuar.</value>
+  </data>
+  <data name="Title_SavedAuthWarning" xml:space="preserve">
+	<value>Token de autorización guardado encontrado</value>
+  </data>
+  <data name="Msg_SavedAuthWarning" xml:space="preserve">
+	<value>Esta base de datos contiene un token de autorización guardado para el acceso a Drive.
+
+Haga clic en Aceptar para utilizar este token para acceder a Drive.
+Haga clic en Cancelar para eliminar el token y volver a autorizar esta sesión de KeePass con Google Sign-On.
+
+Esta advertencia se muestra cuando se encuentran tokens de autorización almacenados en la base de datos. Para evitar la advertencia, configure tokens de autorización almacenados en la sesión para esta base de datos.</value>
+  </data>
+  <data name="Lbl_DontShowSavedAuthWarning" xml:space="preserve">
+	<value>Deshabilite la advertencia y siempre use tokens de autorización almacenados en la base de datos si es posible.</value>
+  </data>
+  <data name="Lnk_SessionAuthTokens" xml:space="preserve">
+	<value>Tokens de autorización almacenados en la sesión</value>
   </data>
 </root>

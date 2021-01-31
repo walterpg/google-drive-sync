@@ -1,10 +1,10 @@
 ﻿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +38,11 @@ namespace KeePassSyncForDrive
         }
     }
 
-    class SharedFileException : PluginException
+    class PluginStatusException : PluginException
     {
-        public SharedFileException()
-            : base(Resources.GetString("Exc_SharedFile"))
+        public PluginStatusException(string message)
+            : base(message)
         {
-        }
-
-        public string Link
-        {
-            get { return GdsDefs.UrlSharedFileHelp; }
         }
     }
 }

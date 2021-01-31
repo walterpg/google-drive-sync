@@ -1,6 +1,28 @@
-﻿namespace KeePassSyncForDrive
+﻿/**
+ * Google Sync Plugin for KeePass Password Safe
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
+ * 
+ * KeePass Sync for Google Drive
+ * Copyright © 2020-2021 Walter Goodwin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**/
+
+namespace KeePassSyncForDrive
 {
-    partial class SharedFileWarning
+    partial class SharedFileError
     {
         /// <summary>
         /// Required designer variable.
@@ -33,9 +55,8 @@
             this.lblMessage = new System.Windows.Forms.Label();
             this.lnkHelp = new System.Windows.Forms.LinkLabel();
             this.btnOK = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.cbDontShowAgain = new System.Windows.Forms.CheckBox();
             this.lnkPersonalOauth = new System.Windows.Forms.LinkLabel();
+            this.lnkSessionAuthTokens = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,21 +76,21 @@
             this.lblSubTitle.Name = "lblSubTitle";
             this.lblSubTitle.Size = new System.Drawing.Size(440, 41);
             this.lblSubTitle.TabIndex = 25;
-            this.lblSubTitle.Text = "SubTitle_SharedFileWarning";
+            this.lblSubTitle.Text = "SubTitle_SharedFileError";
             this.lblSubTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblMessage
             // 
-            this.lblMessage.Location = new System.Drawing.Point(12, 116);
+            this.lblMessage.Location = new System.Drawing.Point(12, 104);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(440, 133);
+            this.lblMessage.Size = new System.Drawing.Size(440, 132);
             this.lblMessage.TabIndex = 24;
-            this.lblMessage.Text = "Msg_SharedFileWarning";
+            this.lblMessage.Text = "Msg_SharedFileError";
             // 
             // lnkHelp
             // 
             this.lnkHelp.AutoSize = true;
-            this.lnkHelp.Location = new System.Drawing.Point(12, 264);
+            this.lnkHelp.Location = new System.Drawing.Point(12, 289);
             this.lnkHelp.Name = "lnkHelp";
             this.lnkHelp.Size = new System.Drawing.Size(103, 13);
             this.lnkHelp.TabIndex = 26;
@@ -80,36 +101,17 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(296, 307);
+            this.btnOK.Location = new System.Drawing.Point(377, 290);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 31;
             this.btnOK.Text = "Btn_DlgOK";
             this.btnOK.UseVisualStyleBackColor = true;
             // 
-            // btnCancel
-            // 
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(377, 307);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 30;
-            this.btnCancel.Text = "Btn_DlgCancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            // 
-            // cbDontShowAgain
-            // 
-            this.cbDontShowAgain.Location = new System.Drawing.Point(15, 291);
-            this.cbDontShowAgain.Name = "cbDontShowAgain";
-            this.cbDontShowAgain.Size = new System.Drawing.Size(275, 39);
-            this.cbDontShowAgain.TabIndex = 32;
-            this.cbDontShowAgain.Text = "Lbl_DontWarnAboutSharedFileAgain";
-            this.cbDontShowAgain.UseVisualStyleBackColor = true;
-            // 
             // lnkPersonalOauth
             // 
             this.lnkPersonalOauth.AutoSize = true;
-            this.lnkPersonalOauth.Location = new System.Drawing.Point(141, 264);
+            this.lnkPersonalOauth.Location = new System.Drawing.Point(12, 268);
             this.lnkPersonalOauth.Name = "lnkPersonalOauth";
             this.lnkPersonalOauth.Size = new System.Drawing.Size(101, 13);
             this.lnkPersonalOauth.TabIndex = 33;
@@ -117,16 +119,25 @@
             this.lnkPersonalOauth.Text = "Lnk_PersonalOauth";
             this.lnkPersonalOauth.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkPersonalOauth_LinkClicked);
             // 
-            // SharedFileWarning
+            // lnkSessionAuthTokens
             // 
-            this.AcceptButton = this.btnCancel;
+            this.lnkSessionAuthTokens.AutoSize = true;
+            this.lnkSessionAuthTokens.Location = new System.Drawing.Point(12, 247);
+            this.lnkSessionAuthTokens.Name = "lnkSessionAuthTokens";
+            this.lnkSessionAuthTokens.Size = new System.Drawing.Size(126, 13);
+            this.lnkSessionAuthTokens.TabIndex = 34;
+            this.lnkSessionAuthTokens.TabStop = true;
+            this.lnkSessionAuthTokens.Text = "Lnk_SessionAuthTokens";
+            this.lnkSessionAuthTokens.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkSessionAuthTokens_LinkClicked);
+            // 
+            // SharedFileError
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(464, 342);
+            this.ClientSize = new System.Drawing.Size(464, 323);
+            this.Controls.Add(this.lnkSessionAuthTokens);
             this.Controls.Add(this.lnkPersonalOauth);
-            this.Controls.Add(this.cbDontShowAgain);
             this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lnkHelp);
             this.Controls.Add(this.lblSubTitle);
             this.Controls.Add(this.lblMessage);
@@ -134,7 +145,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "SharedFileWarning";
+            this.Name = "SharedFileError";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Google Sync Plugin";
@@ -151,8 +162,7 @@
         private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.LinkLabel lnkHelp;
         private System.Windows.Forms.Button btnOK;
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.CheckBox cbDontShowAgain;
         private System.Windows.Forms.LinkLabel lnkPersonalOauth;
+        private System.Windows.Forms.LinkLabel lnkSessionAuthTokens;
     }
 }

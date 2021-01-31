@@ -20,6 +20,7 @@
     <ClientIdSrcFolder>$(MSBuildProjectDirectory)\</ClientIdSrcFolder>
     <TransformOnBuild>true</TransformOnBuild>
     <TransformOutOfDateOnly>true</TransformOutOfDateOnly>
+    <Satellite_ProductName>KeePass Plugin Satellite Resources</Satellite_ProductName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SavedAuthWarning.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SavedAuthWarning.Designer.cs">
+      <DependentUpon>SavedAuthWarning.cs</DependentUpon>
+    </Compile>
     <Compile Include="PluginConfig.cs" />
     <Compile Include="CenterWin32Dlg.cs" />
     <Compile Include="ConfigurationForm.cs">
@@ -96,11 +103,11 @@
     <Compile Include="MruFreezer.cs" />
     <Compile Include="PluginException.cs" />
     <Compile Include="ProxyHttpClientFactory.cs" />
-    <Compile Include="SharedFileWarning.cs">
+    <Compile Include="SharedFileError.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SharedFileWarning.Designer.cs">
-      <DependentUpon>SharedFileWarning.cs</DependentUpon>
+    <Compile Include="SharedFileError.Designer.cs">
+      <DependentUpon>SharedFileError.cs</DependentUpon>
     </Compile>
     <Compile Include="SyncConfiguration.cs" />
     <Compile Include="PluginEntryFactory.cs" />
@@ -116,6 +123,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SavedAuthWarning.resx">
+      <DependentUpon>SavedAuthWarning.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="AuthWaitOrCancel.resx">
       <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
     </EmbeddedResource>
@@ -131,8 +142,8 @@
       <LastGenOutput>Images.Designer.cs</LastGenOutput>
       <CustomToolNamespace>KeePassSyncForDrive</CustomToolNamespace>
     </EmbeddedResource>
-    <EmbeddedResource Include="SharedFileWarning.resx">
-      <DependentUpon>SharedFileWarning.cs</DependentUpon>
+    <EmbeddedResource Include="SharedFileError.resx">
+      <DependentUpon>SharedFileError.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Strings.es.resx">
       <SubType>Designer</SubType>

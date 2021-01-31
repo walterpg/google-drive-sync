@@ -1,10 +1,10 @@
 /**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright(C) 2012-2016  DesignsInnovate
- * Copyright(C) 2014-2016  Paul Voegler
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
  * 
  * KeePass Sync for Google Drive
- * Copyright(C) 2020       Walter Goodwin
+ * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,6 +84,9 @@ namespace KeePassSyncForDrive
 	/// </summary>
 	public sealed class KeePassSyncForDriveExt : Plugin, IDriveServiceProvider
 	{
+		private readonly static Dictionary<Guid, ProtectedString> s_sessionAuthTokens
+			= new Dictionary<Guid, ProtectedString>();
+
 		private IPluginHost m_host = null;
 
 		private ToolStripSeparator m_tsSeparator = null;
@@ -236,6 +239,8 @@ namespace KeePassSyncForDrive
 
 			m_host.MainWindow.FileSaved -= OnFileSaved;
 			m_host.MainWindow.FileOpened -= OnFileOpened;
+
+			s_sessionAuthTokens.Clear();
 		}
 
 		// File thumbnail image.
@@ -443,7 +448,8 @@ namespace KeePassSyncForDrive
 
 			// Update the configuration if necessary.
 			if (status != "ERROR" &&
-				(RefreshToken == null ||
+				!config.DontSaveAuthToken &&
+				(RefreshToken.IsNullOrEmpty() ||
 				 !RefreshToken.OrdinalEquals(config.RefreshToken, true)))
 			{
 				// An access token was granted.
@@ -479,18 +485,10 @@ namespace KeePassSyncForDrive
 			string status;
 			try
 			{
-				Tuple<UserCredential, ProtectedString> credAndToken;
-				credAndToken = await Task.Run(() => GetAuthorization(m_host, authData));
-				if (credAndToken.Item2 != null)
-				{
-					// Save the new refresh token.
-					authData.RefreshToken = credAndToken.Item2;
-				}
-
 				// Create the drive service and call the caller.
 				DriveService service = new DriveService(new BaseClientService.Initializer()
 				{
-					HttpClientInitializer = credAndToken.Item1,
+					HttpClientInitializer = await GetAuthorization(m_host, authData),
 					ApplicationName = GdsDefs.ProductName,
 					HttpClientFactory = new ProxyHttpClientFactory()
 				});
@@ -526,13 +524,10 @@ namespace KeePassSyncForDrive
 
 		string HandleUseDriveServiceException(Exception e)
         {
-			SharedFileException sfe = e as SharedFileException;
-			if (null != sfe)
+			if (e is PluginStatusException)
             {
-				m_host.ShowDlgMessage(sfe.Message, new Uri(sfe.Link));
-				return sfe.Message;
+				return e.Message;
             }
-
 			m_host.ShowDlgMessage(e.Message);
 			return "ERROR";
         }
@@ -860,19 +855,20 @@ namespace KeePassSyncForDrive
 				throw new PluginException(status);
 			}
 			GDriveFile file = await ResolveShortcut(service, files.First());
+
 			Debug.Assert(file == null || file.Shared.HasValue,
 				"req.Fields 'shared property' not observed");
-			if (file != null && file.Shared.HasValue && file.Shared.Value &&
-				(!config.IsUsingPersonalOauthCreds ||
-					DialogResult.Cancel == 
-						SharedFileWarning.ShowIfNeeded(m_host, fileName,
-														config)))
+			if (file != null && (!file.Shared.HasValue || file.Shared.Value))
             {
 				// The file is a shared file or it's shared-ness cannot
 				// be determined.
-				throw !config.IsUsingPersonalOauthCreds ?
-					new SharedFileException() :
-					new PluginException(Resources.GetString("Exc_SharedFile"));
+				DialogResult dr = SharedFileError.ShowIfNeeded(m_host,
+					fileName, config);
+				if (dr == DialogResult.OK)
+                {
+					throw new PluginStatusException(
+							Resources.GetString("Exc_SharedFile"));
+				}
 			}
 			return file;
 		}
@@ -1189,9 +1185,9 @@ namespace KeePassSyncForDrive
 		/// <summary>
 		/// Get Access Token from Google OAuth 2.0 API
 		/// </summary>
-		/// <returns>The Sign-in credentials (access token) and the refresh token</returns>
-		private static async Task<Tuple<UserCredential, ProtectedString>> 
-			GetAuthorization(IPluginHost host, SyncConfiguration config)
+		/// <returns>The Sign-in credentials (access token)</returns>
+		private static async Task<UserCredential> GetAuthorization(IPluginHost host,
+			SyncConfiguration config)
 		{
 			string clientId;
 			ProtectedString secret;
@@ -1248,7 +1244,35 @@ namespace KeePassSyncForDrive
 			UserCredential credential = null;
 
 			string status;
-			if (!config.RefreshToken.IsNullOrEmpty())
+
+			// Look for the auth token in the session state first, then
+			// check in the config entry.
+			Guid databaseUuid = host.GetDatabaseUuid();
+			ProtectedString authToken = GdsDefs.PsEmptyEx;
+			if (!s_sessionAuthTokens.TryGetValue(databaseUuid, out authToken) &&
+				!config.DontSaveAuthToken)
+            {
+				authToken = config.RefreshToken;
+            }
+
+			// Warn user that there is a stored auth token if desired.
+			if (!config.RefreshToken.IsNullOrEmpty() &&
+				PluginConfig.Default.WarnOnSavedAuthToken)
+			{
+				DialogResult dlgRes = await Task.Run(() =>
+				{
+					status = Resources.GetString("Msg_AuthTokenPrompting");
+					host.ShowStatusMessage(status);
+
+					return ShowModalDialogAndDestroy<SavedAuthWarning>();
+				});
+				if (dlgRes != DialogResult.OK)
+				{
+					authToken = config.RefreshToken = GdsDefs.PsEmptyEx;
+				}
+			}
+
+			if (!authToken.IsNullOrEmpty())
 			{
 				// Try using an existing Refresh Token to get a new Access Token
 				status = Resources.GetString("Msg_RefreshTokenAuth");
@@ -1257,9 +1281,8 @@ namespace KeePassSyncForDrive
 				try
 				{
 					TokenResponse token;
-					string refreshString = config.RefreshToken.ReadString();
 					token = await authCode.Flow.RefreshTokenAsync("user",
-														refreshString,
+														authToken.ReadString(),
 														CancellationToken.None);
 					credential = new UserCredential(codeFlow, "user", token);
 				}
@@ -1273,6 +1296,7 @@ namespace KeePassSyncForDrive
 							// below and dump the token.
 							credential = null;
 							config.RefreshToken = null;
+							s_sessionAuthTokens.Remove(databaseUuid);
 							break;
 						default:
 							throw;
@@ -1280,7 +1304,6 @@ namespace KeePassSyncForDrive
 				}
 			}
 
-			ProtectedString newToken = null;
 			if (credential == null ||
 				string.IsNullOrEmpty(credential.Token.AccessToken))
 			{
@@ -1294,14 +1317,23 @@ namespace KeePassSyncForDrive
 												CancellationToken.None);
 
 				if (credential != null &&
-					!string.IsNullOrEmpty(credential.Token.RefreshToken) &&
-					(config.RefreshToken == null || 
-					 credential.Token.RefreshToken != config.RefreshToken.ReadString()))
+					!string.IsNullOrEmpty(credential.Token.RefreshToken))
 				{
-					newToken = new ProtectedString(true, credential.Token.RefreshToken);
+					authToken = new ProtectedString(true, credential.Token.RefreshToken);
 				}
 			}
-			return Tuple.Create(credential, newToken);
+
+			// If "don't save" or authToken changed, save the token to the db.
+			if (!config.DontSaveAuthToken &&
+				(config.RefreshToken.IsNullOrEmpty() ||
+					!config.RefreshToken.OrdinalEquals(authToken, false)))
+			{
+				config.RefreshToken = authToken;
+			}
+
+			s_sessionAuthTokens[databaseUuid] = authToken;
+
+			return credential;
 		}
 
 		/// <summary>
@@ -1386,6 +1418,19 @@ namespace KeePassSyncForDrive
 			UIUtil.DestroyForm(f);
 			return dr;
 		}
+
+		internal static DialogResult ShowModalDialogAndDestroy<F>()
+			where F : Form, new()
+		{
+			if (Program.MainForm.InvokeRequired)
+            {
+				DialogResult result = DialogResult.Ignore;
+				Program.MainForm.Invoke(new MethodInvoker(() =>
+					result = ShowModalDialogAndDestroy<F>()));
+				return result;
+            }
+			return ShowModalDialogAndDestroy(new F());
+        }
 
 		async Task<IEnumerable<Color>> GetColors(SyncConfiguration authData)
 		{
@@ -1531,7 +1576,7 @@ namespace KeePassSyncForDrive
 					if (acctList.Any())
 					{
 						// Eligible entries available, ask to use one.
-						if (MessageBox.Show(
+						if (MessageBox.Show(m_host.MainWindow,
 								Resources.GetString("Msg_NoActiveAccount"),
 								GdsDefs.ProductName,
 								MessageBoxButtons.OKCancel,
@@ -1543,7 +1588,7 @@ namespace KeePassSyncForDrive
 					else
 					{
 						// No eligible entries found, ask if one may be created.
-						if (MessageBox.Show(
+						if (MessageBox.Show(m_host.MainWindow,
 								Resources.GetFormat("Msg_NoAcct",
 									GdsDefs.AccountSearchString),
 								GdsDefs.ProductName,
@@ -1606,10 +1651,10 @@ namespace KeePassSyncForDrive
 		// Return false if the offer was postponed via Cancel.
 		bool OfferEntryMigrationIfNeeded(EntryConfiguration entryConfig)
 		{
-			if (entryConfig.Version < Version.Parse(SyncConfiguration.Ver1))
+			if (SyncConfiguration.IsPriorToVer1_0(entryConfig))
 			{
 				DialogResult result
-					= ShowModalDialogAndDestroy(new AppCredsUpgrade());
+					= ShowModalDialogAndDestroy<AppCredsUpgrade>();
 				if (DialogResult.Cancel == result)
 				{
 					return false;
@@ -1644,13 +1689,7 @@ namespace KeePassSyncForDrive
 			}
 
 			// Return entry creator with unused title.
-			PluginConfig appConfig = PluginConfig.Default;
-			return PluginEntryFactory.Create(searchString,
-											appConfig.LegacyDriveScope,
-											appConfig.PersonalClientId,
-											appConfig.PersonalClientSecret,
-											appConfig.Folder,
-											appConfig.UseLegacyAppCredentials);
+			return PluginEntryFactory.CreateDefault(searchString);
 		}
 
 		/// <summary>
@@ -1751,7 +1790,7 @@ namespace KeePassSyncForDrive
 				entryConfig.Entry.Uuid.Equals(e.Entry.Uuid));
 			if (accounts.Any() && currentConfig != null)
 			{
-				// entryConfig will replaces currentConfig, so take it
+				// entryConfig will replace currentConfig, so take it
 				// out of list of accounts to "disable" below.
 				accounts = accounts.Except(new[] { currentConfig });
 			}
@@ -1761,13 +1800,23 @@ namespace KeePassSyncForDrive
 						e != entryConfig))
 			{
 				entry.ActiveAccount = null;
-				entry.SharedWarning = SharedFileWarning.Option.AlwaysShow;
 				entry.CommitChangesIfAny();
 				m_host.Database.Modified = entry.ChangesCommitted;
 			}
 
+			bool activeEntryChanged = !entryConfig.ActiveAccount.HasValue ||
+				!entryConfig.ActiveAccount.Value;
+
 			entryConfig.ActiveAccount = true;
 			entryConfig.CommitChangesIfAny();
+
+			// When credentials are changed by the commit, or then
+			// "active" entry is changed, clear the session auth token
+			// for the current database.
+			if (activeEntryChanged || entryConfig.CredentialsChanged)
+            {
+				s_sessionAuthTokens.Remove(m_host.GetDatabaseUuid());
+            }
 
 			m_host.Database.Modified = entryConfig.ChangesCommitted ||
 											m_host.Database.Modified;
