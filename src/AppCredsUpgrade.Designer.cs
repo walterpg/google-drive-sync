@@ -134,6 +134,7 @@
             this.lnkPrivacy.TabIndex = 31;
             this.lnkPrivacy.TabStop = true;
             this.lnkPrivacy.Text = "Lnk_HelpAppCredsPrivacy";
+            this.lnkPrivacy.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkPrivacy_LinkClicked);
             // 
             // AppCredsUpgrade
             // 

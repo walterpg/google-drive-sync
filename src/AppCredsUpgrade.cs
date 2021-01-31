@@ -61,5 +61,10 @@ namespace KeePassSyncForDrive
             DialogResult = rbNewBuiltIn.Checked ?
                 DialogResult.Yes : DialogResult.No;
         }
+
+        private void lnkPrivacy_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(GdsDefs.UrlPrivacy);
+        }
     }
 }
