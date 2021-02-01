@@ -151,41 +151,59 @@ section above.
     plugin the next time you run a sync command.
 </div>
 
-**Google Drive Authorization** is where you specify the app credentials
-the plugin will use to authorize access.  
-
-{:refdef: style="text-align: center;"}
-![Entry Selection](../assets/img/gdrive-auth.png)
-{: refdef}
-
-Google requires apps such as the
-plugin to use OAuth 2.0 credentials, which they have issued,
-to obtain in-app access to your Drive account.  These credentials only
-give the plugin the ability to ask your consent to access; you still
-must prove to Google, at least once, that you own the account (through
-Google Sign-in), and that you allow access to the plugin (through the
-authorization page shown after successful sign in).
-
-Checking the the **Use built-in OAuth 2.0 Client ID** check box will
-cause the plugin to use credentials it has been issued by Google. Currently,
-these are the legacy credentials used by Google Sync 3.0.
-
-Clearing the check box enables the **Client ID** and **Client Secret**
-text boxes, in which you must enter [your own Google issued OAuth 2.0
-credentials](../usage/oauth), if you wish to authorize the plugin that
-way.
-
-The **Use limited Drive access** check box determines the
-[permission level you allow the plugin when accessing Drive](../usage/x-40#limited-drive-access).
-
-In the **Google Drive Options** group is the [**Target Sync Folder**](../usage/target-folder)
+In the **Google Drive Features** section is the
+[**Target Sync Folder**](../usage/target-folder)
 feature, with which to specify a folder in Drive where the plugin
 synchronizes your database files.  Leave this blank for the traditional
 Google Sync 3.0 "one sync file across all of Drive" semantics.
 
 {:refdef: style="text-align: center;"}
-![Other Options](../assets/img/gdrive-opts.png)
+![Drive Feature Options](../assets/img/gdrive-opts.png)
 {: refdef}
+
+In the **Drive Authorization Token Handling** section shown below, you
+may choose how the plugin handles
+[authorization tokens](/usage/authorize#authorization-tokens).
+The **Do not save Google Drive authorization in the database** option
+allows you to avoid certain [security pitfalls](/notices/sharedsec)
+associated with the storage of
+[authorization tokens](/usage/authorize#authorization-tokens)
+in the KeePass database.  If you wish to synchronize databases that are
+shared with other users, consider enabling this option. Enabling
+the option configures the plugin for session-stored authorization
+tokens. This is the only way the plugin can safely synchronize databases shared with
+the [Drive shared files feature](https://support.google.com/drive/answer/2494822?co=GENIE.Platform%3DDesktop&hl=en).
+
+{:refdef: style="text-align: center;"}
+![Authorization Token Options](../assets/img/auth-token-opts.png)
+{: refdef}
+
+The section shown below is where you may specify alternative app credentials
+used to authorize access to Drive.  This section is generally
+used only by veteran users of the legacy plugin, or those with special 
+requirements.  Most users will find it much easier and safer to avoid using
+the **Enable Legacy OAuth 2.0 Credentials** options.
+
+{:refdef: style="text-align: center;"}
+![Legacy Credentials Options](../assets/img/gdrive-auth.png)
+{: refdef}
+
+Checking the the **Use KeePass Google Sync 3.0 App Credentials** check box will
+cause the plugin to use legacy, Google Sync 3.0 app credentials.  This is not
+useful for most users, since Google has long since retired the old credentials.
+If you happen to have an old database that still contains a valid
+[authorization token](/usage/authorize#authorization-tokens)
+for the old app credentials, and don't want to re-authorize,
+then this could be the compatibility option for you.
+
+Clearing the **Use KeePass Google Sync 3.0 App Credentials** check box
+enables the **Client ID** and **Client Secret** text boxes, in which you
+can enter
+[your own Google issued OAuth 2.0 credentials](../usage/oauth),
+if you wish to authorize the plugin that way.
+
+The **Use limited Drive access** check box determines the
+[permission level you allow the plugin when accessing Drive](../usage/x-40#limited-drive-access).
 
 ##### Options and Defaults
 This **Configuration** tab contains settings pertaining to all databases
@@ -202,8 +220,20 @@ The [**Auto Sync**](../usage/autosync) group are options to completely
 automate the [Sync with Drive](../usage/sync) command by invoking it
 automatically when Saving or Opening a database.
 
-The **Google Drive Authorization Defaults** are similar to the settings
-of [Google Drive Authorization](#sync-authorization) group on the 
+The **Default Drive Authorization Token Handling** effect how the plugin
+saves authorization tokens in *new* databases, and how it reacts to finding
+stored authorization tokens in the database.  Enabling the 
+**Do not save authorization tokens in new databases** option will enable
+the analogous option in the
+[**Sync Authorization**](#sync-authorization)
+tab when the plugin creates plugin entries for new databases.  The
+**Warn me before using a stored authorization token** option can be used by 
+security-conscious users to notify them of the unexpected presence of a
+[database-stored authorization token](/usage/authorize#database-stored-tokens)
+when engaging a sync operation on any database.
+
+The **Enable Legacy OAuth 2.0 Credentials** options are similar to the settings
+of [Enable Legacy OAuth 2.0 Credentials](#sync-authorization) group on the 
 **Sync Authorization** tab, but instead of affecting the current database,
 these settings will be adopted by any [new database](#new-databases) you
 use the plugin with.

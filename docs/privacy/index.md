@@ -17,6 +17,10 @@ Please review the [Site Privacy](#site-privacy) section below
 for more information regarding website privacy and the site
 hosting service provider's policies.
 
+In addition to this document, the plugin maintainers also publish
+[Security Bulletins](/notices) which inform you of currently
+known issues that could effect secure use of the software.
+
 ---
 
 
@@ -36,11 +40,11 @@ or software.
 
 When you authorize access, Google Drive sends the plugin
 a digital token representing your consent, granted only to the plugin.
-The token is saved to the currently open
+The token may optionally be saved to the currently open
 KeePass database, and subsequently used in plugin commands accessing
 Google Drive. The token is only valid for use by the plugin, and may be
 [invalidated by you](https://myaccount.google.com/security) or Google at
-any time. Since it is saved in the KeePass database, it is as secure as
+any time. Tokens saved in the KeePass database are as safe as
 all other personal information there. 
 
 Please note: by authorizing the plugin, Google implicitly grants access
