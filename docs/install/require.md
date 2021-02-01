@@ -29,6 +29,12 @@ effort is made to preserve functional compatibility with
 [*Google Sync Plugin 3.0*](https://sourceforge.net/projects/kp-googlesync/),
 while also fixing issues with shifting Google authorization requirements.  
 
+From time to time, new releases may be forced to break certain points of
+compatibility in order to provide security fixes or improved functionality.
+In these cases, a migration path, temporary workarounds, or both will be
+provided to lessen the impact.  All such instances will be fully documented
+on this site.
+
 <div class="alert alert-secondary" role="alert">
     Compatibility is an important objective for this plugin. If you
     suspect a compatibility problem, 
@@ -39,7 +45,7 @@ while also fixing issues with shifting Google authorization requirements.
 </div>
 
 If the old plugin currently synchronizes your databases successfully, this
-release will be able to synchronize those databases as well.  Additionally,
+release should be able to synchronize those databases as well.  Additionally,
 you will not be required to [authenticate and reauthorize](../usage/authorize)
 the plugin, at least as long as Google continues to respect the
 [authorization token](../usage/authorize#authorization-tokens)

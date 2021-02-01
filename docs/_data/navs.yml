@@ -13,6 +13,8 @@
     - caption: _separator_
     - caption: Target Folder
       url: usage/target-folder
+    - caption: Drive Shortcuts
+      url: usage/shortcuts
     - caption: Auto Sync
       url: usage/autosync
     - caption: Enabled Commands

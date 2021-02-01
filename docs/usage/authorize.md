@@ -13,8 +13,10 @@ Successful authorization results in Google issuing an authorization
 token - thus you usually only need to authorize a new database once.
 
 * [Authorization Walkthrough](#authorization-walkthrough)
-* [Authorization Issues](#authorization-issues)
+* [Authorization Errors](#authorization-errors)
 * [Authorization Tokens](#authorization-tokens)
+  * [Database-Stored Tokens](#database-stored-tokens)
+  * [Session-Stored Tokens](#session-stored-tokens)
 
 ---
 
@@ -83,7 +85,7 @@ such as shown below.
 
 ---
 
-#### Authorization Issues
+#### Authorization Errors
 
 If Google Sign-in does not authorize the plugin,
 the browser may display an error such as this:
@@ -113,28 +115,79 @@ the following configuration options:
 ---
 
 #### Authorization Tokens
-When you successfully authorize, the Google Sign-in service issues
-an authorization token which the plugin saves to the database.
-This token is proof of your consent, and 
-the plugin will henceforth send it in each request to use the Google
-Drive API.
+When you successfully [authorize](#authorization-walkthrough),
+the plugin engages the Google Sign-in service to obtain an
+*authorization token*. This token is proof of your consent, and 
+the plugin can use it in subsequent requests to use the Google
+Drive API on your behalf.  The authorization token allows the
+plugin to perform sync commands without requiring you to
+Sign-in each time.
 
-Because the token is securely saved in the database, you can use
-plugin commands without reauthorizing each KeePass session.
+The plugin optionally handles authorization tokens in two ways:
+*session*-stored tokens, and *database*-stored tokens.
+In prior plugin releases, only database-stored tokens were
+available.  Session-stored tokens are now offered as way to avoid
+situational [security issues](/notices/sharedsec)
+associated with database-stored tokens.  Each KeePass database
+you use can be
+[configured for either handling option](/install/config#sync-authorization),
+and the plugin offers
+[global token handling options](/install/config#options-and-defaults)
+to manage authorization tokens in all databases.
 
-Occasionally however, reauthorization will be required. There are
-basically only two conditions which require the plugin to obtain a new
-authorization token:
+Regardless of the reason for an invalid token or its storage
+scheme, the plugin always initiates the
+[authorization sequence](#authorization-walkthrough)
+to obtain a valid token when necessary.
+
+##### Database-Stored Tokens
+This option saves the authorization token in the KeePass database
+along with other plugin configuration data.  This is enabled per
+database, by clearing the
+[**Do not save Google Drive Authorization in the database**](/config#sync-authorization)
+check box in the
+[configuration dialog](/config#configuration-window).
+
+<div class="alert alert-warning text-dark" role="alert">
+    <div>
+        <a href="/notices/sharedsec">SECURITY ALERT</a>
+    </div>
+    KeePass databases synchronized using this option, then
+    <em>shared with partially-trusted users</em>, could present a security hazard.
+    <a href="/notices/sharedsec">Please review the details</a> to
+    ensure safe use of the plugin.
+</div>
+
+The main advantage of this is that the token can be reused 
+indefinitely, across many KeePass sessions.  
+Very often, you may never need to authorize the plugin with Google
+Sign-in more than once.  Occasionally however, reauthorization may
+be required. There are usually only two conditions which require
+the plugin to replace a token that is saved in the database:
 
 * Syncing a new database.
-* Expired or authorization tokens retired by Google saved in an existing
+* Expired, revoked, or retired authorization tokens saved in an existing
 database.
 
 The latter case can occur when an authorization granted to
-this or the old plugin for an existing database expires, or is 
-inadvertantly revoked by a Google
+this or the old plugin expires, or is inadvertently revoked by a Google
 ["security checkup"](https://myaccount.google.com/security-checkup)
-initiated by an unwary user.
+initiated by an unwary user.  You may also manually revoke any authorization
+granted to the plugin by following the steps mentioned in the
+**Remediation** section of the [security bulletin](/notices/sharedsec#remediation).
 
-The plugin initiates the [authorization sequence](#authorization-walkthrough)
-whenever a command requires a new or refreshed token.
+##### Session-Stored Tokens
+Session-stored authorization tokens are not saved to the database.
+They are only available to the current KeePass session - as soon as you
+exit KeePass, any session-stored tokens are discarded.  Thus, the next
+time you run KeePass and synchronize a database, you will be prompted
+to authorize via Google Sign-in. Enable this option by selecting/checking the
+[**Do not save Google Drive Authorization in the database**](/config#sync-authorization)
+check box in the
+[configuration dialog](/config#configuration-window).
+
+While session-stored tokens are obviously less convenient than 
+the database-stored tokens, the option may provide peace of mind to
+security-conscious users in sensitive environments.  In particular, groups
+who wish to safely share a KeePass database and its credentials, but not
+share a single Google Drive account, can benefit from this feature.

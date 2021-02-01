@@ -3,13 +3,14 @@ layout: home
 title: KeePass Sync for Google Drive™
 ---
 
-<div class="alert alert-secondary" role="alert">
-    <div>Attention ALPHA release users!</div>
-    If you have installed an alpha release of the plugin,
-    please
-    <a href="./install/upgrade0">review this page</a>
-    for important info regarding upgrading to the latest
-    release.
+<div class="alert alert-warning text-dark" role="alert">
+    <div>
+        <a href="/notices/sharedsec">SECURITY ALERT</a>
+    </div>
+    KeePass databases synchronized with this plugin, then
+    <em>shared with partially-trusted users</em>, could present a security hazard.
+    <a href="/notices/sharedsec">Please review the details</a> to
+    ensure safe use of the plugin.
 </div>
 
 This [KeePass Password Safe v2](https://keepass.info) plugin provides safe,
@@ -33,11 +34,10 @@ of the Google Drive file.
 Beyond simple backup or online storage, the plugin leverages KeePass'
 [synchronize function](https://keepass.info/help/v2/sync.html) to maintain
 perfect copies of the database in the Google Drive cloud and in Windows storage for
-extra security. Changes made to the database by another user or on another
-device can be accurately merged with the local copy of the database. Handy for
-users of [mobile or other KeePass-compatible programs](https://keepass.info/download.html)
-that synchronize with Google Drive, it can also simplify distribution of
-group shared password archives.  
+extra security. Changes made to the database elsewhere can be accurately
+merged with the local copy of the database. Users of multiple devices and
+[mobile or other KeePass-compatible programs](https://keepass.info/download.html)
+that synchronize with Google Drive will find this plugin quite useful.
 
 Supports traditional KeePass v2 ["Normal"](../install/normal) and 
 ["Portable"](../install/portable) plugin installation.
