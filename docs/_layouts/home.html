@@ -13,6 +13,7 @@ layout: default
       {%- else -%}
       {%- assign current_release = site.github.releases.first -%}
       {%- endif -%}
+      {%- assign current_release = site.github.releases[1] -%}
       {%- for asset in current_release.assets -%}
         {%- assign plgx_substr = asset.name | slice: -5, 5 | upcase -%}
         {%- assign zip_substr = asset.name | slice: -4, 4 | upcase -%}
