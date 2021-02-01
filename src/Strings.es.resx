@@ -477,91 +477,91 @@ De lo contrario, haga clic en Cancelar para abandonar esta operación.
 
 En cualquier caso, puede seleccionar otra entrada más tarde para que sea la entrada activa del complemento, con el comando Configuración en el menú del complemento.</value>
   </data>
-	<data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
-	  <value>Política de privacidad de KeePass Sync para Google Drive.</value>
+  <data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
+    <value>Política de privacidad de KeePass Sync para Google Drive.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
     <value>Se encontró más de un archivo o acceso directo llamado "{0}" en Google Drive. Asegúrese de que el nombre sea único en todas las carpetas o utilice la función Carpeta de destino.</value>
   </data>
   <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
-	<value>Se encontró más que en la carpeta llamada "{1}" en Google Drive, y contienen varios archivos y / o accesos directos llamados "{0}". Asegúrese de que el nombre sea único en todas las carpetas especificadas por la carpeta de destino.</value>	
+    <value>Se encontró más que en la carpeta llamada "{1}" en Google Drive, y contienen varios archivos y / o accesos directos llamados "{0}". Asegúrese de que el nombre sea único en todas las carpetas especificadas por la carpeta de destino.</value>    
   </data>
   <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
-	<value>Se encontró más que en la carpeta llamada "{1}" en Google Drive. La carpeta de destino debe ser única, ya sea mi nombre o contener exclusivamente un archivo llamado '{0}'.</value>	
+    <value>Se encontró más que en la carpeta llamada "{1}" en Google Drive. La carpeta de destino debe ser única, ya sea mi nombre o contener exclusivamente un archivo llamado '{0}'.</value>    
   </data>
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
-  	<value>Creando nueva carpeta '{0}' ...</value>
+    <value>Creando nueva carpeta '{0}' ...</value>
   </data>
   <data name="Exc_ShortcutNoLink" xml:space="preserve">
-	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no está vinculado a un archivo.</value>
+    <value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no está vinculado a un archivo.</value>
   </data>
   <data name="Exc_ShortcutTargetIdMissing" xml:space="preserve">
-	<value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no contiene un ID de archivo vinculado.</value>
+    <value>Acceso directo a Drive no válido. Se encontró un acceso directo llamado '{0}', pero no contiene un ID de archivo vinculado.</value>
   </data>
   <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
     <value>Resolviendo el acceso directo de Drive '{0}' al ID: {1} ...</value>
   </data>
   <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
-	<value>El acceso directo de Drive '{1}' se vincula al archivo '{0}' en la Papelera. Para sincronizar con '{0}', sáquelo de la carpeta Papelera.</value>
+    <value>El acceso directo de Drive '{1}' se vincula al archivo '{0}' en la Papelera. Para sincronizar con '{0}', sáquelo de la carpeta Papelera.</value>
   </data>
   <data name="Title_SharedFileError" xml:space="preserve">
-	<value>Acceso archivos compartidos de Drive deshabilitado</value>
+    <value>Acceso archivos compartidos de Drive deshabilitado</value>
   </data>
   <data name="SubTitle_SharedFileError" xml:space="preserve">
-	<value>{0} se comparte con otras cuentas de Drive.</value>
+    <value>{0} se comparte con otras cuentas de Drive.</value>
   </data>
   <data name="Msg_SharedFileError" xml:space="preserve">
-	<value>Para la seguridad del complemento, la configuración actual prohíbe las operaciones de sincronización en este archivo.
+    <value>Para la seguridad del complemento, la configuración actual prohíbe las operaciones de sincronización en este archivo.
 
 Para sincronizar de forma segura este archivo, debe habilitar los tokens de autorización de sesión (Manejo de tokens de autorización de unidad) en la pestaña Autorización de sincronización del cuadro de diálogo de configuración. Alternativamente, puede configurar el complemento para usar credenciales de aplicación OAuth 2.0 personales.</value>
   </data>
   <data name="Lnk_SharedFileHelp" xml:space="preserve">
-	<value>Riesgos de archivos compartidos</value>
+    <value>Riesgos de archivos compartidos</value>
   </data>
   <data name="Exc_SharedFile" xml:space="preserve">
-	<value>Las operaciones de sincronización con archivos compartidos con otras cuentas de Drive no están configuradas.</value>
+    <value>Las operaciones de sincronización con archivos compartidos con otras cuentas de Drive no están configuradas.</value>
   </data>
   <data name="Msg_SavingConfig" xml:space="preserve">
-	<value>Guardando cambios de configuración en la base de datos ...</value>
+    <value>Guardando cambios de configuración en la base de datos ...</value>
   </data>
   <data name="Msg_SavingSharedFileChoice" xml:space="preserve">
-	<value>Guardando su elección en la entrada de la base de datos ...</value>
+    <value>Guardando su elección en la entrada de la base de datos ...</value>
   </data>
   <data name="Lnk_PersonalOauth" xml:space="preserve">
-	<value>Credenciales de aplicaciones personales</value>
+    <value>Credenciales de aplicaciones personales</value>
   </data>
   <data name="Msg_MsgBoxLinkPrompt" xml:space="preserve">
-	<value>Haga clic en "Sí" para obtener más información.</value>
+    <value>Haga clic en "Sí" para obtener más información.</value>
   </data>
   <data name="Group_AuthTokenSecurity" xml:space="preserve">
-	<value>Manejo del token de autorización de Drive</value>
+    <value>Manejo del token de autorización de Drive</value>
   </data>
   <data name="Lbl_DontSaveAuthToken" xml:space="preserve">
-	<value>No guarde la autorización de Google Drive en la base de datos.</value>
+    <value>No guarde la autorización de Google Drive en la base de datos.</value>
   </data>
   <data name="Lnk_AuthTokenHelp" xml:space="preserve">
-	<value>¿Por qué debería habilitarse esto para las bases de datos compartidas?</value>
+    <value>¿Por qué debería habilitarse esto para las bases de datos compartidas?</value>
   </data>
   <data name="Group_AuthTokenSecurityDefaults" xml:space="preserve">
-	<value>Manejo predeterminado del token de autorización de Drive</value>
+    <value>Manejo predeterminado del token de autorización de Drive</value>
   </data>
   <data name="Lbl_DontSaveAuthDefault" xml:space="preserve">
-	<value>No guarde los tokens de autorización en bases de datos nuevas.</value>
+    <value>No guarde los tokens de autorización en bases de datos nuevas.</value>
   </data>
   <data name="Lbl_WarnEntryAuthToken" xml:space="preserve">
-	<value>Avisarme antes de usar un token de autorización almacenado.</value>
+    <value>Avisarme antes de usar un token de autorización almacenado.</value>
   </data>
   <data name="Lnk_AuthTokenAppHelp" xml:space="preserve">
-	<value>¿Por qué debería hacer esto si uso bases de datos compartidas?</value>
+    <value>¿Por qué debería hacer esto si uso bases de datos compartidas?</value>
   </data>
   <data name="Msg_AuthTokenPrompting" xml:space="preserve">
-	<value>Token de autenticación encontrado: consulta al usuario para continuar.</value>
+    <value>Token de autenticación encontrado: consulta al usuario para continuar.</value>
   </data>
   <data name="Title_SavedAuthWarning" xml:space="preserve">
-	<value>Token de autorización guardado encontrado</value>
+    <value>Token de autorización guardado encontrado</value>
   </data>
   <data name="Msg_SavedAuthWarning" xml:space="preserve">
-	<value>Esta base de datos contiene un token de autorización guardado para el acceso a Drive.
+    <value>Esta base de datos contiene un token de autorización guardado para el acceso a Drive.
 
 Haga clic en Aceptar para utilizar este token para acceder a Drive.
 Haga clic en Cancelar para eliminar el token y volver a autorizar esta sesión de KeePass con Google Sign-On.
@@ -569,9 +569,9 @@ Haga clic en Cancelar para eliminar el token y volver a autorizar esta sesión d
 Esta advertencia se muestra cuando se encuentran tokens de autorización almacenados en la base de datos. Para evitar la advertencia, configure tokens de autorización almacenados en la sesión para esta base de datos.</value>
   </data>
   <data name="Lbl_DontShowSavedAuthWarning" xml:space="preserve">
-	<value>Deshabilite la advertencia y siempre use tokens de autorización almacenados en la base de datos si es posible.</value>
+    <value>Deshabilite la advertencia y siempre use tokens de autorización almacenados en la base de datos si es posible.</value>
   </data>
   <data name="Lnk_SessionAuthTokens" xml:space="preserve">
-	<value>Tokens de autorización almacenados en la sesión</value>
+    <value>Tokens de autorización almacenados en la sesión</value>
   </data>
 </root>
