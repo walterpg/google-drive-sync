@@ -455,7 +455,7 @@ namespace KeePassSyncForDrive
 			{
 				configVersion = new Version(Ver0);
 			}
-			update.ConfigVersion = configVersion;
+			update.ConfigVersion = configVersion.ToString(2);
 
 			string cmds = host.GetConfig(ConfigEnabledCmdsKey,
 				((int)SyncCommands.All).ToString(
