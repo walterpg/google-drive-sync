@@ -6,7 +6,7 @@ title: Requirements and Compatibility
 Supported installations of the plugin require the following components.  
 
 * [KeePass](https://keepass.info) version 2.35 or later.
-* [.NET Framework](https://dotnet.microsoft.com) version 4.5 or later.
+* [.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework) version 4.5 or later.
 * A [Microsoft-supported Windows OS](https://www.microsoft.com/en-us/windows)
 running the above.
 
