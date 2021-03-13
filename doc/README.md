@@ -72,7 +72,7 @@ can be safely installed side-by-side with *Google Sync Plugin 3.0*.
 
 ## Requirements
 * KeePass version 2.35 or later.
-* .NET Framework 4.5 or later.
+* .NET Framework versions 4.5 through 4.8.
 * A modern Windows OS that can run the above.
 
 ## Installation (Normal)
@@ -97,15 +97,15 @@ KeePass Tools menu:
 KeePass supports ["portable"](https://keepass.info/help/v2/setup.html#portable)
 installation that allows you to install and run KeePass on removable
 media such as USB sticks.  To use the plugin in portable mode, ensure that the
-machine meets the [minumum .NET Framework requirements](#requirements).
+machine meets the [minumum .NET Framework requirements](#requirements). Also, when installing a KeePass release in portable mode, ensure that both "KeePass.exe" and "KeePass.exe.config" from that release are copied to the installation folder.
 
-To install the plugin in this mode, use the ".zip"
-file embedded the release download (e.g., KeePassSyncForDrive-4.0.1.zip).
+Download the .ZIP file from the [release page](https://github.com/walterpg/google-drive-sync/releases) (e.g., KeePassSyncForDrive-4.0.1.zip).
 
-1. Create a folder under the KeePass installation folder named 
-"KeePassSync4Drive" (for example, if KeePass.exe is installed in a folder named
-"K:\sw\KeePass", create the folder "K:\sw\KeePass\KeePassSync4Drive").
-2. Extract the contents of the .zip file into the folder created in step 1.
+1. Ensure KeePass is not running.
+2. If it does not already exist, create a folder under the KeePass installation folder named “Plugins” (for example, if KeePass.exe is installed in a folder named “K:\sw\KeePass”, ensure the folder “K:\sw\KeePass\Plugins” exists).
+3. Create a new, uniquely named folder under the Plugins folder (for example, if the Plugins folder of the previous step is “K:\sw\KeePass\Plugins”, and no folder named “SyncForDrive” exists in that folder, create the folder “K:\sw\KeePass\Plugins\SyncForDrive”).
+4. Extract the contents of the .zip file into the folder created in step 3.
+
 
 If you have previously used the "normal" plugin installation on a machine where
 you now wish to use the "portable" installation, you should remove the
