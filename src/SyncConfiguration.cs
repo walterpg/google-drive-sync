@@ -34,15 +34,15 @@ namespace KeePassSyncForDrive
     public abstract class SyncConfiguration
     {
         // Ver0
-        //	clientID/secret present => custom client id
-        //	clientID/secret missing => legacy client id
+        //    clientID/secret present => custom client id
+        //    clientID/secret missing => legacy client id
         //
         // Ver1.0
-        //	if Use legacy flag missing or false
-        //	 => new app client id
-        //  else
-        //	 clientID/secret present => custom client id
-        //	 clientID/secret missing => legacy client id
+        //    if Use legacy flag missing or false
+        //     => new app client id
+        //    else
+        //     clientID/secret present => custom client id
+        //     clientID/secret missing => legacy client id
         //
         // Ver1.1
         //  If refresh token present and cache flag

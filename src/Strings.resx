@@ -489,86 +489,86 @@ In either case, you can select another entry later to be the active plugin entry
     <value>More than one file or shortcut named '{0}' found on Google Drive. Please make sure the name is unique across all folders, or use the Target Folder feature.</value>
   </data>
   <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
-	<value>More than on folder named '{1}' was found on Google Drive, and multiple files and/or shortcuts named '{0}' are contained by them. Please make sure the name is unique across all folders specified by Target Folder.</value>	
+    <value>More than on folder named '{1}' was found on Google Drive, and multiple files and/or shortcuts named '{0}' are contained by them. Please make sure the name is unique across all folders specified by Target Folder.</value>    
   </data>
   <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
-	<value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>	
+    <value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>    
   </data>
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
-  	<value>Creating new folder '{0}'...</value>
+      <value>Creating new folder '{0}'...</value>
   </data>
   <data name="Exc_ShortcutNoLink" xml:space="preserve">
-	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to an accessible file.</value>
+    <value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to an accessible file.</value>
   </data>
   <data name="Exc_ShortcutTargetIdMissing" xml:space="preserve">
-	<value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it does not contain a linked file ID.</value>
+    <value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it does not contain a linked file ID.</value>
   </data>
   <data name="Msg_RetrievingGDriveShortcutFmt" xml:space="preserve">
     <value>Resolving Drive Shortcut '{0}' to ID:{1}...</value>
   </data>
   <data name="Exc_ShortcutTargetTrashed" xml:space="preserve">
-	<value>The Drive shortcut '{1}' links to file '{0}' in the Trash. To sync with '{0}', move it out of the Trash folder.</value>
+    <value>The Drive shortcut '{1}' links to file '{0}' in the Trash. To sync with '{0}', move it out of the Trash folder.</value>
   </data>
   <data name="Title_SharedFileError" xml:space="preserve">
-	<value>Shared Drive File Access Disabled</value>
+    <value>Shared Drive File Access Disabled</value>
   </data>
   <data name="SubTitle_SharedFileError" xml:space="preserve">
-	<value>{0} is shared with other Drive accounts.</value>
+    <value>{0} is shared with other Drive accounts.</value>
   </data>
   <data name="Msg_SharedFileError" xml:space="preserve">
-	<value>For plugin security, the current settings prohibit sync operations on this file.
+    <value>For plugin security, the current settings prohibit sync operations on this file.
 
 To safely sync this file, you need to enable session authorization tokens (Drive Authorization Token Handling) in the Sync Authorization tab of the settings dialog.
 
 Alternatively, you can configure the plugin to use personal OAuth 2.0 application credentials.</value>
   </data>
   <data name="Lnk_SharedFileHelp" xml:space="preserve">
-	<value>Shared File Risks</value>
+    <value>Shared File Risks</value>
   </data>
   <data name="Exc_SharedFile" xml:space="preserve">
-	<value>Sync operations with files shared with other Drive accounts are not configured.</value>
+    <value>Sync operations with files shared with other Drive accounts are not configured.</value>
   </data>
   <data name="Msg_SavingConfig" xml:space="preserve">
-	<value>Saving configuration changes to the database...</value>
+    <value>Saving configuration changes to the database...</value>
   </data>
   <data name="Msg_SavingSharedFileChoice" xml:space="preserve">
-	<value>Saving your choice in the database entry...</value>
+    <value>Saving your choice in the database entry...</value>
   </data>
   <data name="Lnk_PersonalOauth" xml:space="preserve">
-	<value>Personal App Credentials</value>
+    <value>Personal App Credentials</value>
   </data>
   <data name="Msg_MsgBoxLinkPrompt" xml:space="preserve">
-	<value>Click 'Yes' for more information.</value>
+    <value>Click 'Yes' for more information.</value>
   </data>
   <data name="Group_AuthTokenSecurity" xml:space="preserve">
-	<value>Drive Authorization Token Handling</value>
+    <value>Drive Authorization Token Handling</value>
   </data>
   <data name="Lbl_DontSaveAuthToken" xml:space="preserve">
-	<value>Do not save Google Drive authorization in the database.</value>
+    <value>Do not save Google Drive authorization in the database.</value>
   </data>
   <data name="Lnk_AuthTokenHelp" xml:space="preserve">
-	<value>Why should this be enabled for shared databases?</value>
+    <value>Why should this be enabled for shared databases?</value>
   </data>
   <data name="Group_AuthTokenSecurityDefaults" xml:space="preserve">
-	<value>Default Drive Authorization Token Handling</value>
+    <value>Default Drive Authorization Token Handling</value>
   </data>
   <data name="Lbl_DontSaveAuthDefault" xml:space="preserve">
-	<value>Do not save authorization tokens in new databases.</value>
+    <value>Do not save authorization tokens in new databases.</value>
   </data>
   <data name="Lbl_WarnEntryAuthToken" xml:space="preserve">
-	<value>Warn me before using a stored authorization token.</value>
+    <value>Warn me before using a stored authorization token.</value>
   </data>
   <data name="Lnk_AuthTokenAppHelp" xml:space="preserve">
-	<value>Why should I do this if I use shared databases?</value>
+    <value>Why should I do this if I use shared databases?</value>
   </data>
   <data name="Msg_AuthTokenPrompting" xml:space="preserve">
-	<value>Auth token found: query user to proceed.</value>
+    <value>Auth token found: query user to proceed.</value>
   </data>
   <data name="Title_SavedAuthWarning" xml:space="preserve">
-	<value>Saved Authorization Token Found</value>
+    <value>Saved Authorization Token Found</value>
   </data>
   <data name="Msg_SavedAuthWarning" xml:space="preserve">
-	<value>This database contains a saved authorization token for Drive access.
+    <value>This database contains a saved authorization token for Drive access.
 
 Click OK to use this token to access Drive.
 Click Cancel to remove the token and re-authorize this KeePass session with Google Sign-On.
@@ -576,9 +576,9 @@ Click Cancel to remove the token and re-authorize this KeePass session with Goog
 This warning is shown when database-stored authorization tokens are found. To avoid the warning, configure session-stored authorization tokens for this database.</value>
   </data>
   <data name="Lbl_DontShowSavedAuthWarning" xml:space="preserve">
-	<value>Disable warning and always use database-stored authorization tokens if possible.</value>
+    <value>Disable warning and always use database-stored authorization tokens if possible.</value>
   </data>
   <data name="Lnk_SessionAuthTokens" xml:space="preserve">
-	<value>Session-stored Authorization Tokens</value>
+    <value>Session-stored Authorization Tokens</value>
   </data>
 </root>

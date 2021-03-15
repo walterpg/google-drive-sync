@@ -30,13 +30,13 @@ namespace KeePassSyncForDrive
 <#= gen.LegacyIdPadCsharpConstant #>
         };
         static readonly byte[] s_legacyClientSecretBytes = new byte[]
-		{
+        {
 <#= gen.LegacySecretCsharpConstant #>
-		};
-		static readonly byte[] s_legacyClientSecretPad = new byte[]
-		{
+        };
+        static readonly byte[] s_legacyClientSecretPad = new byte[]
+        {
 <#= gen.LegacySecretPadCsharpConstant #>
-		};
+        };
         static readonly byte[] s_clientIdBytes = new byte[]
         {
 <#= gen.ClientIdCsharpConstant #>
@@ -46,12 +46,12 @@ namespace KeePassSyncForDrive
 <#= gen.ClientIdPadCsharpConstant #>
         };
         static readonly byte[] s_clientSecretBytes = new byte[]
-		{
+        {
 <#= gen.ClientSecretCsharpConstant #>
-		};
-		static readonly byte[] s_clientSecretPad = new byte[]
-		{
+        };
+        static readonly byte[] s_clientSecretPad = new byte[]
+        {
 <#= gen.ClientSecretPadCsharpConstant #>
-		};
-	}
+        };
+    }
 }
