@@ -7,7 +7,7 @@ date: Dec 30 2020
 ---
 
 This documents a potential security threat to your personal data.
-When KeePass Sync for Google Drive plugin is used to synchronize a 
+When KPSync for Google Drive plugin is used to synchronize a 
 KeePass database **shared with partially-trusted users**, Google Drive
 data files can be compromised.  
 
@@ -83,8 +83,8 @@ Do the following to revoke the plugin's authorizations:
 
 * Sign on to the Google Drive account used for synchronization.
 * Go to Drive settings, and select **Manage Apps**.
-* In the list of applications, find "KeePass Sync for Google Drive".
-* Select the option **Disconnect from Drive** for that entry.
+* In the list of applications, find "KeePass Sync for Google Drive" and/or "KPSync for Google Drive".
+* Select the option **Disconnect from Drive** for those entries.
 * Do not synchronize the database again until you determine it is
 safe to do so as outlined below.
 

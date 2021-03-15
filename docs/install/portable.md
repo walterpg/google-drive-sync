@@ -31,25 +31,25 @@ is valid and operating as desired.
 Please also review the general [KeePass instructions for installing plugins](https://keepass.info/help/v2/plugins.html).  
 
 Use the [Download .ZIP](/) button to obtain a file named
-KeePassSyncForDrive-x.x.x.zip, where 'x.x.x' is the release version.  For
-example "KeePassSyncForDrive-4.0.1.zip" or "KeePassSyncForDrive-4.0.1-beta.zip".
+KPSyncForDrive-x.x.x.zip, where 'x.x.x' is the release version.  For
+example "KPSyncForDrive-4.1.0.zip" or "KPSyncForDrive-4.0.6-beta.zip".
 
 1. Ensure KeePass is not running.
 2. If it does not already exist, create a folder under the KeePass
-installation folder named "Plugins" (for example, if KeePass.exe is
-installed in a folder named "K:\sw\KeePass", ensure the folder
-"K:\sw\KeePass\Plugins" exists).
+installation folder named  `Plugins` (for example, if KeePass.exe is
+installed in a folder named `K:\sw\KeePass`, ensure the folder
+`K:\sw\KeePass\Plugins` exists).
 3. Create a new, uniquely named folder under the Plugins folder
 (for example, if the Plugins folder of the previous step is 
-"K:\sw\KeePass\Plugins", and no folder named "SyncForDrive" exists in
-that folder, create the folder "K:\sw\KeePass\Plugins\SyncForDrive").
+`K:\sw\KeePass\Plugins`, and no folder named `KPSyncForDrive` exists in
+that folder, create the folder `K:\sw\KeePass\Plugins\KPSyncForDrive`).
 4. Extract the contents of the .zip file into the folder created in step 3.
 
 Verify that the plugin is installed by starting KeePass and examining the
 Tools menu:
 
 {:refdef: style="text-align: center;"}
-![KeePass Tools menu and KeePass Sync For Google Drive submenu](../assets/img/tools-menu.png)
+![KeePass Tools menu and KPSync For Google Drive submenu](../assets/img/tools-menu.png)
 {: refdef}
 
 To ensure you have the most current version of the plugin, click
@@ -104,7 +104,7 @@ plugin cache that must be cleared.  Note that this will prevent the
 plugin from operating in normal, non-portable mode, if KeePass is still
 installed that way.
 
-1. Remove the ".plgx" file added to the KeePass directory in Step 1 of the 
+1. Remove the ".plgx" file added to the KeePass folders in Step 1 of the 
 [normal installation](normal#installation-steps) instructions.
 2. In KeePass, clear the "Plugin Cache" (Tools &#x21D2; Plugins... &#x21D2;
 Clear button).

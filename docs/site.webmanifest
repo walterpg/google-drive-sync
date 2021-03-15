@@ -1,6 +1,6 @@
 {
-    "name": "KeePass Sync For Google Drive",
-    "short_name": "KeePass Sync For Drive",
+    "name": "KPSync For Google Drive",
+    "short_name": "KPSync For Drive",
     "icons": [
         {
             "src": "/android-chrome-192x192.png?v=rMB3dqKbXj",

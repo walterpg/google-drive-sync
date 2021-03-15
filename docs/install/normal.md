@@ -19,8 +19,8 @@ Please review the general [KeePass instructions for installing plugins](https://
 before proceeding.  Also, ensure that all [system requirements](require) are met.
 
 Use the [Download .PLGX button](/) to obtain a file named
--x.x.x.plgx, where 'x.x.x' is the release version.  For
-example "KeePassSyncForDrive-4.0.1.plgx" or "KeePassSyncForDrive-4.0.1-beta.plgx".
+KPSyncForDrive-x.x.x.plgx, where 'x.x.x' is the release version.  For
+example `KPSyncForDrive-4.1.0.plgx` or `KPSyncForDrive-4.0.6-beta.plgx`.
 
 1. Copy the downloaded .plgx file to the KeePass installation directory, for
 example "C:\Program Files (x86)\KeePass Password Safe 2".  You probably need to
@@ -29,7 +29,7 @@ Otherwise Windows may prevent the copy with "Access Denied" or similar messages.
 2. Restart KeePass.  Please ensure that KeePass is fully shut down and not simply
 minimized to the task bar or [notification tray](https://docs.microsoft.com/en-us/windows/win32/shell/notification-area) before restarting.
 
-When KeePass starts, a short delay occurs to initialize new plugin(s)
+When KeePass starts, a short delay may occur to initialize new plugin(s)
 you have installed.  Verify that the plugin is installed by examining the
 KeePass Tools menu:
 
