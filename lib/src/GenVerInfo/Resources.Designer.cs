@@ -61,8 +61,9 @@ namespace GenVerInfo {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt; 
-        ///.
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+        ///&lt;RSAKeyValue&gt;
+        ///	&lt;Modulus&gt;qgygjOOrPVoXdytZARmu2f8vV0omYqeclHBSIpeon7xIsYx8TiCOiecUD3NfnANdaneFOZZ1Att4rOLrDewhJnT6MOI4WBdXzpF36PMtL4ndIIGEYu0zOGO+Qi1sXPZWshrueO2IYIt9NK5RBI8YeejYJDU2BaqBE5ZsXFiDQ6o5fZftC57j1vD88Gg/V50klq00Q0q4vm0939B/HYz45ZzXZvn26pbUDyLH7ZqxacSTfdGlDN7pQ+Q7vaYOqnCtbGD8vfujV/X2LlqCpKc5iPD6Dx3iINOhByfyZ5udDtYaxbZKSumfI2OHBQT+L6Jw2RuMcH40n1aXdJaJ1KLCQMqbmOOEwM1ejbXgWtPBvo5oYjKgUUtKnBOHjZL2d3jKIWy7SSAIWmd0wDpIuA1KSORjNslgEzMRCkz5TAg9makAQ3e764FBJsy9anR2Yw [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string PrivateKey {
             get {

@@ -1,3 +1,22 @@
+## 4.0.6-beta
+
+* #31 REBRANDING. The name of the plugin has changed yet again, this time in deference to KP preferences.  This is the first release with the new name, matching changes already made to the [website](https://kpsync.org) and the Google Sign-in consent screen. See further notes below regarding this change.
+* Internal changes to project tooling used to create releases.
+* Documentation updates for the above changes.
+
+#### Release Notes: "KPSync for Google Drive"
+This is almost a purely cosmetic update. For that reason you may wish to skip this release.  If so, be aware that the Google Sign-in screen will reflect the new plugin name, even when used with a prior release.  If you do eventually  update to a new release, be vigilant regarding the names of the component files, past and present.
+
+The upgrade is similar to the prior "ALPHA" plugin upgrade, [the notes for which have been updated to include details for this upgrade](https://www.kpsync.org/install/upgrade0).  In short, the names of some major component files have changed.  Before installing the upgrade, remove prior release files with the following name *prefixes* from the KP installation and Plugins folders, and clear the [KP plugin cache](https://keepass.info/help/v2/plugins.html#cache):
+
+* KeePassSyncForDrive
+* GoogleDriveSync
+
+The file prefix name is now **KPSyncForDrive**.  This will be used in the name of the portable zip file, the .PLGX file, and the plugin assembly .DLL file.
+
+If you spot a problem or need a new feature, [please raise an issue](https://github.com/walterpg/google-drive-sync/issues)!  Thanks for your help.
+
+---
 ## 4.0.5-beta
 
 * Transparently support [Drive shortcuts](https://support.google.com/drive/answer/9700156?co=GENIE.Platform%3DDesktop&oco=1) (issue #20).

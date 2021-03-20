@@ -1,82 +1,57 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Condition=" '$(VersionPrefix)' == ''">
+    <VersionPrefix>4.0.5</VersionPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(VersionSuffix)' == ''">
+    <VersionSuffix>unstable</VersionSuffix>
+  </PropertyGroup>
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KPSyncForDrive</RootNamespace>
-    <AssemblyName>KPSyncForDrive</AssemblyName>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>GoogleSyncPlugin.pfx</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>net45</TargetFramework>
+    <Product>KeePass Plugin</Product>
+    <AssemblyTitle>KPSync For Google Drive</AssemblyTitle>
+    <Description>Safely synchronize KeePass database files with Google Drive.</Description>
+    <Copyright>Copyright ©  2020-2021</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PlatformTarget Condition=" '$(PlatformTarget)' == '' ">AnyCPU</PlatformTarget>
     <LangVersion>5</LangVersion>
-    <GenClientIdFolder>$(MSBuildProjectDirectory)\..\lib\src\GenClientId\bin\$(Configuration)\</GenClientIdFolder>
+    <UseWindowsForms>true</UseWindowsForms>
+    <GenClientIdFolder>$(MSBuildProjectDirectory)\..\lib\src\GenClientId\bin\$(Configuration)\$(TargetFramework)\</GenClientIdFolder>
     <ClientIdSrcFolder>$(MSBuildProjectDirectory)\</ClientIdSrcFolder>
     <TransformOnBuild>true</TransformOnBuild>
     <TransformOutOfDateOnly>true</TransformOutOfDateOnly>
     <Satellite_ProductName>KeePass Plugin Satellite Resources</Satellite_ProductName>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="SavedAuthWarning.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SavedAuthWarning.Designer.cs">
-      <DependentUpon>SavedAuthWarning.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PluginConfig.cs" />
-    <Compile Include="CenterWin32Dlg.cs" />
-    <Compile Include="ConfigurationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigurationForm.Designer.cs">
-      <DependentUpon>ConfigurationForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ConfigurationFormData.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="AuthWaitOrCancel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AuthWaitOrCancel.Designer.cs">
-      <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AppCredsUpgrade.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AppCredsUpgrade.Designer.cs">
-      <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FolderHelpers.cs" />
-    <Compile Include="GdsDefs.cs" />
-    <None Include="GdsDefs.Data.tt">
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Net.Http" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2030" />
+    <PackageReference Include="PlgxBuildTasks" Version="0.1.1-alpha" />
+    <Reference Include="KeePass">
+      <HintPath>..\lib\bin\KeePass.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- This is the T4 template transformer service marker. -->
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}">
+      <ExcludeFromPlgx>true</ExcludeFromPlgx>
+    </Service>
+    <None Update="GdsDefs.Data.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>GdsDefs.Data.cs</LastGenOutput>
       <Visible>true</Visible>
-      <ExcludeFromPlgx/>
+      <ExcludeFromPlgx>true</ExcludeFromPlgx>
     </None>
     <T4ParameterValues Include="ClientIdSrcFolder">
       <Value>$(ClientIdSrcFolder)</Value>
@@ -88,154 +63,98 @@
       <Visible>false</Visible>
       <ExcludeFromPlgx>true</ExcludeFromPlgx>
     </T4ParameterValues>
-    <Compile Include="GdsDefs.Data.cs">
+    <Compile Update="GdsDefs.Data.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>GdsDefs.Data.tt</DependentUpon>
     </Compile>
-    <Compile Include="GoogleColor.cs" />
-    <Compile Include="GoogleDriveSyncExt.cs" />
-    <Compile Include="IDriveServiceProvider.cs" />
-    <Compile Include="Images.Designer.cs">
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="SavedAuthWarning.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="SavedAuthWarning.Designer.cs">
+      <DependentUpon>SavedAuthWarning.cs</DependentUpon>
+    </Compile>
+    <Compile Update="ConfigurationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ConfigurationForm.Designer.cs">
+      <DependentUpon>ConfigurationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AuthWaitOrCancel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AuthWaitOrCancel.Designer.cs">
+      <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AppCredsUpgrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AppCredsUpgrade.Designer.cs">
+      <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Images.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Images.resx</DependentUpon>
     </Compile>
-    <Compile Include="MruFreezer.cs" />
-    <Compile Include="PluginException.cs" />
-    <Compile Include="ProxyHttpClientFactory.cs" />
-    <Compile Include="SharedFileError.cs">
+    <Compile Update="SharedFileError.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SharedFileError.Designer.cs">
+    <Compile Update="SharedFileError.Designer.cs">
       <DependentUpon>SharedFileError.cs</DependentUpon>
     </Compile>
-    <Compile Include="SyncConfiguration.cs" />
-    <Compile Include="PluginEntryFactory.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources.cs" />
-    <Content Include="GdsDefs.OAuthCreds.txt">
-      <ExcludeFromPlgx />
-    </Content>
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="app.config">
-      <ExcludeFromPlgx />
-    </None>
-    <None Include="GoogleSyncPlugin.pfx" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="SavedAuthWarning.resx">
+    <EmbeddedResource Update="SavedAuthWarning.resx">
       <DependentUpon>SavedAuthWarning.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="AuthWaitOrCancel.resx">
+    <EmbeddedResource Update="AuthWaitOrCancel.resx">
       <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConfigurationForm.resx">
+    <EmbeddedResource Update="ConfigurationForm.resx">
       <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AppCredsUpgrade.resx">
+    <EmbeddedResource Update="AppCredsUpgrade.resx">
       <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images.resx">
+    <EmbeddedResource Update="Images.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Images.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>KPSyncForDrive</CustomToolNamespace>
+      <CustomToolNamespace>KeePassSyncForDrive</CustomToolNamespace>
     </EmbeddedResource>
-    <EmbeddedResource Include="SharedFileError.resx">
+    <EmbeddedResource Update="SharedFileError.resx">
       <DependentUpon>SharedFileError.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Strings.es.resx">
+    <EmbeddedResource Update="Strings.es.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Strings.resx">
+    <EmbeddedResource Update="Strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="Google.Apis, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.1.49.0\lib\net45\Google.Apis.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.Auth, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\net45\Google.Apis.Auth.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.Core, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Core.1.49.0\lib\net45\Google.Apis.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.Drive.v3, Version=1.49.0.2145, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Drive.v3.1.49.0.2145\lib\net45\Google.Apis.Drive.v3.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.1.49.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="KeePass.exe">
-      <HintPath>..\lib\bin\KeePass.exe</HintPath>
-      <Private>False</Private>
-      <ExcludeFromPlgx/>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+    <None Update="app.config">
+      <ExcludeFromPlgx />
+    </None>
+    <None Update="GdsDefs.OAuthCreds.txt">
+      <ExcludeFromPlgx />
+    </None>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\btn_google_signin_dark_pressed_web.png" />
-    <Content Include="Images\DriveIcon.ico" />
-    <Content Include="Images\gdsync.png" />
-    <Content Include="Images\keepass_thumbnail.png" />
-    <Content Include="Images\outline_security_black_18dp.png" />
-    <Content Include="Images\outline_settings_black_18dp.png" />
-    <Content Include="Images\PubKey.xml" />
-    <Content Include="Images\round_cloud_download_black_18dp.png" />
-    <Content Include="Images\round_cloud_upload_black_18dp.png" />
-    <Content Include="Images\round_help_outline_black_18dp.png" />
-    <Content Include="Images\round_settings_black_18dp.png" />
-    <Content Include="Images\round_settings_black_48dp.png" />
-    <Content Include="Images\round_sync_black_18dp.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}">
-      <ExcludeFromPlgx>true</ExcludeFromPlgx>
-    </Service>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" />
-  <PropertyGroup>
-    <PlgxConfiguration>
-      <Prerequisites>
-        <KeePassVersion>2.35</KeePassVersion>
-        <OS>Windows</OS>
-        <DotNetVersion>$(TargetFrameworkVersion.Substring(1))</DotNetVersion>
-      </Prerequisites>
-    </PlgxConfiguration>
-  </PropertyGroup>
-  <Import Project="..\packages\PlgxTool.1.0.0\build\PlgxTool.targets" Condition="Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+
+  <!-- Embed version number in .PLGX name-->
+  <Target Name="KpSyncSetPlgxFileName"
+          BeforeTargets="SetPlgxOutputPath"
+          Outputs="PlgxArchiveFileName">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <PlgxArchiveFileName>$(AssemblyName)-$(Version)</PlgxArchiveFileName>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\PlgxTool.1.0.0\build\PlgxTool.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PlgxTool.1.0.0\build\PlgxTool.targets'))" />
   </Target>
-  <!--To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>-->
-  <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <CallTarget Targets="BuildPlgx" />
-  </Target>
+
 </Project>

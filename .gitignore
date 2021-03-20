@@ -170,3 +170,6 @@ src/GdsDefs.Data.cs
 
 # Private key for release version signing.
 lib/src/GenVerInfo/PrivateKey.xml
+
+# More VS-generated backups
+MigrationBackup*/
