@@ -5,17 +5,10 @@ title: KPSync for Google Drive™
 
 <div class="alert alert-secondary small" role="alert">
     <div><em>Did you notice something different?</em></div>
-    The plugin is undergoing a name change.  "KeePass Sync for Google
-    Drive", as shown in the current release and (formerly) in
-    Google Sign-in consent screen, is changing to 
-    "KPSync For Google Drive."  With any luck
-    the change will take effect in this order:
-    <li> <strike>Website</strike> (done).</li>
-    <li> <strike>Google Sign-in</strike> (done).</li>
-    <li> New plugin release.
-    </li>
-    Apologies for any confusion; watch for the rebranded plugin
-    release, and the removal of this banner, coming soon.
+    The plugin has a new name: <b>KPSync For Google Drive</b>.
+    This is the name you will see from now on, here and on
+    the Google Sign-in screen.  To see the new name in the 
+    plugin, you must upgrade to the new release.
 </div>
 
 <div class="alert alert-warning text-dark" role="alert">

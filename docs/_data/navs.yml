@@ -40,7 +40,7 @@
     - caption: _separator_
     - caption: Authorization Upgrade
       url: install/upgrade1
-    - caption: Plugin Upgrade (from ALPHA)
+    - caption: Plugin Upgrades
       url: install/upgrade0
 - caption: Privacy
   url: privacy
