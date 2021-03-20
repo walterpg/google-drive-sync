@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     /// <summary>
     /// Google doesn't provide names in it's folder color list - only rgb

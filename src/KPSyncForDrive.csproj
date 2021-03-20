@@ -6,8 +6,8 @@
     <ProjectGuid>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KeePassSyncForDrive</RootNamespace>
-    <AssemblyName>KeePassSyncForDrive</AssemblyName>
+    <RootNamespace>KPSyncForDrive</RootNamespace>
+    <AssemblyName>KPSyncForDrive</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>GoogleSyncPlugin.pfx</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -76,6 +76,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>GdsDefs.Data.cs</LastGenOutput>
       <Visible>true</Visible>
+      <ExcludeFromPlgx/>
     </None>
     <T4ParameterValues Include="ClientIdSrcFolder">
       <Value>$(ClientIdSrcFolder)</Value>
@@ -113,7 +114,9 @@
     <Compile Include="PluginEntryFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
-    <Content Include="GdsDefs.OAuthCreds.txt" />
+    <Content Include="GdsDefs.OAuthCreds.txt">
+      <ExcludeFromPlgx />
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -140,7 +143,7 @@
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Images.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>KeePassSyncForDrive</CustomToolNamespace>
+      <CustomToolNamespace>KPSyncForDrive</CustomToolNamespace>
     </EmbeddedResource>
     <EmbeddedResource Include="SharedFileError.resx">
       <DependentUpon>SharedFileError.cs</DependentUpon>
@@ -171,9 +174,10 @@
     <Reference Include="Google.Apis.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.49.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.35.0.20042, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+    <Reference Include="KeePass.exe">
       <HintPath>..\lib\bin\KeePass.exe</HintPath>
       <Private>False</Private>
+      <ExcludeFromPlgx/>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>

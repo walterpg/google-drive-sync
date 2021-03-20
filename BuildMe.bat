@@ -3,7 +3,7 @@
 :: Copyright © 2012-2016  DesignsInnovate
 :: Copyright © 2014-2016  Paul Voegler
 :: 
-:: KeePass Sync for Google Drive
+:: KPSync for Google Drive
 :: Copyright © 2020-2021 Walter Goodwin
 ::
 :: This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,11 @@
 
 @echo off
 
-set archname=KeePassSyncForDrive
-set kp_version_manifest_name=kpsync_version_4
+set archname=KPSyncForDrive
+set kp_version_manifest_name=kpsync_final
 set version=4.0.5-unstable
 
-set sevenzip="%ProgramFiles(x86)%\7-Zip\7z.exe"
+set sevenzip="%ProgramFiles%\7-Zip\7z.exe"
 set msbuildcmd="%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\Common7\Tools\VsMSBuildCmd.bat"
 set pandoc="%LOCALAPPDATA%\Pandoc\pandoc.exe"
 
@@ -45,8 +45,7 @@ rmdir /s /q  build\bin\*
 del /s /f /q build\dist\*
 del /s /f /q build\log\*
 
-nuget.exe restore
-msbuild -t:clean,build -p:Configuration=Release;Platform="Any CPU" -flp:logfile=build\log\build.log GoogleDriveSync.sln
+msbuild -t:clean,restore,build -p:Configuration=Release;Platform="Any CPU" -flp:logfile=build\log\build.log GoogleDriveSync.sln
 if %errorlevel% NEQ 0 goto error
 
 xcopy src\bin\Release\*.* build\bin /e /h

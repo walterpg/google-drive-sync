@@ -436,7 +436,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
   </data>
   <data name="Msg_UserCancelledOpFmt" xml:space="preserve">
     <value>Se canceló la operación.</value>
-    <comment>0="Google Sync Plugin"</comment>
+    <comment>0="KPSync for Google Drive"</comment>
   </data>
   <data name="Lbl_DefaultClientID" xml:space="preserve">
     <value>Client ID por Defecto:</value>
@@ -478,7 +478,7 @@ De lo contrario, haga clic en Cancelar para abandonar esta operación.
 En cualquier caso, puede seleccionar otra entrada más tarde para que sea la entrada activa del complemento, con el comando Configuración en el menú del complemento.</value>
   </data>
   <data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
-    <value>Política de privacidad de KeePass Sync para Google Drive.</value>
+    <value>Política de privacidad de KPSync para Google Drive.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
     <value>Se encontró más de un archivo o acceso directo llamado "{0}" en Google Drive. Asegúrese de que el nombre sea único en todas las carpetas o utilice la función Carpeta de destino.</value>

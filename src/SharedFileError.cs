@@ -3,7 +3,7 @@
  * Copyright © 2012-2016  DesignsInnovate
  * Copyright © 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ using KeePass.UI;
 using System;
 using System.Windows.Forms;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     public partial class SharedFileError : Form
     {
@@ -40,7 +40,7 @@ namespace KeePassSyncForDrive
 
             SharedFileError dlg = new SharedFileError();
             dlg.TargetFile = fileName;
-            KeePassSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
+            KPSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
             return DialogResult.OK;
         }
 

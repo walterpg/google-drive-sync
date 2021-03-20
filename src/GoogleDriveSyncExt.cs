@@ -1,10 +1,10 @@
-/**
+ï»¿/**
  * Google Sync Plugin for KeePass Password Safe
- * Copyright © 2012-2016  DesignsInnovate
- * Copyright © 2014-2016  Paul Voegler
+ * Copyright Â© 2012-2016  DesignsInnovate
+ * Copyright Â© 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
- * Copyright © 2020-2021 Walter Goodwin
+ * KPSync for Google Drive
+ * Copyright Â© 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Requests;
@@ -41,24 +54,10 @@ using KeePassLib.Delegates;
 using KeePassLib.Interfaces;
 using KeePassLib.Security;
 using KeePassLib.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 using File = System.IO.File;
 using GDriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     [Flags]
     public enum AutoSyncMode
@@ -82,7 +81,7 @@ namespace KeePassSyncForDrive
     /// <summary>
     /// main plugin class
     /// </summary>
-    public sealed class KeePassSyncForDriveExt : Plugin, IDriveServiceProvider
+    public sealed class KPSyncForDriveExt : Plugin, IDriveServiceProvider
     {
         private readonly static Dictionary<Guid, ProtectedString> s_sessionAuthTokens
             = new Dictionary<Guid, ProtectedString>();
@@ -423,14 +422,19 @@ namespace KeePassSyncForDrive
         public async Task<string> ConfigAndUseDriveService(
                         Func<DriveService, SyncConfiguration, Task<string>> use)
         {
+            string status;
             if (!m_host.Database.IsOpen)
             {
-                return Resources.GetString("Msg_FirstOpenDb");
+                status = Resources.GetString("Msg_FirstOpenDb");
+                m_host.ShowDlgMessage(status);
+                return status;
             }
-            else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
-            {
-                return Resources.GetString("Msg_LocalDbOnly");
-            }
+            //else if (!m_host.Database.IOConnectionInfo.IsLocalFile())
+            //{
+            //    status = Resources.GetString("Msg_LocalDbOnly");
+            //    m_host.ShowDlgMessage(status);
+            //    return status;
+            //}
 
             // Ensure the configuration with auth data.
             EntryConfiguration config = GetConfiguration();
@@ -444,7 +448,7 @@ namespace KeePassSyncForDrive
             ProtectedString RefreshToken = config.RefreshToken;
 
             // Invoke service user.
-            string status = await UseDriveService(config, use);
+            status = await UseDriveService(config, use);
 
             // Update the configuration if necessary.
             if (status != "ERROR" &&
@@ -1999,7 +2003,7 @@ namespace KeePassSyncForDrive
                         window.BeginInvoke(new MethodInvoker(window.Activate));
                     });
                     form.Shown += (o, e) => t.Start();
-                    KeePassSyncForDriveExt.ShowModalDialogAndDestroy(form);
+                    KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
                 }
             }
             return context;

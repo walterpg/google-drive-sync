@@ -437,7 +437,7 @@ In either case, you can select another entry later to be the active plugin entry
   </data>
   <data name="Msg_UserCancelledOpFmt" xml:space="preserve">
     <value>Operation cancelled by user.</value>
-    <comment>0="KeePass Sync for Google Drive"</comment>
+    <comment>0="KPSync for Google Drive"</comment>
   </data>
   <data name="Msg_UuidEntryInvalid" xml:space="preserve">
     <value>The entered UUID is not valid.</value>
@@ -483,7 +483,7 @@ In either case, you can select another entry later to be the active plugin entry
     <value>Drive Default</value>
   </data>
   <data name="Lnk_HelpAppCredsPrivacy" xml:space="preserve">
-    <value>KeePass Sync for Google Drive privacy policy.</value>
+    <value>KPSync for Google Drive privacy policy.</value>
   </data>
   <data name="Exc_MultipleGDriveFilesFmt_NoFolder" xml:space="preserve">
     <value>More than one file or shortcut named '{0}' found on Google Drive. Please make sure the name is unique across all folders, or use the Target Folder feature.</value>

@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ using KeePass.UI;
 using System;
 using System.Windows.Forms;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     public partial class AppCredsUpgrade : Form
     {

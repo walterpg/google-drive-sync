@@ -3,7 +3,7 @@
  * Copyright(C) 2012-2016  DesignsInnovate
  * Copyright(C) 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     class TestWebProxy : IWebProxy
     {

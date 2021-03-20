@@ -21,7 +21,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("KeePass Sync for Google Drive")]
+[assembly: AssemblyTitle("KPSync for Google Drive")]
 [assembly: AssemblyDescription("Safely synchronize KeePass database files with Google Drive™.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

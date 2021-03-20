@@ -1,5 +1,5 @@
 ﻿/**
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright(C) 2020       Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ namespace GenClientId
             gen.Run();
 
             StringBuilder src = new StringBuilder(@"
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     static partial class GdsDefs
     {

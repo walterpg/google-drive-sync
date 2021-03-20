@@ -1,4 +1,4 @@
-﻿namespace KeePassSyncForDrive
+﻿namespace KPSyncForDrive
 {
     partial class AuthWaitOrCancel
     {

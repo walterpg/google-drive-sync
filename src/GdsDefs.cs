@@ -3,7 +3,7 @@
  * Copyright © 2012-2016  DesignsInnovate
  * Copyright © 2014-2016  Paul Voegler
  * 
- * KeePass Sync for Google Drive
+ * KPSync for Google Drive
  * Copyright © 2020-2021 Walter Goodwin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ using KeePassLib.Security;
 using System;
 using System.Reflection;
 
-namespace KeePassSyncForDrive
+namespace KPSyncForDrive
 {
     static partial class GdsDefs
     {
@@ -75,7 +75,7 @@ namespace KeePassSyncForDrive
         {
             get
             {
-                return "KeePass Sync for Google Drive™";
+                return "KPSync for Google Drive™";
             }
         }
 
@@ -189,7 +189,7 @@ namespace KeePassSyncForDrive
         public const string UrlHelp = UrlHome;
         public const string UrlGoogleDev = "https://console.developers.google.com/start";
         public const string UrlGoogleDrive = "https://drive.google.com";
-        public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_version_4.txt";
+        public const string UrlUpdateFormat = "https://raw.githubusercontent.com/walterpg/"+ GitHubProjectName + "/master/kpsync_final.txt";
         public const string UrlSignInHelp = "https://developers.google.com/identity/sign-in/web/troubleshooting";
         public const string UrlSharedFileHelp = UrlHome + "/notices/sharedsec";
         public const string UrlPersonalAppCreds = UrlHome + "/usage/oauth";

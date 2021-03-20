@@ -1,4 +1,4 @@
-# KeePass Sync for Google Drive™
+# KPSync for Google Drive™
 (formerly [*KeePass Google Sync*](https://sourceforge.net/projects/kp-googlesync/))
 
 (Note: This README is a bare-bones primer and may be outdated in terms of
@@ -27,7 +27,7 @@ that synchronize with Google Drive will find this plugin quite useful.
 ## Primary Functions
 The plugin uses the name of the local database file when uploading/downloading
 to the local machine.  These primary functions are accessed with KeePass menu
-commands (Tools &#x21D2; KeePass Sync for Google Drive): 
+commands (Tools &#x21D2; KPSync for Google Drive): 
 * Synchronize: The copy of the database on Google Drive is downloaded to your
 local machine, *merged* with the currently open database via the KeePass
 "Synchronize with File" feature, then uploaded back to Google Drive, replacing
@@ -40,7 +40,7 @@ file until you explicitly do so.
 
 ## Secondary Functions
 These optional functions are accessed automatically or with keyboard commands,
-and configured with the plugin's configuration window (Tools &#x21D2; KeePass Sync for Google Drive &#x21D2; Configure):
+and configured with the plugin's configuration window (Tools &#x21D2; KPSync for Google Drive &#x21D2; Configure):
 * Auto-sync: Automates the Synchronize function to run when the database is
 saved to, and/or read from the local file via KeePass commands. To use this your
 database must be configured to synchronize "manually" via menu commands.
@@ -78,7 +78,7 @@ can be safely installed side-by-side with *Google Sync Plugin 3.0*.
 ## Installation (Normal)
 The [general instructions](https://keepass.info/help/v2/plugins.html) for
 installing plugins apply.  Download the .PLGX file from the [release page](https://github.com/walterpg/google-drive-sync/releases).
-For example, KeePassSyncForDrive-x.x.x.plgx, where 'x.x.x' is the release version. 
+For example, KPSyncForDrive-x.x.x.plgx, where 'x.x.x' is the release version. 
 There should also be a link to the current release on the repo's [README page](https://github.com/walterpg/google-drive-sync).
 
 1. Copy the .plgx file to the KeePass installation directory, for
@@ -91,7 +91,7 @@ When KeePass starts, a small delay occurs to initialize the plugin(s)
 that you have installed.  Verify that the plugin is installed by examining the
 KeePass Tools menu:
 
-![KeePass Sync for Google Drive menu](../docs/assets/img/tools-menu.png)
+![KPSync for Google Drive menu](../docs/assets/img/tools-menu.png)
 
 ## Installation (Portable)
 KeePass supports ["portable"](https://keepass.info/help/v2/setup.html#portable)
@@ -99,7 +99,7 @@ installation that allows you to install and run KeePass on removable
 media such as USB sticks.  To use the plugin in portable mode, ensure that the
 machine meets the [minumum .NET Framework requirements](#requirements). Also, when installing a KeePass release in portable mode, ensure that both "KeePass.exe" and "KeePass.exe.config" from that release are copied to the installation folder.
 
-Download the .ZIP file from the [release page](https://github.com/walterpg/google-drive-sync/releases) (e.g., KeePassSyncForDrive-4.0.1.zip).
+Download the .ZIP file from the [release page](https://github.com/walterpg/google-drive-sync/releases) (e.g., KPSyncForDrive-4.0.6.zip).
 
 1. Ensure KeePass is not running.
 2. If it does not already exist, create a folder under the KeePass installation folder named “Plugins” (for example, if KeePass.exe is installed in a folder named “K:\sw\KeePass”, ensure the folder “K:\sw\KeePass\Plugins” exists).
@@ -140,7 +140,7 @@ check it out!
 
 
 ## Synchronizing a Database
-Tools &#x21D2; KeePass Sync for Google Drive &#x21D2; Sync with Drive.
+Tools &#x21D2; KPSync for Google Drive &#x21D2; Sync with Drive.
 
 ![Sync Command](../docs/assets/img/sync.png)
 
@@ -204,8 +204,8 @@ such a value in the URL field, as shown.
 
 ![KeePass entry showing URL=accounts.google.com](../docs/assets/img/oauth-entry.png)
 
-Now open the KeePass Sync for Google Drive configuration dialog (Tools &#x21D2; 
-KeePass Sync for Google Drive &#x21D2; Configuration). The drop-down box at the top of the dialog
+Now open the KPSync for Google Drive configuration dialog (Tools &#x21D2; 
+KPSync for Google Drive &#x21D2; Configuration). The drop-down box at the top of the dialog
 will contain all KeePass entries tagged with the URL=``accounts.google.com``
 field.  Select one entry in the drop-down list where you want to save the
 credentials.

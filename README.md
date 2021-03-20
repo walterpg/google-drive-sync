@@ -1,4 +1,4 @@
-# [KeePass Sync for Google Drive™](https://www.kpsync.org)
+# [KPSync for Google Drive™](https://www.kpsync.org)
 
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
@@ -20,9 +20,7 @@ Visit the [CONTRIBUTING](https://github.com/walterpg/google-drive-sync/blob/mast
 
 Some Project ToDo's:
 * More documentation generally.
-* ~~Submit application to Google for verification (required for replacing the built-in credential authorization in new databases).~~
-* Secure storage of default user-specified OAuth ClientId/Secret.
-* Specify sign-in browser of choice.
+* Default option to cache Google auth tokens outside of the database.
 * Language translations[*](#localization).
 * [Bugfixes and enhancement requests](https://github.com/walterpg/google-drive-sync/issues).
 

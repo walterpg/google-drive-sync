@@ -1,4 +1,4 @@
-﻿namespace KeePassSyncForDrive
+﻿namespace KPSyncForDrive
 {
     partial class ConfigurationForm
     {
@@ -748,12 +748,12 @@
             this.m_lblAboutProd.Name = "m_lblAboutProd";
             this.m_lblAboutProd.Size = new System.Drawing.Size(222, 20);
             this.m_lblAboutProd.TabIndex = 1;
-            this.m_lblAboutProd.Text = "KeePass Sync for Google Drive™";
+            this.m_lblAboutProd.Text = "KPSync for Google Drive™";
             // 
             // m_aboutPic
             // 
             this.m_aboutPic.ErrorImage = null;
-            this.m_aboutPic.Image = global::KeePassSyncForDrive.Images.gdsync;
+            this.m_aboutPic.Image = global::KPSyncForDrive.Images.gdsync;
             this.m_aboutPic.InitialImage = null;
             this.m_aboutPic.Location = new System.Drawing.Point(11, 80);
             this.m_aboutPic.Name = "m_aboutPic";
