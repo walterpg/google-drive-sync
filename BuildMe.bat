@@ -25,7 +25,7 @@
 set archname=KPSyncForDrive
 set kp_version_manifest_name=kpsync_final
 set versionPrefix=4.0.6
-set versionSuffix=beta
+set versionSuffix=unstable
 set netsdkver=net45
 
 set sevenzip="%ProgramFiles%\7-Zip\7z.exe"
