@@ -21,6 +21,7 @@
 **/
 
 using Google.Apis.Drive.v3;
+using KeePassLib;
 using System;
 using System.Threading.Tasks;
 
@@ -38,7 +39,7 @@ namespace KPSyncForDrive
         /// SyncConfiguration: The user's configuration for the current op.
         /// The delegate returns a final, localized status message, or null.</param>
         /// <returns>Error status string or null.</returns>
-        Task<string> ConfigAndUseDriveService(
+        Task<string> ConfigAndUseDriveService(PwDatabase db,
             Func<DriveService, SyncConfiguration, Task<string>> use);
 
         /// <summary>
@@ -53,6 +54,7 @@ namespace KPSyncForDrive
         /// The delegate returns a final, localized status message, or null.</param>
         /// <returns>Error status string or null.</returns>
         Task<string> UseDriveService(SyncConfiguration authData,
+            PwDatabase db,
             Func<DriveService, SyncConfiguration, Task<string>> use);
     }
 }

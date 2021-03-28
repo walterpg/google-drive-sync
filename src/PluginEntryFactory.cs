@@ -82,19 +82,20 @@ namespace KPSyncForDrive
         }
 
         public static PwEntry Import(IPluginHost host,
+            PwDatabase database,
             PluginEntryFactory creator)
         {
             Form fParent = host.MainWindow;
             IUIOperations uiOps = host.MainWindow;
             IOConnectionInfo[] vCx = new IOConnectionInfo[] { };
-            bool? success = ImportUtil.Import(host.Database, creator,
+            bool? success = ImportUtil.Import(database, creator,
                 vCx, false, uiOps, false, fParent);
             if (success.HasValue && success.Value &&
                 host.MainWindow.GetSelectedGroup()
-                    == host.Database.RootGroup)
+                    == database.RootGroup)
             {
                 host.MainWindow.UpdateUI(false, null, false, null,
-                    true, host.Database.RootGroup, true);
+                    true, database.RootGroup, true);
             }
             return creator.Entry;
         }
