@@ -35,3 +35,13 @@ that will load when the user loads the
 [KeePass translation files](https://keepass.info/translations.html) for Spanish.
 The strings in that resource were machine translated - if you are able and willing to translate
 Spanish or any other KeePass-supported language please get in touch or submit PRs.
+
+---
+### Acknowledgements
+In addition to [KeePass](https://keepass.info), this project relies on the following support libraries, as distributed by [nuget.org](https://nuget.org).
+
+| Project      | Package                  | License                  |
+|--------------|--------------------------|--------------------------|
+| [Google APIs Client Library for .NET](https://github.com/googleapis/google-api-dotnet-client)|[Google.Apis.Drive.v3](https://www.nuget.org/packages/Google.Apis.Drive.v3/)|[Apache v2.0](https://github.com/googleapis/google-api-dotnet-client/blob/master/LICENSE)|
+| [Json.NET](https://github.com/JamesNK/Newtonsoft.Json) | [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) | [X11 (MIT)](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md)|
+| [PLGX Build Tasks](https://github.com/walterpg/plgx-build-tasks)| [PlgxBuildTasks](https://www.nuget.org/packages/PlgxBuildTasks/) | [GPL v3.0](https://github.com/walterpg/plgx-build-tasks/blob/main/COPYING)|

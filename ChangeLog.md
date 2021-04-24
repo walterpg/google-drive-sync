@@ -1,6 +1,7 @@
 ## 4.0.6-beta
 
 * #31 REBRANDING. The name of the plugin has changed yet again, this time in deference to KP preferences.  This is the first release with the new name, matching changes already made to the [website](https://kpsync.org) and the Google Sign-in consent screen. See further notes below regarding this change.
+* Fix for localization resources not deployed in .plgx ([normal installation](https://www.kpsync.org/install/normal)).
 * Internal changes to project tooling used to create releases.
 * Documentation updates for the above changes.
 

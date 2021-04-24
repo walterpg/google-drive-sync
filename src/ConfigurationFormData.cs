@@ -21,6 +21,7 @@
 **/
 
 using Google.Apis.Drive.v3;
+using KeePassLib;
 using KeePassLib.Security;
 using System;
 using System.Collections.Generic;
@@ -33,11 +34,15 @@ namespace KPSyncForDrive
 {
     class ConfigurationFormData : IDisposable
     {
+        public delegate Task<IEnumerable<Color>> ColorProvider(
+            EntryConfiguration ec, PwDatabase db);
+
         IEnumerable<Color> m_colors;
-        readonly Func<EntryConfiguration, Task<IEnumerable<Color>>> m_colorProvider;
+        readonly ColorProvider m_colorProvider;
+        readonly PwDatabase m_db;
 
         public ConfigurationFormData(IList<EntryConfiguration> entries,
-            Func<EntryConfiguration, Task<IEnumerable<Color>>> colorProvider)
+            ColorProvider colorProvider, PwDatabase db)
         {
             Entries = entries;
             EntryBindingSource = new BindingSource
@@ -47,6 +52,7 @@ namespace KPSyncForDrive
 
             m_colors = null;
             m_colorProvider = colorProvider;
+            m_db = db;
             DefaultUseKpgs3ClientId = 
                 SyncConfiguration.IsEmpty(
                     PluginConfig.Default.PersonalClientId,
@@ -248,7 +254,8 @@ namespace KPSyncForDrive
             {
                 EntryConfiguration current;
                 current = EntryBindingSource.Current as EntryConfiguration;
-                IEnumerable<Color> result = await m_colorProvider(current);
+                IEnumerable<Color> result
+                    = await m_colorProvider(current, m_db);
                 if (!result.Any())
                 {
                     return result;

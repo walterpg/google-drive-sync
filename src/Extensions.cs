@@ -92,9 +92,8 @@ namespace KPSyncForDrive
         }
 
         // Get or create a persistent ID for the database.
-        public static Guid GetDatabaseUuid(this IPluginHost host)
+        public static Guid GetUuid(this PwDatabase db)
         {
-            PwDatabase db = host.Database;
             if (db == null || !db.IsOpen)
             {
                 return Guid.Empty;

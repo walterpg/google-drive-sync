@@ -32,7 +32,7 @@ namespace GenVerInfo
             // For info see "Signing" paragraph here:
             // https://keepass.info/help/v2_dev/plg_index.html#upd
 
-            // Two modes of operation:
+            // Three modes of operation:
             // 1. If no parameters are passed, a new RSA key pair in XML format
             // is printed to the console.  Use this data in PrivateKey.xml (in 
             // this project) and PubKey.xml (in KPSyncForDrive project) to
@@ -40,6 +40,11 @@ namespace GenVerInfo
             //
             // 2. Create a signed version info file, by specifying:
             //   a) The path to the plugin assembly.
+            //   b) The path to the output file.
+            // or
+            //   a) A string "x:y" where x is the value of the AssemblyTitle
+            //      attribute, and y is the value of the AssemblyFileVersion
+            //      attribute.
             //   b) The path to the output file.
             //   
 
@@ -54,36 +59,50 @@ namespace GenVerInfo
                 }
                 return;
             }
-            else if (args.Length != 2)
+            string title, version;
+            if (args.Length != 2)
             {
                 throw new ArgumentException(
                     "Expected one input assembly file and one output file " +
-                    "path.  Instead got:" + 
-                    args.Aggregate((l,r) => l + Environment.NewLine + r));
+                    "path.  Instead got:" +
+                    args.Aggregate((l, r) => l + Environment.NewLine + r));
             }
             string input = args[0];
             if (!File.Exists(input))
             {
-                throw new ArgumentException(
-                    string.Format("Can't access file '{0}'.", input));
+                string[] splits = args[0].Split(':');
+                if (splits.Length != 2 ||
+                    !Version.TryParse(splits[1], out Version v))
+                {
+                    throw new ArgumentException(
+                        string.Format("'{0}' is neither a valid file nor " +
+                        "a Signature product string", input));
+                }
+                title = splits[0].Trim();
+                version = v.ToString(4);
             }
-            Assembly asm = Assembly.LoadFrom(input);
-            AssemblyTitleAttribute titleAttr
-                = asm.GetCustomAttribute<AssemblyTitleAttribute>();
-            AssemblyFileVersionAttribute verAttr
-                = asm.GetCustomAttribute<AssemblyFileVersionAttribute>();
-            if (titleAttr == null || string.IsNullOrEmpty(titleAttr.Title) ||
-                verAttr == null || string.IsNullOrEmpty(verAttr.Version) ||
-                !Version.TryParse(verAttr.Version, out Version asmVer) ||
-                asmVer.Major == -1 || asmVer.Minor == -1 ||
-                asmVer.Build == -1)
+            else
             {
-                throw new ArgumentException(
-                    "The assembly is missing some version info.");
+                Assembly asm = Assembly.LoadFrom(input);
+                AssemblyTitleAttribute titleAttr
+                    = asm.GetCustomAttribute<AssemblyTitleAttribute>();
+                AssemblyFileVersionAttribute verAttr
+                    = asm.GetCustomAttribute<AssemblyFileVersionAttribute>();
+                if (titleAttr == null || string.IsNullOrEmpty(titleAttr.Title) ||
+                    verAttr == null || string.IsNullOrEmpty(verAttr.Version) ||
+                    !Version.TryParse(verAttr.Version, out Version asmVer) ||
+                    asmVer.Major == -1 || asmVer.Minor == -1 ||
+                    asmVer.Build == -1)
+                {
+                    throw new ArgumentException(
+                        "The assembly is missing some version info.");
+                }
+                title = titleAttr.Title;
+                version = verAttr.Version;
             }
-            StringBuilder verinfoLine = new StringBuilder(titleAttr.Title);
+            StringBuilder verinfoLine = new StringBuilder(title);
             verinfoLine.Append(':');
-            verinfoLine.Append(verAttr.Version);
+            verinfoLine.Append(version);
 
             byte[] hash;
             byte[] material = Encoding.UTF8.GetBytes(verinfoLine.ToString() + '\n');
@@ -94,7 +113,7 @@ namespace GenVerInfo
                         = new RSACryptoServiceProvider())
                 {
                     signer.FromXmlString(Resources.PrivateKey);
-                    hash = signer.SignData(material.ToArray(), hasher);
+                    hash = signer.SignData(material, hasher);
                 }
             }
 

@@ -35,7 +35,7 @@
     <Reference Include="System.Net.Http" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2030" />
     <PackageReference Include="PlgxBuildTasks" Version="0.1.1-alpha" />
-    <Reference Include="KeePass">
+    <Reference Include="KeePass.exe">
       <HintPath>..\lib\bin\KeePass.exe</HintPath>
       <Private>False</Private>
     </Reference>
