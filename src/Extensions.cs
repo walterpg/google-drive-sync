@@ -227,6 +227,7 @@ namespace KPSyncForDrive
                 }));
                 return;
             }
+            Log.Info(msg);
             window.SetStatusEx(GdsDefs.ProductName + ": " + msg);
         }
 

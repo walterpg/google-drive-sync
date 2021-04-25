@@ -240,7 +240,7 @@ namespace KPSyncForDrive
             }
             catch (Exception e)
             {
-                Debug.Fail(e.ToString());
+                Log.Error(e, "Error fetching proxy config.");
             }
             return false;
         }

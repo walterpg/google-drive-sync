@@ -31,14 +31,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Net.Http" />
-    <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2030" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.51.0.2265" />
     <PackageReference Include="PlgxBuildTasks" Version="0.1.1-alpha" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <Reference Include="KeePass.exe">
       <HintPath>..\lib\bin\KeePass.exe</HintPath>
       <Private>False</Private>
     </Reference>
+    <!-- Before upgrading check Google.Apis.* dependency. -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3.0" />
   </ItemGroup>
 

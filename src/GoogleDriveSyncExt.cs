@@ -29,6 +29,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +56,8 @@ using KeePassLib.Delegates;
 using KeePassLib.Interfaces;
 using KeePassLib.Security;
 using KeePassLib.Serialization;
+using Serilog;
+using Serilog.Core;
 using File = System.IO.File;
 using GDriveFile = Google.Apis.Drive.v3.Data.File;
 
@@ -130,6 +134,8 @@ namespace KPSyncForDrive
             {
                 return false;
             }
+
+            Log.Configure();
 
             UpdateCheckEx.SetFileSigKey(UpdateUrl, Images.PubKey);
 
@@ -213,6 +219,8 @@ namespace KPSyncForDrive
         /// </summary>
         public override void Terminate()
         {
+            Log.Info("Plugin terminating.");
+
             // Remove all of our menu items
             ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
             tsMenu.Remove(m_tsmiPopup);
@@ -240,6 +248,8 @@ namespace KPSyncForDrive
             m_host.MainWindow.FileOpened -= OnFileOpened;
 
             s_sessionAuthTokens.Clear();
+
+            Log.Shutdown();
         }
 
         // File thumbnail image.
@@ -361,6 +371,8 @@ namespace KPSyncForDrive
 
         void NotifyTokenError(TokenResponseException ex)
         {
+            Log.Debug(ex, "Sign-in error response: {0}", ex.Error.Error);
+
             string msg;
             switch (ex.Error.Error)
             {
@@ -393,6 +405,7 @@ namespace KPSyncForDrive
                     msg = ex.Message;
                     break;
             }
+            Log.Warning("Sign-in failed: {0}", msg);
             m_host.ShowDlgMessage(msg);
         }
 
@@ -541,8 +554,10 @@ namespace KPSyncForDrive
         {
             if (e is PluginStatusException)
             {
+                Log.Error(e, "Plugin Drive usage violation");
                 return e.Message;
             }
+            Log.Error(e, "Unexpected Drive service exception");
             m_host.ShowDlgMessage(e.Message);
             return "ERROR";
         }
@@ -576,6 +591,9 @@ namespace KPSyncForDrive
 
             status = await ConfigAndUseDriveService(db, async (service, config) =>
             {
+                Debug.Assert(!string.IsNullOrEmpty(db.IOConnectionInfo.Path));
+                Log.Debug("ConfigAndSyncUnsafe db path='{0}'.",
+                    db.IOConnectionInfo.Path);
                 string filePath = db.IOConnectionInfo.Path;
                 string fileName = Path.GetFileName(filePath);
                 string contentType = "application/x-keepass2";
@@ -668,7 +686,7 @@ namespace KPSyncForDrive
         /// </summary>
         /// <param name="service">The Google Drive service</param>
         /// <param name="file">The Google Drive File instance</param>
-        /// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
+        /// <param name="filePath">The local file name and path to download to</param>
         /// <returns>File's path if successful, null or empty otherwise.</returns>
         private async Task<string> DownloadCopy(DriveService service,
             GDriveFile file, string filePath)
@@ -872,12 +890,14 @@ namespace KPSyncForDrive
             }
             GDriveFile file = await ResolveShortcut(service, files.First());
 
-            Debug.Assert(file == null || file.Shared.HasValue,
-                "req.Fields 'shared property' not observed");
+            if (file != null && !file.Shared.HasValue)
+            {
+                Log.Debug("req.Fields 'shared property' not observed.");
+            }
             if (file != null && (!file.Shared.HasValue || file.Shared.Value))
             {
-                // The file is a shared file or it's shared-ness cannot
-                // be determined.
+                Log.Info("Drive file '{0}' is 'shared', or assumed to " +
+                    "be so.", fileName);
                 DialogResult dr = SharedFileError.ShowIfNeeded(m_host,
                     fileName, config);
                 if (dr == DialogResult.OK)
@@ -910,6 +930,8 @@ namespace KPSyncForDrive
                 if (shortcutName == null)
                 {
                     shortcutName = driveObject.Name;
+                    Log.Debug("Resolving shortcuts named '{0}'.",
+                        shortcutName);
                 }
 
                 // Resolve a shortcut link to a file.
@@ -929,6 +951,9 @@ namespace KPSyncForDrive
                     = service.Files.Get(driveObject.ShortcutDetails.TargetId);
                 listReq.Fields = "id,name,trashed,mimeType," +
                     "shortcutDetails/targetId,shared";
+                Log.Debug("Querying shortcut info with: '{0}'",
+                    listReq.Fields);
+
                 try
                 {
                     driveObject = await listReq.ExecuteAsync();
@@ -992,7 +1017,15 @@ namespace KPSyncForDrive
             // Delete the file.
             Task.Run(() =>
             {
-                File.Delete(tempFilePath);
+                try
+                {
+                    File.Delete(tempFilePath);
+                }
+                catch (Exception e)
+                {
+                    Log.Warning("Temporary file '{0}' not deleted: {1}",
+                        tempFilePath, e.Message);
+                }
             });
 
             if (!success.HasValue)
@@ -1143,6 +1176,7 @@ namespace KPSyncForDrive
             string status = Resources.GetString("Msg_TempClose");
             m_host.ShowStatusMessage(status);
 
+            Log.Debug("Temporarily closing database '{0}'.", db.Name);
             KeePassLib.Keys.CompositeKey pwKey = db.MasterKey;
             db.Close();
 
@@ -1153,8 +1187,15 @@ namespace KPSyncForDrive
             {
                 try
                 {
+                    Log.Debug("Moving '{0}' to '{1}'.",
+                        currentFilePath, tempFilePath);
                     File.Move(currentFilePath, tempFilePath);
+
+                    Log.Debug("Moving '{0}' to '{1}'.",
+                        downloadFilePath, currentFilePath);
                     File.Move(downloadFilePath, currentFilePath);
+
+                    Log.Debug("Deleting '{0}'.", tempFilePath);
                     File.Delete(tempFilePath);
                     return Resources.GetFormat("Msg_ReplaceDbStatusFmt",
                                 Path.GetFileName(currentFilePath));
@@ -1171,14 +1212,13 @@ namespace KPSyncForDrive
 
             try
             {
-                // Re-open the database with the prior key.
+                Log.Debug("Re-opening database with prior key.");
                 db.Open(IOConnectionInfo.FromPath(currentFilePath),
                                         pwKey, new NullStatusLogger());
             }
             catch (KeePassLib.Keys.InvalidCompositeKeyException)
             {
-                // The key is different in the downloaded file, so allow user
-                // to open it via dialog.
+                Log.Debug("Prior key not valid; prompting.");
                 KpOpenDatabase(currentFilePath);
             }
 
@@ -1211,19 +1251,19 @@ namespace KPSyncForDrive
             ProtectedString secret;
             if (!config.UseLegacyCreds)
             {
-                // Built-in credentials.
+                Log.Debug("Using built-in app creds for authorization.");
                 clientId = GdsDefs.ClientId.ReadString().Trim();
                 secret = GdsDefs.ClientSecret;
             }
             else if (config.IsEmptyOauthCredentials)
             {
-                // Legacy built-in credentials.
+                Log.Debug("Using GSync 3.0 app creds for authorization.");
                 clientId = GdsDefs.LegacyClientId.ReadString().Trim();
                 secret = GdsDefs.LegacyClientSecret;
             }
             else
             {
-                // Personal credentials.
+                Log.Debug("Using personal app creds for authorization.");
                 clientId = config.ClientId;
                 secret = config.ClientSecret;
             }
@@ -1233,6 +1273,8 @@ namespace KPSyncForDrive
             if (config.UseLegacyCreds &&
                 !string.IsNullOrEmpty(config.LegacyDriveScope))
             {
+                Log.Debug("Requesting scope '{0}' for legacy app creds.",
+                    config.LegacyDriveScope);
                 scope = config.LegacyDriveScope;
             }
             else
@@ -1247,6 +1289,7 @@ namespace KPSyncForDrive
             GoogleAuthorizationCodeFlow.Initializer init;
             init = new GoogleAuthorizationCodeFlow.Initializer
             {
+                DataStore = DataStore.Default,
                 ClientSecrets = new ClientSecrets()
                 {
                     ClientId = clientId,
@@ -1270,6 +1313,7 @@ namespace KPSyncForDrive
             if (!s_sessionAuthTokens.TryGetValue(databaseUuid, out authToken) &&
                 !config.DontSaveAuthToken)
             {
+                Log.Debug("Retrieving refresh token from config.");
                 authToken = config.RefreshToken;
             }
 
@@ -1286,6 +1330,7 @@ namespace KPSyncForDrive
                 });
                 if (dlgRes != DialogResult.OK)
                 {
+                    Log.Debug("Discarding stored refresh token.");
                     authToken = config.RefreshToken = GdsDefs.PsEmptyEx;
                 }
             }
@@ -1306,12 +1351,13 @@ namespace KPSyncForDrive
                 }
                 catch (TokenResponseException ex)
                 {
+                    Log.Error(ex, "Auth with refresh token failed.");
                     switch (ex.Error.Error)
                     {
                         case "unauthorized_client":
                         case "invalid_grant":
-                            // Refresh Token is invalid. Get user authorization
-                            // below and dump the token.
+                            Log.Debug("Assuming the token is stale; should " +
+                                "attempt reauth ('{0}').", ex.Error.Error);
                             credential = null;
                             config.RefreshToken = null;
                             s_sessionAuthTokens.Remove(databaseUuid);
@@ -1346,6 +1392,7 @@ namespace KPSyncForDrive
                 (config.RefreshToken.IsNullOrEmpty() ||
                     !config.RefreshToken.OrdinalEquals(authToken, false)))
             {
+                Log.Debug("Saving refresh token to the database.");
                 config.RefreshToken = authToken;
             }
 
@@ -1373,11 +1420,27 @@ namespace KPSyncForDrive
             return accounts;
         }
 
+        static bool TraverseTreePostedNull(PwEntry e)
+        {
+            if (e == null)
+            {
+                Log.Debug("TraverseTree posted null entry; ignoring.");
+                return true;
+            }
+            return false;
+        }
+
         private bool InsertActiveEntryHandler(PwDatabase db,
             List<EntryConfiguration> accts, PwEntry e)
         {
+            if (TraverseTreePostedNull(e))
+            {
+                return true;
+            }
             PwUuid recycler = db.RecycleBinUuid;
-            if (e.ParentGroup.Uuid.Equals(recycler))
+            if (e.ParentGroup == null ||
+                e.ParentGroup.Uuid == null ||
+                e.ParentGroup.Uuid.Equals(recycler))
             {
                 // Ignore anything in the recycle bin.
                 return true;
@@ -1401,6 +1464,8 @@ namespace KPSyncForDrive
                     })
                     .Count();
                 accts.Insert(i, entry);
+                Log.Debug("Found entry candidate '{0}'; current rank {1}.",
+                    entry.Entry.Strings.ReadSafe(PwDefs.TitleField), i);
             }
             return true;
         }
@@ -1411,7 +1476,7 @@ namespace KPSyncForDrive
             if (Program.MainForm.InvokeRequired ||
                 f.InvokeRequired != Program.MainForm.InvokeRequired)
             {
-                Debug.Fail("must create form and call this method on the UI thread");
+                Log.Debug("Form not created or shown on UI thread - aborting.");
                 return DialogResult.Abort;
             }
 
@@ -1527,7 +1592,10 @@ namespace KPSyncForDrive
             PwUuid recyclerID = db.RecycleBinUuid;
             root.TraverseTree(TraversalMethod.PreOrder, null, e =>
             {
-                if (e.ParentGroup.Uuid.Equals(recyclerID))
+                if (TraverseTreePostedNull(e) ||
+                    e.ParentGroup == null ||
+                    e.ParentGroup.Uuid == null ||
+                    e.ParentGroup.Uuid.Equals(recyclerID))
                 {
                     return true;
                 }
@@ -1695,6 +1763,10 @@ namespace KPSyncForDrive
             string searchString = GdsDefs.ProductName;
             EntryHandler checkEntry = delegate(PwEntry e)
             {
+                if (TraverseTreePostedNull(e))
+                {
+                    return true;
+                }
                 return -1 == e.Strings.ReadSafe(PwDefs.TitleField)
                             .IndexOf(searchString,
                                 StringComparison.OrdinalIgnoreCase);
@@ -1743,7 +1815,7 @@ namespace KPSyncForDrive
                         entryConfig = new EntryConfiguration(entry);
                     }
                 }
-                catch (ArgumentException) 
+                catch (SystemException) 
                 {
                     // Bad config, etc.
                     entryConfig = null;
@@ -1881,11 +1953,14 @@ namespace KPSyncForDrive
                         m_listener = new HttpListener();
                         m_listener.Prefixes.Add(m_redirectUri);
                         m_listener.Start();
-                        Debug.WriteLine(string.Format("Listening for '{0}'...",
-                                                        RedirectUri));
+                        Log.Debug("Listening for '{0}'...", m_redirectUri);
                     }
                     catch (Exception e)
                     {
+                        Log.Error(e,
+                            "Failed to get RedirectUri: '{0}', '{1}'.",
+                            m_redirectUri ?? "(null)",
+                            m_listener.ToString() ?? "(null)");
                         using (m_listener) { }
                         m_code = e.ToString();
                         m_listener = null;
@@ -1957,6 +2032,7 @@ namespace KPSyncForDrive
             portGrabber = new TcpListener(IPAddress.Loopback, 0);
             portGrabber.Start();
             int port = ((IPEndPoint)portGrabber.LocalEndpoint).Port;
+            Log.Debug("TcpListener takes TCP port {0}.", port);
             portGrabber.Stop();
             return port;
         }
@@ -2000,30 +2076,42 @@ namespace KPSyncForDrive
                         try
                         {
                             // Wait for user to ponder scary warning about
-                            // using unverified apps, hopefully resulting in
-                            // OAuth authentication/authorization response via
-                            // the redirect.
+                            // native though verified apps, hopefully
+                            // resulting in OAuth authentication/authorization
+                            // response via the redirect.
                             context = await m_listener.GetContextAsync();
                         }
-                        catch (ObjectDisposedException)
+                        catch (ObjectDisposedException e)
                         {
                             // This can happen when the user cancels and the
                             // listener is disposed.
                             context = null;
+                            Log.Error(e, "HttpListener may have been " +
+                                "disposed by cancelled op.");
                         }
 
                         // Close the waiter dialog if not already gone.
                         if (!form.IsDisposed)
                         {
+                            Log.Debug("Attempting to close waiter dialog.");
                             form.Invoke(new MethodInvoker(form.Close));
                         }
 
-                        // Bring main KeePass window back.  
+                        // Bring main KeePass window back.
+                        Log.Debug("Activating KP main window.");
                         Form window = m_host.MainWindow;
                         window.BeginInvoke(new MethodInvoker(window.Activate));
                     });
-                    form.Shown += (o, e) => t.Start();
-                    KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
+                    form.Shown += (o, e) =>
+                    {
+                        Log.Debug("Wait dialog shown, starting response " +
+                            "listener task.");
+                        t.Start();
+                    };
+                    DialogResult dr =
+                        KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
+                    Log.Debug("Wait dialog returned '{0}'.",
+                        dr.ToString("G"));
                 }
             }
             return context;
@@ -2042,7 +2130,9 @@ namespace KPSyncForDrive
             url.State = RandomDataBase64url(32);
 
             // Open browser via Windows URL doc handler.
-            Process.Start(url.Build().ToString());
+            string urlStr = url.Build().ToString();
+            Log.Debug("Opening OS URL handler ('{0}').", urlStr);
+            Process.Start(urlStr);
 
             // Show a dialog to direct user's attention to the browser, and
             // to offer a way to get out of this if the browser is somehow
@@ -2050,13 +2140,14 @@ namespace KPSyncForDrive
             HttpListenerContext context = DisplayFormAndAwaitAuth();
             if (context == null)
             {
+                Log.Debug("Assuming user cancelled the listener.");
                 m_code = "user_cancelled";
                 return false;
             }
 
             // Send acknowledgement response to the browser user.
-            string responseString;
-            responseString = Resources.GetFormat("Html_AuthResponseString",
+            string responseString
+                = Resources.GetFormat("Html_AuthResponseString",
                                             GdsDefs.UrlGoogleDrive);
             byte[] buffer = Encoding.UTF8.GetBytes(responseString);
             HttpListenerResponse response = context.Response;
@@ -2064,17 +2155,17 @@ namespace KPSyncForDrive
             response.ContentLength64 = buffer.Length;
             using (Stream responseOutput = response.OutputStream)
             {
-                // Don't use non-blocking here so that m_listener doesn't
+                // Use blocking I/O here so that m_listener doesn't
                 // dispose before we push out the response.
                 responseOutput.Write(buffer, 0, buffer.Length);
-                Debug.WriteLine("Browser acknowledged.");
+                Log.Debug("Listener response returned to browser.");
             }
 
             // Check for error response.
             string error = context.Request.QueryString.Get("error");
             if (error != null)
             {
-                Debug.WriteLine(string.Format("OAuth response error: {0}.", error));
+                Log.Debug("OAuth response error: '{0}'", error);
                 return false;
             }
 
@@ -2083,8 +2174,8 @@ namespace KPSyncForDrive
             m_state = context.Request.QueryString.Get("state");
             if (m_code == null || m_state == null)
             {
-                Debug.WriteLine(string.Format("Unexpected response: {0}",
-                    context.Request.QueryString));
+                Log.Debug("Unexpected response: '{0}'",
+                    context.Request.QueryString);
                 return false;
             }
 
@@ -2092,12 +2183,12 @@ namespace KPSyncForDrive
             // sent above resulted in this authorization response.
             if (m_state != url.State)
             {
-                Debug.WriteLine(string.Format("Response with unexpected state ({0}).",
-                    m_state));
+                Log.Debug("Response with unexpected state ({0}).",
+                    m_state);
                 return false;
             }
 
-            Debug.WriteLine(string.Format("Authorization code: {0}.", m_code));
+            Log.Debug("Authorization code: {0}.", m_code);
             return true;
         }
     }
