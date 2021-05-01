@@ -53,7 +53,7 @@ namespace KPSyncForDrive
         //    migration.  This was new functionality in Ver0, which was
         //    pre-release software anyway....
 
-        const string CurrentVer = "1.1";
+        public const string CurrentVer = "1.1";
         const string ConfigPluginKey = "Plugin.KeePassSyncForDrive";
 
         class ProtectedStringConverter : JsonConverter<ProtectedString>
@@ -449,11 +449,25 @@ namespace KPSyncForDrive
 
             PluginConfig update = new PluginConfig();
 
-            string verString = host.GetConfig(ConfigVersionKey, Ver0);
+            string verString = host.GetConfig(ConfigVersionKey, "invalid");
             Version configVersion;
             if (!Version.TryParse(verString, out configVersion))
             {
-                configVersion = new Version(Ver0);
+                if (null != host.GetConfig(GdsDefs.ConfigUUID) ||
+                    null != host.GetConfig(ConfigAutoSyncKey))
+                {
+                    // The alpha and early betas introduced ConfigVersionKey.
+                    // The legacy plugin did not have this config. The
+                    // "virtual" Ver0 is reserved to signify the legacy plugin.
+                    // The only way to infer an upgrade from legacy plugin
+                    // is to look for the global config keys it saved after
+                    // a successful configuration.
+                    configVersion = new Version(Ver0);
+                }
+                else
+                {
+                    configVersion = new Version(CurrentVer);
+                }
             }
             update.ConfigVersion = configVersion.ToString(2);
 
