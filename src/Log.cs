@@ -1,13 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/**
+ * Google Sync Plugin for KeePass Password Safe
+ * Copyright © 2012-2016  DesignsInnovate
+ * Copyright © 2014-2016  Paul Voegler
+ * 
+ * KPSync for Google Drive
+ * Copyright © 2020-2021 Walter Goodwin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**/
+
+using System;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 using KeePassLib;
 using Microsoft.Win32;
 using Serilog;
@@ -18,13 +37,13 @@ namespace KPSyncForDrive
 {
     static class Log
     {
-        static ILogger s_logger = Logger.None;
+        static Logger s_logger = null;
 
         public static ILogger Default
         {
             get
             {
-                return s_logger;
+                return s_logger == null ? Logger.None : s_logger;
             }
         }
 
@@ -82,13 +101,17 @@ namespace KPSyncForDrive
                     attr.FrameworkDisplayName;
                 Info("Target={0}, Current CLR=v{1}",
                     tgtFw, Environment.Version);
+                string releaseId = TryGetRegValueAsString(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+                    "ReleaseId", "<unknown>");
+                string edition = TryGetRegValueAsString(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+                    "ProductName", "Windows ??");
+                Info("OS Product: {0}, {1}", edition, releaseId);
                 OperatingSystem os = Environment.OSVersion;
                 Info("Platform ID: {0:G}, {1}, SP('{2}')",
                     os.Platform, os.VersionString, os.ServicePack);
-                string releaseId = Registry.GetValue(
-                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion",
-                    "ReleaseId", "").ToString();
-
+                Info("Installed .NET Framework: {0}", GetNetFrameworkVer());
             }
             catch (Exception e)
             {
@@ -96,19 +119,76 @@ namespace KPSyncForDrive
             }
         }
 
-        public static void Shutdown()
+        static string Get45orLaterVersion(int releaseNum)
         {
-            // Hmm...serilog...
-            ILogger other = Serilog.Log.Logger;
+            if (releaseNum >= 528040)
+                return "4.8 or later";
+            if (releaseNum >= 461808)
+                return "4.7.2";
+            if (releaseNum >= 461308)
+                return "4.7.1";
+            if (releaseNum >= 460798)
+                return "4.7";
+            if (releaseNum >= 394802)
+                return "4.6.2";
+            if (releaseNum >= 394254)
+                return "4.6.1";
+            if (releaseNum >= 393295)
+                return "4.6";
+            if (releaseNum >= 379893)
+                return "4.5.2";
+            if (releaseNum >= 378675)
+                return "4.5.1";
+            if (releaseNum >= 378389)
+                return "4.5";
+            return string.Format("(Unknown release number {0})", releaseNum);
+        }
+
+        static string GetNetFrameworkVer()
+        {
+            const string subkey
+                = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
+
             try
             {
-                Serilog.Log.Logger = s_logger;
-                s_logger = Logger.None;
-                Serilog.Log.CloseAndFlush();
+                using (var ndpKey = RegistryKey.OpenBaseKey(
+                    RegistryHive.LocalMachine, RegistryView.Registry32)
+                    .OpenSubKey(subkey))
+                {
+                    object keyVal = null;
+                    if (ndpKey != null && null != (keyVal = ndpKey.GetValue("Release")) &&
+                        keyVal is int)
+                    {
+                        return Get45orLaterVersion((int)keyVal);
+                    }
+                }
             }
-            finally
+            catch (SystemException e)
             {
-                Serilog.Log.Logger = other;
+                Error(e, "Retrieving .NET Framework v4.5 or later info.");
+            }
+            return "(Release info not found)";
+        }
+
+        static string TryGetRegValueAsString(string key, string value, string defaultVal)
+        {
+            try
+            {
+                return Registry.GetValue(key, value, defaultVal).ToString();
+            }
+            catch (SystemException e)
+            {
+                Error(e, @"Retrieving '{0}\{1}' registry value.",
+                    key, value);
+                return defaultVal;
+            }
+        }
+
+        public static void Shutdown()
+        {
+            using (s_logger)
+            {
+                s_logger = null;
             }
         }
 
