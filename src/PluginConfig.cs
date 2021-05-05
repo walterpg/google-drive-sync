@@ -139,6 +139,7 @@ namespace KPSyncForDrive
         bool m_warnSavedAuthToken;
         bool m_isDirty;
         string m_ver;
+        bool m_autoResumeSave;
 
         PluginConfig()
         {
@@ -154,6 +155,34 @@ namespace KPSyncForDrive
             m_warnSavedAuthToken = false;
             m_isDirty = true;
             m_ver = null;
+            m_autoResumeSave = false;
+        }
+
+        PluginConfig(PluginConfig c)
+        {
+            m_autoSync = c.m_autoSync;
+            m_enabledCmds = c.m_enabledCmds;
+            m_defaultFolder = c.m_defaultFolder;
+            m_defaultFolderColor = c.m_defaultFolderColor;
+            m_defaultDriveScope = c.m_defaultDriveScope;
+            m_defaultClientId = c.m_defaultClientId;
+            m_defaultClientSecret = c.m_defaultClientSecret;
+            m_useLegacyCreds = c.m_useLegacyCreds;
+            m_dontSaveAuthToken = c.m_dontSaveAuthToken;
+            m_warnSavedAuthToken = c.m_warnSavedAuthToken;
+            m_isDirty = c.m_isDirty;
+            m_ver = c.m_ver;
+            m_autoResumeSave = c.m_autoResumeSave;
+        }
+
+        public static PluginConfig GetCopyOfDefault()
+        {
+            return new PluginConfig(Default);
+        }
+
+        public static void UpdateDefault(PluginConfig c)
+        {
+            Default = c;
         }
 
         public bool IsCmdEnabled(SyncCommands cmd)
@@ -360,6 +389,22 @@ namespace KPSyncForDrive
                 if (m_warnSavedAuthToken != value)
                 {
                     m_warnSavedAuthToken = value;
+                    m_isDirty = true;
+                }
+            }
+        }
+
+        public bool AutoResumeSaveSync
+        {
+            get
+            {
+                return m_autoResumeSave;
+            }
+            set
+            {
+                if (m_autoResumeSave != value)
+                {
+                    m_autoResumeSave = value;
                     m_isDirty = true;
                 }
             }

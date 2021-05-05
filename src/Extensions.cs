@@ -25,6 +25,7 @@ using KeePass.Plugins;
 using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
+using KeePassLib.Serialization;
 using KeePassLib.Utility;
 using System;
 using System.Linq;
@@ -91,6 +92,28 @@ namespace KPSyncForDrive
             host.CustomConfig.SetString(key, value);
         }
 
+        public static string GetDisplayNameAndPath(this PwDatabase db)
+        {
+            if (db == null)
+            {
+                return "'(null)'";
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.Append('\'');
+            sb.Append(db.Name);
+            sb.Append('\'');
+            IOConnectionInfo pathInfo = db.IOConnectionInfo;
+            if (pathInfo != null &&
+                !string.IsNullOrEmpty(pathInfo.Path))
+            {
+                sb.Append(' ');
+                sb.Append('(');
+                sb.Append(pathInfo.Path);
+                sb.Append(')');
+            }
+            return sb.ToString();
+        }
+
         // Get or create a persistent ID for the database.
         public static Guid GetUuid(this PwDatabase db)
         {
@@ -105,7 +128,7 @@ namespace KPSyncForDrive
             string stringVal = db.CustomData.Get(Key);
             if (stringVal == null)
             {
-                stringVal = "";
+                stringVal = string.Empty;
             }
             Guid retVal;
             if (!Guid.TryParseExact(stringVal, guidFmt, out retVal))
@@ -114,6 +137,81 @@ namespace KPSyncForDrive
                 db.CustomData.Set(Key, retVal.ToString(guidFmt));
             }
             return retVal;
+        }
+
+        const string ClosingEventKey = "KeePassSyncForDrive.Extensions.ClosingEvent";
+        const string DeferredAutoSyncKey = "KeePassSyncForDrive.Extensions.DeferredAutoSync";
+
+        public static FileEventFlags GetClosingEvent(this PwDatabase db,
+            bool bErase)
+        {
+            return GetFileEventFlags(db, ClosingEventKey, bErase);
+        }
+
+        public static FileEventFlags GetDeferredAutoSync(this PwDatabase db,
+            bool bErase)
+        {
+            return GetFileEventFlags(db, DeferredAutoSyncKey, bErase);
+        }
+
+        public static FileEventFlags GetFileEventFlags(PwDatabase db,
+            string key, bool bErase)
+        {
+            if (db == null || !db.IsOpen || db.CustomData == null)
+            {
+                return FileEventFlags.None;
+            }
+            StringDictionaryEx props = db.CustomData;
+            string stringVal = props.Get(key);
+            if (string.IsNullOrEmpty(stringVal))
+            {
+                stringVal = string.Empty;
+            }
+            FileEventFlags retVal;
+            if (!Enum.TryParse(stringVal, out retVal))
+            {
+                retVal = FileEventFlags.None;
+            }
+            retVal &= FileEventFlags.Exiting | FileEventFlags.Locking;
+            if ((bErase || retVal == FileEventFlags.None) &&
+                props.Exists(key))
+            {
+                props.Remove(key);
+            }
+            return retVal;
+        }
+
+        public static void SetClosingEvent(this PwDatabase db,
+            FileEventFlags f)
+        {
+            SetFileEventFlags(db, ClosingEventKey, f);
+        }
+
+        public static void SetDeferrredAutoSync(this PwDatabase db,
+            FileEventFlags f)
+        {
+            SetFileEventFlags(db, DeferredAutoSyncKey, f);
+        }
+
+        public static void SetFileEventFlags(PwDatabase db,
+            string key, FileEventFlags reason)
+        {
+            if (db == null || !db.IsOpen || db.CustomData == null)
+            {
+                return;
+            }
+
+            // Record only locking & exit events.
+            StringDictionaryEx props = db.CustomData;
+            reason &= FileEventFlags.Exiting | FileEventFlags.Locking;
+            if (reason != FileEventFlags.None)
+            {
+                props.Set(key, reason.ToString("G"));
+            }
+            else if (props.Exists(key))
+            {
+                props.Remove(key);
+            }
         }
 
         /// <summary>

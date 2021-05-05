@@ -24,6 +24,7 @@
     <TransformOnBuild>true</TransformOnBuild>
     <TransformOutOfDateOnly>true</TransformOutOfDateOnly>
     <Satellite_ProductName>KeePass Plugin Satellite Resources</Satellite_ProductName>
+    <PlgxTargetKpVersion>2.35</PlgxTargetKpVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

@@ -574,4 +574,21 @@ Esta advertencia se muestra cuando se encuentran tokens de autorización almacen
   <data name="Lnk_SessionAuthTokens" xml:space="preserve">
     <value>Tokens de autorización almacenados en la sesión</value>
   </data>
+  <data name="Exc_DbClosedOnAutoSync" xml:space="preserve">
+    <value>Una operación de sincronización automática falló porque se cerró la base de datos. Esto podría deberse a otro complemento o una operación de KP compuesta. Vuelva a intentar la operación manualmente cuando se abra la base de datos.</value>
+  </data>
+  <data name="Msg_DeferredAutoSyncFmt" xml:space="preserve">
+    <value>La base de datos {0} no se sincronizó automáticamente la última vez que se guardaron los cambios, porque la operación KeePass {1} que guardó los cambios también cerró la base de datos.
+
+Es posible que la base de datos local no esté sincronizada con el archivo de Drive. ¿Le gustaría sincronizar la base de datos ahora?</value>
+  </data>
+  <data name="OpName_KpAutoLock" xml:space="preserve">
+    <value>Bloqueo Automático</value>
+  </data>
+  <data name="OpName_KpExit" xml:space="preserve">
+    <value>Salida</value>
+  </data>
+  <data name="Lbl_AutoSyncOnReopen" xml:space="preserve">
+    <value>Reanudar al regresar de Bloqueo Automático</value>
+  </data>
 </root>

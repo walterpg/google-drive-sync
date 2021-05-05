@@ -25,6 +25,7 @@ using KeePassLib;
 using KeePassLib.Security;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,14 +33,17 @@ using System.Windows.Forms;
 
 namespace KPSyncForDrive
 {
-    class ConfigurationFormData : IDisposable
+    class ConfigurationFormData : IDisposable, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public delegate Task<IEnumerable<Color>> ColorProvider(
-            EntryConfiguration ec, PwDatabase db);
+            EntryConfiguration ec, DatabaseContext dbCtx);
 
         IEnumerable<Color> m_colors;
         readonly ColorProvider m_colorProvider;
         readonly PwDatabase m_db;
+        PluginConfig m_config;
 
         public ConfigurationFormData(IList<EntryConfiguration> entries,
             ColorProvider colorProvider, PwDatabase db)
@@ -57,6 +61,7 @@ namespace KPSyncForDrive
                 SyncConfiguration.IsEmpty(
                     PluginConfig.Default.PersonalClientId,
                     PluginConfig.Default.PersonalClientSecret);
+            m_config = PluginConfig.GetCopyOfDefault();
         }
 
         protected void Dispose(bool bIsDisposing)
@@ -70,6 +75,14 @@ namespace KPSyncForDrive
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public PluginConfig PluginConfig
+        {
+            get
+            {
+                return m_config;
+            }
         }
 
         public EntryConfiguration SelectedAccountShadow
@@ -89,11 +102,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.IsCmdEnabled(SyncCommands.SYNC);
+                return m_config.IsCmdEnabled(SyncCommands.SYNC);
             }
             set
             {
-                PluginConfig.Default.EnableCmd(SyncCommands.SYNC, value);
+                if (m_config.IsCmdEnabled(SyncCommands.SYNC) != value)
+                {
+                    m_config.EnableCmd(SyncCommands.SYNC, value);
+                    RaisePropertyChanged("CmdSyncEnabled");
+                }
             }
         }
 
@@ -101,11 +118,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.IsCmdEnabled(SyncCommands.UPLOAD);
+                return m_config.IsCmdEnabled(SyncCommands.UPLOAD);
             }
             set
             {
-                PluginConfig.Default.EnableCmd(SyncCommands.UPLOAD, value);
+                if (m_config.IsCmdEnabled(SyncCommands.UPLOAD) != value)
+                {
+                    m_config.EnableCmd(SyncCommands.UPLOAD, value);
+                    RaisePropertyChanged("CmdUploadEnabled");
+                }
             }
         }
 
@@ -113,11 +134,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.IsCmdEnabled(SyncCommands.DOWNLOAD);
+                return m_config.IsCmdEnabled(SyncCommands.DOWNLOAD);
             }
             set
             {
-                PluginConfig.Default.EnableCmd(SyncCommands.DOWNLOAD, value);
+                if (m_config.IsCmdEnabled(SyncCommands.DOWNLOAD) != value)
+                {
+                    m_config.EnableCmd(SyncCommands.DOWNLOAD, value);
+                    RaisePropertyChanged("CmdDownloadEnabled");
+                }
             }
         }
 
@@ -125,11 +150,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN);
+                return m_config.IsAutoSync(AutoSyncMode.OPEN);
             }
             set
             {
-                PluginConfig.Default.EnableAutoSync(AutoSyncMode.OPEN, value);
+                if (m_config.IsAutoSync(AutoSyncMode.OPEN) != value)
+                {
+                    m_config.EnableAutoSync(AutoSyncMode.OPEN, value);
+                    RaisePropertyChanged("SyncOnOpen");
+                }
             }
         }
 
@@ -137,11 +166,19 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE);
+                return m_config.IsAutoSync(AutoSyncMode.SAVE);
             }
             set
             {
-                PluginConfig.Default.EnableAutoSync(AutoSyncMode.SAVE, value);
+                if (m_config.IsAutoSync(AutoSyncMode.SAVE) != value)
+                {
+                    m_config.EnableAutoSync(AutoSyncMode.SAVE, value);
+                    RaisePropertyChanged("SyncOnSave");
+                    if (!value)
+                    {
+                        AutoResumeSaveSync = false;
+                    }
+                }
             }
         }
 
@@ -149,11 +186,16 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.Folder.Trim();
+                return m_config.Folder.Trim();
             }
             set
             {
-                PluginConfig.Default.Folder = value ?? string.Empty;
+                if (!string.Equals(DefaultAppFolder, value,
+                    StringComparison.InvariantCultureIgnoreCase))
+                {
+                    m_config.Folder = value ?? string.Empty;
+                    RaisePropertyChanged("DefaultAppFolder");
+                }
             }
         }
 
@@ -161,11 +203,12 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.FolderColor;
+                return m_config.FolderColor;
             }
             set
             {
-                PluginConfig.Default.FolderColor = value;
+                m_config.FolderColor = value;
+                RaisePropertyChanged("DefaultAppFolderColor");
             }
         }
 
@@ -173,13 +216,17 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.LegacyDriveScope ==
+                return m_config.LegacyDriveScope ==
                     DriveService.Scope.Drive;
             }
             set
             {
-                PluginConfig.Default.LegacyDriveScope = value ?
-                    DriveService.Scope.Drive: DriveService.Scope.DriveFile;
+                if (DefaultIsLegacyRestrictedDriveScope != value)
+                {
+                    m_config.LegacyDriveScope = value ?
+                        DriveService.Scope.Drive : DriveService.Scope.DriveFile;
+                    RaisePropertyChanged("DefaultIsLegacyRestrictedDriveScope");
+                }
             }
         }
 
@@ -188,11 +235,15 @@ namespace KPSyncForDrive
             get
             {
                 return DefaultUseKpgs3ClientId ?
-                    string.Empty : PluginConfig.Default.PersonalClientId;
+                    string.Empty : m_config.PersonalClientId;
             }
             set
             {
-                PluginConfig.Default.PersonalClientId = value;
+                if (DefaultLegacyClientId != value)
+                {
+                    m_config.PersonalClientId = value;
+                    RaisePropertyChanged("DefaultLegacyClientId");
+                }
             }
         }
 
@@ -201,12 +252,16 @@ namespace KPSyncForDrive
             get
             {
                 return DefaultUseKpgs3ClientId ?
-                    GdsDefs.PsEmptyEx : PluginConfig.Default.PersonalClientSecret;
+                    GdsDefs.PsEmptyEx : m_config.PersonalClientSecret;
             }
             set
             {
-                PluginConfig.Default.PersonalClientSecret = value == null ?
-                    GdsDefs.PsEmptyEx : value;
+                if (!DefaultLegacyClientSecret.OrdinalEquals(value, false))
+                {
+                    m_config.PersonalClientSecret = value == null ?
+                        GdsDefs.PsEmptyEx : value;
+                    RaisePropertyChanged("DefaultLegacyClientSecret");
+                }
             }
         }
 
@@ -216,11 +271,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.UseLegacyAppCredentials;
+                return m_config.UseLegacyAppCredentials;
             }
             set
             {
-                PluginConfig.Default.UseLegacyAppCredentials = value;
+                if (m_config.UseLegacyAppCredentials != value)
+                {
+                    m_config.UseLegacyAppCredentials = value;
+                    RaisePropertyChanged("DefaultUseLegacyCredentials");
+                }
             }
         }
 
@@ -228,11 +287,15 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.DontSaveAuthToken;
+                return m_config.DontSaveAuthToken;
             }
             set
             {
-                PluginConfig.Default.DontSaveAuthToken = value;
+                if (m_config.DontSaveAuthToken != value)
+                {
+                    m_config.DontSaveAuthToken = value;
+                    RaisePropertyChanged("DefaultDontSaveAuthToken");
+                }
             }
         }
 
@@ -240,11 +303,31 @@ namespace KPSyncForDrive
         {
             get
             {
-                return PluginConfig.Default.WarnOnSavedAuthToken;
+                return m_config.WarnOnSavedAuthToken;
             }
             set
             {
-                PluginConfig.Default.WarnOnSavedAuthToken = value;
+                if (m_config.WarnOnSavedAuthToken != value)
+                {
+                    m_config.WarnOnSavedAuthToken = value;
+                    RaisePropertyChanged("WarnOnSavedAuthToken");
+                }
+            }
+        }
+
+        public bool AutoResumeSaveSync
+        {
+            get
+            {
+                return SyncOnSave && m_config.AutoResumeSaveSync;
+            }
+            set
+            {
+                if (m_config.AutoResumeSaveSync != value)
+                {
+                    m_config.AutoResumeSaveSync = value;
+                    RaisePropertyChanged("AutoResumeSaveSync");
+                }
             }
         }
 
@@ -255,7 +338,7 @@ namespace KPSyncForDrive
                 EntryConfiguration current;
                 current = EntryBindingSource.Current as EntryConfiguration;
                 IEnumerable<Color> result
-                    = await m_colorProvider(current, m_db);
+                    = await m_colorProvider(current, new DatabaseContext(m_db));
                 if (!result.Any())
                 {
                     return result;
@@ -263,6 +346,14 @@ namespace KPSyncForDrive
                 m_colors = result;
             }
             return m_colors;
+        }
+
+        void RaisePropertyChanged(string propName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propName));
+            }
         }
     }
 }
