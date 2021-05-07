@@ -1,10 +1,20 @@
 # Contributing
 
-Contributions that significantly improve the plugin are always welcome. Especially welcome are [C# and .NET Framework coding](#code-contributions), and [translations](#translation-contributions).  Here are a few guidelines for those kind enough to consider making the effort. 
+Contributions that significantly improve the plugin are always welcome. Especially welcome are [C# and .NET Framework coding](#code-contributions), and [translations](#translation-contributions).  Also welcome are general user experiences, **good** and **bad**.
+
+Here are a few guidelines for those kind enough to consider making the effort. 
+
+### Non-code Contributions
+* Reports raised via issues will be assesed by all involved, however *you* are responsible for the attention those issues receive from the community. Please *thoughtfully* respond to questions asked, especially those asked by the maintainers, and with the **full detail requested**.
+* If a response to a raised issue contains a request for information, and the request is unclear (sorry about that!) please follow up with further questions. We are all here to help.
+* If you have the expertise, please [examine the code](#code-contributions) and gather as much pertinent information as you can before raising an issue. Again, we all *should* be here to help.
+* Continue raising your report (in the *same* issue) until the community and maintainers are satisfied that it has been adequately addressed.
+* Please avoid posting issues that have been addressed, unless a prior resolution to the issue has failed.  In that case, try re-opening the issue rather than creating a new issue.  Otherwise, please make note of the posted, prior issue in the new post.
+* Persevere! As long as your use case is in the stated support window, and you are forthcoming with information, your issue will receive attention.
 
 ### Code Contributions
 
-Code contributions to the master branch generally fall into two categories, [bugfixes](#bugfixes) and [feature enhancements](feature-enhancements). In each case, some guidelines are offered below in order to prevent duplicate or otherwise unnecessary efforts.
+Code contributions to the master branch generally fall into two categories, [bugfixes](#bugfixes) and [feature enhancements](#feature-enhancements). In each case, some guidelines are offered below in order to prevent duplicate or otherwise unnecessary efforts.
 
 A contributor must *minimally* ensure that any code contribution passes the following "smoke tests" before submission:
 
@@ -26,6 +36,7 @@ Before undertaking a bugfix submission:
 * At the risk of quick rejection, simultaneous issue and bugfix pull request submissions are allowed.
 * Otherwise, allow the maintainers a reasonable period to review and the assign the issue.
 * Always ensure smoke tests pass before submitting the pull request.
+
 
 #### Feature Enhancements
 
