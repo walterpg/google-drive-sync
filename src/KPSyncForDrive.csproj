@@ -131,7 +131,7 @@
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Images.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>KeePassSyncForDrive</CustomToolNamespace>
+      <CustomToolNamespace>KPSyncForDrive</CustomToolNamespace>
     </EmbeddedResource>
     <EmbeddedResource Update="SharedFileError.resx">
       <DependentUpon>SharedFileError.cs</DependentUpon>
