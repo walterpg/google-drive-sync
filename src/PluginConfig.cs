@@ -561,10 +561,11 @@ namespace KPSyncForDrive
                 = string.IsNullOrEmpty(update.PersonalClientId) ?
                     null : new ProtectedString(true, secretVal);
 
-            // Legacy default is use legacy creds.
+            // If the user wants to enable legacy creds, there is nothing
+            // stopping her.  This is not a compatibility point.
             update.UseLegacyAppCredentials
                 = host.GetConfig(SyncConfiguration.EntryUseLegacyCredsKey,
-                    update.ConfigVersion == Ver0);
+                    false);
 
             return update;
         }
