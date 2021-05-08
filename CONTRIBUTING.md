@@ -4,13 +4,20 @@ Contributions that significantly improve the plugin are always welcome. Especial
 
 Here are a few guidelines for those kind enough to consider making the effort. 
 
-### Non-code Contributions
+### Bug Reports and Enhancement Requests
+
 * Reports raised via issues will be assesed by all involved, however *you* are responsible for the attention those issues receive from the community. Please *thoughtfully* respond to questions asked, especially those asked by the maintainers, and with the **full detail requested**.
 * If a response to a raised issue contains a request for information, and the request is unclear (sorry about that!) please follow up with further questions. We are all here to help.
 * If you have the expertise, please [examine the code](#code-contributions) and gather as much pertinent information as you can before raising an issue. Again, we all *should* be here to help.
 * Continue raising your report (in the *same* issue) until the community and maintainers are satisfied that it has been adequately addressed.
-* Please avoid posting issues that have been addressed, unless a prior resolution to the issue has failed.  In that case, try re-opening the issue rather than creating a new issue.  Otherwise, please make note of the posted, prior issue in the new post.
-* Persevere! As long as your use case is in the stated support window, and you are forthcoming with information, your issue will receive attention.
+* Please avoid re-posting issues that have been addressed or are [still open](https://github.com/walterpg/google-drive-sync/issues), unless a prior resolution closing the issue has failed to meet expectations, or has been broken after code changes.  In that case, try re-opening the [closed issue](https://github.com/walterpg/google-drive-sync/issues?q=is%3Aissue+is%3Aclosed) rather than creating a new issue.  Otherwise, please make note of the posted, prior issue in the new post.
+* Persevere! If your use case is in the stated support window, and you are forthcoming with responses to requests for information, your issue will receive attention.
+
+### Non-code Contributions
+
+* This project includes localized text for use in the UI.  If your natural language is missing or poorly translated, please submit your translations, based on the ``Strings.resx`` file.
+* The project's documentation is provided by the [kpsync.org](https://kpsync.org) website. The content of the site is found in the ``docs`` directory of the source repo in the form of Github-flavored [Markdown](https://daringfireball.net/projects/markdown/)/[kramdown](https://kramdown.gettalong.org/syntax.html) encoded text.  Edits improving the documentation (typos, enhancements, etc.) are most efficiently submitted in the form of pull requests.
+* There is *currently* no "tip-jar" scheme.
 
 ### Code Contributions
 
