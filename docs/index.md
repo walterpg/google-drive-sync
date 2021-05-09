@@ -3,12 +3,12 @@ layout: home
 title: KPSync for Google Drive™
 ---
 
-<div class="alert alert-secondary small" role="alert">
-    <div><em>Did you notice something different?</em></div>
-    The plugin has a new name: <b>KPSync For Google Drive</b>.
-    This is the name you will see from now on, here and on
-    the Google Sign-in screen.  To see the new name in the 
-    plugin, you must upgrade to the new release.
+<div class="alert alert-warning text-dark" role="alert">
+    <div>
+        <a href="/notices/kp2-48-save">KeePass v2.48 <b>Save</b> Command Bug</a>
+    </div>
+    KeePass 2.48 contains a bug which could cause <b>DATA LOSS</b> when used with the plugin.  Users are advised to avoid this KeePass release. If you are affected by the bug 
+    <a href="/notices/kp2-48-save">please read this notice</a> for possible recovery of your data.
 </div>
 
 <div class="alert alert-warning text-dark" role="alert">
