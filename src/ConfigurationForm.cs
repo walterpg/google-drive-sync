@@ -109,6 +109,7 @@ namespace KPSyncForDrive
                 m_grpAuthTokenSecurity,
                 m_chkDontSaveAuthToken,
                 m_lnkAuthTokenHelp,
+                m_chkSyncOnReopen,
             };
             foreach (Control c in textCx)
             {
@@ -304,6 +305,8 @@ namespace KPSyncForDrive
             Debug.Assert(m_chkSyncOnSave is CheckBox);
             binding = new Binding("Checked",
                 m_data, "SyncOnSave");
+            binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
             m_chkSyncOnSave.DataBindings.Add(binding);
             binding = new Binding("Enabled",
                 m_data, "CmdSyncEnabled");
@@ -316,6 +319,15 @@ namespace KPSyncForDrive
             binding = new Binding("Checked", m_data,
                 "WarnOnSavedAuthToken");
             m_chkWarnAuthToken.DataBindings.Add(binding);
+            Debug.Assert(m_chkSyncOnReopen is CheckBox);
+            binding = new Binding("Checked", m_data,
+                "AutoResumeSaveSync");
+            m_chkSyncOnReopen.DataBindings.Add(binding);
+            binding = new Binding("Enabled", m_data,
+                "SyncOnSave");
+            binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            m_chkSyncOnReopen.DataBindings.Add(binding);
 
             // Select first "active" entry in the accounts combo.
             IEnumerable<EntryConfiguration> actives = m_data.Entries

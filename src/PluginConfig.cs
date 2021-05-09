@@ -53,7 +53,7 @@ namespace KPSyncForDrive
         //    migration.  This was new functionality in Ver0, which was
         //    pre-release software anyway....
 
-        const string CurrentVer = "1.1";
+        public const string CurrentVer = "1.1";
         const string ConfigPluginKey = "Plugin.KeePassSyncForDrive";
 
         class ProtectedStringConverter : JsonConverter<ProtectedString>
@@ -139,6 +139,7 @@ namespace KPSyncForDrive
         bool m_warnSavedAuthToken;
         bool m_isDirty;
         string m_ver;
+        bool m_autoResumeSave;
 
         PluginConfig()
         {
@@ -154,6 +155,34 @@ namespace KPSyncForDrive
             m_warnSavedAuthToken = false;
             m_isDirty = true;
             m_ver = null;
+            m_autoResumeSave = false;
+        }
+
+        PluginConfig(PluginConfig c)
+        {
+            m_autoSync = c.m_autoSync;
+            m_enabledCmds = c.m_enabledCmds;
+            m_defaultFolder = c.m_defaultFolder;
+            m_defaultFolderColor = c.m_defaultFolderColor;
+            m_defaultDriveScope = c.m_defaultDriveScope;
+            m_defaultClientId = c.m_defaultClientId;
+            m_defaultClientSecret = c.m_defaultClientSecret;
+            m_useLegacyCreds = c.m_useLegacyCreds;
+            m_dontSaveAuthToken = c.m_dontSaveAuthToken;
+            m_warnSavedAuthToken = c.m_warnSavedAuthToken;
+            m_isDirty = c.m_isDirty;
+            m_ver = c.m_ver;
+            m_autoResumeSave = c.m_autoResumeSave;
+        }
+
+        public static PluginConfig GetCopyOfDefault()
+        {
+            return new PluginConfig(Default);
+        }
+
+        public static void UpdateDefault(PluginConfig c)
+        {
+            Default = c;
         }
 
         public bool IsCmdEnabled(SyncCommands cmd)
@@ -365,6 +394,22 @@ namespace KPSyncForDrive
             }
         }
 
+        public bool AutoResumeSaveSync
+        {
+            get
+            {
+                return m_autoResumeSave;
+            }
+            set
+            {
+                if (m_autoResumeSave != value)
+                {
+                    m_autoResumeSave = value;
+                    m_isDirty = true;
+                }
+            }
+        }
+
         public void UpdateConfig(IPluginHost host)
         {
             Version currentVer, configVer;
@@ -449,11 +494,25 @@ namespace KPSyncForDrive
 
             PluginConfig update = new PluginConfig();
 
-            string verString = host.GetConfig(ConfigVersionKey, Ver0);
+            string verString = host.GetConfig(ConfigVersionKey, "invalid");
             Version configVersion;
             if (!Version.TryParse(verString, out configVersion))
             {
-                configVersion = new Version(Ver0);
+                if (null != host.GetConfig(GdsDefs.ConfigUUID) ||
+                    null != host.GetConfig(ConfigAutoSyncKey))
+                {
+                    // The alpha and early betas introduced ConfigVersionKey.
+                    // The legacy plugin did not have this config. The
+                    // "virtual" Ver0 is reserved to signify the legacy plugin.
+                    // The only way to infer an upgrade from legacy plugin
+                    // is to look for the global config keys it saved after
+                    // a successful configuration.
+                    configVersion = new Version(Ver0);
+                }
+                else
+                {
+                    configVersion = new Version(CurrentVer);
+                }
             }
             update.ConfigVersion = configVersion.ToString(2);
 
@@ -502,10 +561,11 @@ namespace KPSyncForDrive
                 = string.IsNullOrEmpty(update.PersonalClientId) ?
                     null : new ProtectedString(true, secretVal);
 
-            // Legacy default is use legacy creds.
+            // If the user wants to enable legacy creds, there is nothing
+            // stopping her.  This is not a compatibility point.
             update.UseLegacyAppCredentials
                 = host.GetConfig(SyncConfiguration.EntryUseLegacyCredsKey,
-                    update.ConfigVersion == Ver0);
+                    false);
 
             return update;
         }

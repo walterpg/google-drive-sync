@@ -24,7 +24,6 @@ using KeePass.Forms;
 using KeePass.Plugins;
 using KeePass.UI;
 using KeePass.Util;
-using KeePassLib;
 using System;
 using System.Windows.Forms;
 
@@ -34,14 +33,14 @@ namespace KPSyncForDrive
     {
         readonly EntryConfiguration m_entryConfig;
         readonly IPluginHost m_host;
-        readonly PwDatabase m_db;
+        readonly DatabaseContext m_dbCtx;
 
-        public AuthWaitOrCancel(IPluginHost host, PwDatabase db,
+        internal AuthWaitOrCancel(IPluginHost host, DatabaseContext dbCtx,
             EntryConfiguration entry)
         {
             m_entryConfig = entry;
             m_host = host;
-            m_db = db;
+            m_dbCtx = dbCtx;
 
             InitializeComponent();
 
@@ -55,7 +54,7 @@ namespace KPSyncForDrive
 
             btnCopyUser.Enabled = false;
             btnCopyPassword.Enabled = false;
-            if (m_entryConfig != null)
+            if (m_entryConfig != null && dbCtx.Database.IsOpen)
             {
                 btnCopyUser.Enabled = !string.IsNullOrEmpty(m_entryConfig.User);
                 btnCopyPassword.Enabled = m_entryConfig.Password != null &&
@@ -84,7 +83,7 @@ namespace KPSyncForDrive
                 return;
             }
             ClipboardUtil.CopyAndMinimize(m_entryConfig.Password.ReadString(),
-                                        true, null, m_entryConfig.Entry, m_db);
+                true, null, m_entryConfig.Entry, m_dbCtx.Database);
             main.StartClipboardCountdown();
         }
 
@@ -98,7 +97,7 @@ namespace KPSyncForDrive
                 return;
             }
             ClipboardUtil.CopyAndMinimize(m_entryConfig.User, true, null,
-                                        m_entryConfig.Entry, m_db);
+                m_entryConfig.Entry, m_dbCtx.Database);
             main.StartClipboardCountdown();
         }
     }

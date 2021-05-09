@@ -489,13 +489,13 @@ In either case, you can select another entry later to be the active plugin entry
     <value>More than one file or shortcut named '{0}' found on Google Drive. Please make sure the name is unique across all folders, or use the Target Folder feature.</value>
   </data>
   <data name="Exc_MultipleFilesAndFolderFmt" xml:space="preserve">
-    <value>More than on folder named '{1}' was found on Google Drive, and multiple files and/or shortcuts named '{0}' are contained by them. Please make sure the name is unique across all folders specified by Target Folder.</value>    
+    <value>More than on folder named '{1}' was found on Google Drive, and multiple files and/or shortcuts named '{0}' are contained by them. Please make sure the name is unique across all folders specified by Target Folder.</value>
   </data>
   <data name="Exc_MultipleFoldersFmt" xml:space="preserve">
-    <value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>    
+    <value>More than on folder named '{1}' was found on Google Drive. The Target Folder must be unique, either my name or by exclusively containing a file named '{0}'.</value>
   </data>
   <data name="Msg_CreatingFolderFmt" xml:space="preserve">
-      <value>Creating new folder '{0}'...</value>
+    <value>Creating new folder '{0}'...</value>
   </data>
   <data name="Exc_ShortcutNoLink" xml:space="preserve">
     <value>Invalid Drive Shortcut.  A shortcut named '{0}' was found, but it is not linked to an accessible file.</value>
@@ -580,5 +580,22 @@ This warning is shown when database-stored authorization tokens are found. To av
   </data>
   <data name="Lnk_SessionAuthTokens" xml:space="preserve">
     <value>Session-stored Authorization Tokens</value>
+  </data>
+  <data name="Exc_DbClosedOnAutoSync" xml:space="preserve">
+    <value>An auto-sync operation failed because the database was closed.  This could be caused by another plugin or a composite KP operation.  Retry the operation manually when the database is opened.</value>
+  </data>
+  <data name="Msg_DeferredAutoSyncFmt" xml:space="preserve">
+    <value>Database {0} did not Auto Sync the last time changes were saved, because the KeePass {1} operation which saved the changes also closed the database.
+
+The local database could be out of sync with the Drive file.  Would you like to sync the database now?</value>
+  </data>
+  <data name="OpName_KpAutoLock" xml:space="preserve">
+    <value>auto-lock</value>
+  </data>
+  <data name="OpName_KpExit" xml:space="preserve">
+    <value>exit</value>
+  </data>
+  <data name="Lbl_AutoSyncOnReopen" xml:space="preserve">
+    <value>Resume on return from Auto-Lock or Exit</value>
   </data>
 </root>

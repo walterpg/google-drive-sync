@@ -30,7 +30,7 @@ namespace KPSyncForDrive
     public partial class SharedFileError : Form
     {
         internal static DialogResult ShowIfNeeded(IPluginHost host,
-            string fileName, SyncConfiguration config)
+            string fileName, SyncConfiguration config, bool bIsAutoSync)
         {
             if (config.DontSaveAuthToken ||
                 config.IsUsingPersonalOauthCreds)
@@ -38,9 +38,12 @@ namespace KPSyncForDrive
                 return DialogResult.None;
             }
 
-            SharedFileError dlg = new SharedFileError();
-            dlg.TargetFile = fileName;
-            KPSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
+            if (!bIsAutoSync)
+            {
+                SharedFileError dlg = new SharedFileError();
+                dlg.TargetFile = fileName;
+                KPSyncForDriveExt.ShowModalDialogAndDestroy(dlg);
+            }
             return DialogResult.OK;
         }
 

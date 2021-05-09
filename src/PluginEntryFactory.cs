@@ -64,7 +64,8 @@ namespace KPSyncForDrive
                 data.Set(SyncConfiguration.EntryDriveScopeKey, driveScope);
                 data.Set(SyncConfiguration.EntryClientIdKey, clientId);
                 data.Set(SyncConfiguration.EntryClientSecretKey,
-                            clientSecret.ReadString());
+                    clientSecret == null ?
+                        string.Empty : clientSecret.ReadString());
             }
             data.Set(SyncConfiguration.EntryActiveAppFolderKey, folder);
             data.Set(SyncConfiguration.EntryActiveAccountKey,
@@ -100,7 +101,7 @@ namespace KPSyncForDrive
             return creator.Entry;
         }
 
-        public PluginEntryFactory(PwEntry entry)
+        PluginEntryFactory(PwEntry entry)
         {
             Entry = entry;
         }

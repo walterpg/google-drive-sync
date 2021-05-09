@@ -131,6 +131,8 @@ namespace KPSyncForDrive
                 return false;
             }
 
+            Log.Configure();
+
             UpdateCheckEx.SetFileSigKey(UpdateUrl, Images.PubKey);
 
             m_host = host;
@@ -199,7 +201,10 @@ namespace KPSyncForDrive
             // We want a notification when the user tried to save the
             // current database or opened a new one.
             m_host.MainWindow.FileSaved += OnFileSaved;
+            m_host.MainWindow.FileSaving += OnFileSaving;
             m_host.MainWindow.FileOpened += OnFileOpened;
+            m_host.MainWindow.FileClosingPre += OnFileClosingBeforeSave;
+            m_host.MainWindow.FileClosingPost += OnFileClosingAfterSave;
             m_ignoreDatabaseEvents = false;
 
             return true; // Initialization successful
@@ -213,6 +218,8 @@ namespace KPSyncForDrive
         /// </summary>
         public override void Terminate()
         {
+            Log.Info("Plugin terminating.");
+
             // Remove all of our menu items
             ToolStripItemCollection tsMenu = m_host.MainWindow.ToolsMenu.DropDownItems;
             tsMenu.Remove(m_tsmiPopup);
@@ -236,10 +243,15 @@ namespace KPSyncForDrive
             m_tsmiDownload = null;
             m_tsmiConfigure = null;
 
+            m_host.MainWindow.FileSaving -= OnFileSaving;
             m_host.MainWindow.FileSaved -= OnFileSaved;
             m_host.MainWindow.FileOpened -= OnFileOpened;
+            m_host.MainWindow.FileClosingPre -= OnFileClosingBeforeSave;
+            m_host.MainWindow.FileClosingPost -= OnFileClosingAfterSave;
 
             s_sessionAuthTokens.Clear();
+
+            Log.Shutdown();
         }
 
         // File thumbnail image.
@@ -273,35 +285,75 @@ namespace KPSyncForDrive
             }
         }
 
-        private async Task SyncOnOpenOrSaveCmd(PwDatabase db)
+        bool CanSyncOnOpenOrSaveCmd(AutoSyncMode mode, DatabaseContext dbCtx)
         {
+            if (!PluginConfig.Default.IsAutoSync(mode))
+            {
+                return false;
+            }
             if (Keys.Shift == (Control.ModifierKeys & Keys.Shift))
             {
                 m_host.ShowStatusMessage(
                     Resources.GetString("Msg_AutoSyncIgnore"));
+                return false;
             }
-            else if (LoadConfiguration(db) == null)
+            else if (!TryLoadConfiguration(dbCtx))
             {
                 m_host.ShowStatusMessage(
                     Resources.GetString("Msg_NoAutoSyncConfig"));
+                return false;
             }
-            else
+            return true;
+        }
+
+        void OnFileSaving(object sender, FileSavingEventArgs e)
+        {
+            if (e == null || e.Database == null || !e.Database.IsOpen)
             {
-                await ConfigAndSyncWithGoogle(SyncCommands.SYNC, db, true);
+                Log.Debug("FileSaving event with unopen database.");
+                return;
+            }
+            if (m_ignoreDatabaseEvents)
+            {
+                return;
+            }
+            PwDatabase db = e.Database;
+            FileEventFlags flags = db.GetClosingEvent(bErase: true);
+            if (PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE) &&
+                flags != FileEventFlags.None)
+            {
+                db.SetDeferrredAutoSync(flags);
             }
         }
 
-        /// <summary>
-        /// Event handler to implement auto sync on save
-        /// </summary>
         private async void OnFileSaved(object sender, FileSavedEventArgs e)
         {
-            PwDatabase db = e.Database;
-            if (!m_ignoreDatabaseEvents && e.Success &&
-                db.IsOpen &&
-                PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE))
+            if (e == null || e.Database == null)
             {
-                await SyncOnOpenOrSaveCmd(db);
+                Log.Debug("FileSaved event without a database.");
+                return;
+            }
+            if (m_ignoreDatabaseEvents)
+            {
+                return;
+            }
+            PwDatabase db = e.Database;
+            DatabaseContext dbCtx = new DatabaseContext(db);
+            FileEventFlags flags = db.GetDeferredAutoSync(bErase: !e.Success);
+            if (e.Success && db.IsOpen &&
+                CanSyncOnOpenOrSaveCmd(AutoSyncMode.SAVE, dbCtx))
+            {
+                if (flags == FileEventFlags.None)
+                {
+                    await ConfigAndSyncWithGoogle(SyncCommands.SYNC, dbCtx,
+                        autoSync: true);
+                }
+                else
+                {
+                    Log.Info("Marking database {0} for deferred Auto Sync " +
+                        "(reason {1}).", db.GetDisplayNameAndPath(),
+                        (int)flags);
+                }
             }
         }
 
@@ -310,12 +362,74 @@ namespace KPSyncForDrive
         /// </summary>
         private async void OnFileOpened(object sender, FileOpenedEventArgs e)
         {
-            PwDatabase db = e.Database;
-            if (!m_ignoreDatabaseEvents && db.IsOpen &&
-                PluginConfig.Default.IsAutoSync(AutoSyncMode.OPEN))
+            if (e == null || e.Database == null || !e.Database.IsOpen)
             {
-                await SyncOnOpenOrSaveCmd(db);
+                Log.Debug("FileOpened event with unopen database.");
+                return;
             }
+            if (m_ignoreDatabaseEvents)
+            {
+                return;
+            }
+            PwDatabase db = e.Database;
+            DatabaseContext dbCtx = new DatabaseContext(db);
+            // Clear stale flags if any.
+            db.SetClosingEvent(FileEventFlags.None);
+            FileEventFlags f = db.GetDeferredAutoSync(bErase: true);
+            if (CanSyncOnOpenOrSaveCmd(AutoSyncMode.OPEN, dbCtx))
+            {
+                Log.Info("Auto Sync engaged for opening {0}.",
+                    db.GetDisplayNameAndPath());
+                await ConfigAndSyncWithGoogle(SyncCommands.SYNC, dbCtx,
+                    autoSync: true);
+            }
+            else if (f != FileEventFlags.None &&
+                CanSyncOnOpenOrSaveCmd(AutoSyncMode.SAVE, dbCtx))
+            {
+                Log.Info("Database {0} opened and flagged for deferred " +
+                    "Auto Sync.", db.GetDisplayNameAndPath());
+                if (!PluginConfig.Default.AutoResumeSaveSync)
+                {
+                    string reason = (f & FileEventFlags.Exiting)
+                        != FileEventFlags.None ?
+                            Resources.GetString("OpName_KpExit") :
+                            Resources.GetString("OpName_KpAutoLock");
+                    DialogResult dr = MessageBox.Show(m_host.MainWindow,
+                        Resources.GetFormat("Msg_DeferredAutoSyncFmt",
+                            db.GetDisplayNameAndPath(), reason),
+                        GdsDefs.ProductName, MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+                    if (dr != DialogResult.Yes)
+                    {
+                        Log.Debug("User refused deferred Auto Sync.");
+                        return;
+                    }
+                }
+                Log.Debug("Deferred Auto Sync in progress.");
+                await ConfigAndSyncWithGoogle(SyncCommands.SYNC, dbCtx,
+                    autoSync: true);
+            }
+        }
+
+        void OnFileClosingBeforeSave(object sender, FileClosingEventArgs e)
+        {
+            if (e == null || m_ignoreDatabaseEvents || e.Database == null ||
+                !e.Database.Modified)
+            {
+                return;
+            }
+            PwDatabase db = e.Database;
+            db.SetClosingEvent(e.Flags);
+        }
+
+        void OnFileClosingAfterSave(object sender, FileClosingEventArgs e)
+        {
+            if (e == null || m_ignoreDatabaseEvents)
+            {
+                return;
+            }
+            PwDatabase db = e.Database;
+            db.SetClosingEvent(FileEventFlags.None);
         }
 
         /// <summary>
@@ -334,7 +448,14 @@ namespace KPSyncForDrive
 
             ToolStripItem item = (ToolStripItem)sender;
             SyncCommands syncCommand = (SyncCommands)item.Tag;
-            await ConfigAndSyncWithGoogle(syncCommand, db, false);
+            DatabaseContext dbCtx = new DatabaseContext(db);
+
+            // If config not loaded, sync op will prompt for
+            // config asynchronously.
+            TryLoadConfiguration(dbCtx);
+
+            await ConfigAndSyncWithGoogle(syncCommand, dbCtx,
+                false);
         }
 
         /// <summary>
@@ -361,6 +482,8 @@ namespace KPSyncForDrive
 
         void NotifyTokenError(TokenResponseException ex)
         {
+            Log.Debug(ex, "Sign-in error response: {0}", ex.Error.Error);
+
             string msg;
             switch (ex.Error.Error)
             {
@@ -393,13 +516,15 @@ namespace KPSyncForDrive
                     msg = ex.Message;
                     break;
             }
+            Log.Warning("Sign-in failed: {0}", msg);
             m_host.ShowDlgMessage(msg);
         }
 
-        internal static void SaveDatabase(IPluginHost host, PwDatabase db,
-            object sender, string saveMessage = null)
+        internal static void SaveDatabase(IPluginHost host,
+            DatabaseContext dbCtx, object sender, string saveMessage = null)
         {
-            if (!db.Modified)
+            // Modified => IsOpen
+            if (!dbCtx.Database.Modified)
             {
                 return;
             }
@@ -408,7 +533,7 @@ namespace KPSyncForDrive
             if (window.InvokeRequired)
             {
                 window.Invoke(new MethodInvoker(
-                    () => SaveDatabase(host, db, sender, saveMessage)));
+                    () => SaveDatabase(host, dbCtx, sender, saveMessage)));
                 return;
             }
 
@@ -420,7 +545,7 @@ namespace KPSyncForDrive
 
             try
             {
-                host.MainWindow.SaveDatabase(db, sender);
+                host.MainWindow.SaveDatabase(dbCtx.Database, sender);
             }
             finally
             {
@@ -433,19 +558,20 @@ namespace KPSyncForDrive
         /// function. Obtain and update authorization details from/to the
         /// current configuration.
         /// </summary>
-        public async Task<string> ConfigAndUseDriveService(PwDatabase db,
-                        Func<DriveService, SyncConfiguration, Task<string>> use)
+        public async Task<string> ConfigAndUseDriveService(
+            DatabaseContext dbCtx,
+            Func<DriveService, SyncConfiguration, Task<string>> use)
         {
             string status;
-            if (!db.IsOpen)
-            {
-                status = Resources.GetString("Msg_FirstOpenDb");
-                m_host.ShowDlgMessage(status);
-                return status;
-            }
+            //if (!dbCtx.Database.IsOpen)
+            //{
+            //    status = Resources.GetString("Msg_FirstOpenDb");
+            //    m_host.ShowDlgMessage(status);
+            //    return status;
+            //}
 
             // Ensure the configuration with auth data.
-            EntryConfiguration config = GetConfiguration(db);
+            EntryConfiguration config = GetConfiguration(dbCtx);
             if (config == null)
             {
                 return Resources.GetFormat("Msg_ProductAbortedFmt",
@@ -456,7 +582,7 @@ namespace KPSyncForDrive
             ProtectedString RefreshToken = config.RefreshToken;
 
             // Invoke service user.
-            status = await UseDriveService(config, db, use);
+            status = await UseDriveService(config, dbCtx, use);
 
             // Update the configuration if necessary.
             if (status != "ERROR" &&
@@ -486,13 +612,13 @@ namespace KPSyncForDrive
             }
 
             config.CommitChangesIfAny();
-            SaveConfiguration(config, db);
+            SaveConfiguration(config, dbCtx.Database);
 
             return status;
         }
 
         public async Task<string> UseDriveService(SyncConfiguration authData,
-            PwDatabase db,
+            DatabaseContext dbCtx,
             Func<DriveService, SyncConfiguration, Task<string>> use)
         {
             string status;
@@ -503,7 +629,7 @@ namespace KPSyncForDrive
                     new BaseClientService.Initializer()
                 {
                     HttpClientInitializer
-                        = await GetAuthorization(m_host, db, authData),
+                        = await GetAuthorization(m_host, dbCtx, authData),
                     ApplicationName = GdsDefs.ProductName,
                     HttpClientFactory = new ProxyHttpClientFactory()
                 });
@@ -541,8 +667,10 @@ namespace KPSyncForDrive
         {
             if (e is PluginStatusException)
             {
+                Log.Error(e, "Plugin Drive usage violation");
                 return e.Message;
             }
+            Log.Error(e, "Unexpected Drive service exception");
             m_host.ShowDlgMessage(e.Message);
             return "ERROR";
         }
@@ -553,14 +681,14 @@ namespace KPSyncForDrive
         /// exist.
         /// </summary>
         private async Task ConfigAndSyncWithGoogle(SyncCommands syncCommand,
-            PwDatabase db, bool autoSync)
+            DatabaseContext dbCtx, bool autoSync)
         {
             // Suspend these events temporarily in case the configuration
             // needs to be saved.
             m_ignoreDatabaseEvents = true;
             try
             {
-                await ConfigAndSyncUnsafe(syncCommand, db, autoSync);
+                await ConfigAndSyncUnsafe(syncCommand, dbCtx, autoSync);
             }
             finally
             {
@@ -569,21 +697,24 @@ namespace KPSyncForDrive
         }
 
         private async Task ConfigAndSyncUnsafe(SyncCommands sync,
-            PwDatabase db, bool autoSync)
+            DatabaseContext dbCtx, bool autoSync)
         {
             string status = Resources.GetString("Msg_PleaseWaitEllipsis");
             m_host.ShowStatusMessage(status);
 
-            status = await ConfigAndUseDriveService(db, async (service, config) =>
+            status = await ConfigAndUseDriveService(dbCtx, async (service, config) =>
             {
-                string filePath = db.IOConnectionInfo.Path;
+                Debug.Assert(!string.IsNullOrEmpty(dbCtx.PathEtc.Path));
+                Log.Debug("ConfigAndSyncUnsafe db path='{0}'.",
+                    dbCtx.PathEtc.Path);
+                string filePath = dbCtx.PathEtc.Path;
                 string fileName = Path.GetFileName(filePath);
                 string contentType = "application/x-keepass2";
                 status = null;
 
                 List<Folder> folders = await GetFolders(service, config.ActiveFolder);
                 GDriveFile file = await GetFile(service, folders, fileName, 
-                                            config);
+                                            config, autoSync);
                 if (file == null)
                 {
                     if (sync == SyncCommands.DOWNLOAD)
@@ -594,7 +725,7 @@ namespace KPSyncForDrive
                     {
                         if (!autoSync)
                         {
-                            SaveDatabase(m_host, db, this);
+                            SaveDatabase(m_host, dbCtx, this);
                         }
                         GDriveFile folder = null;
                         if (folders != null && folders.Any())
@@ -619,7 +750,7 @@ namespace KPSyncForDrive
                     {
                         if (!autoSync)
                         {
-                            SaveDatabase(m_host, db, this);
+                            SaveDatabase(m_host, dbCtx, this);
                         }
                         status = Resources.GetFormat("Msg_ReplaceFileFmt", file.Name);
                         m_host.ShowStatusMessage(status);
@@ -633,11 +764,12 @@ namespace KPSyncForDrive
                         {
                             if (sync == SyncCommands.DOWNLOAD)
                             {
-                                status = await ReplaceDatabase(db, filePath, fileCopy);
+                                status = await ReplaceDatabase(dbCtx, filePath, fileCopy);
                             }
                             else
                             {
-                                string syncStatus = SyncFromThenDeleteFile(db, fileCopy);
+                                string syncStatus = SyncFromThenDeleteFile(
+                                    dbCtx, fileCopy, autoSync);
                                 status = Resources.GetString("Msg_UploadingSync");
                                 m_host.ShowStatusMessage(status);
                                 status = String.Format("{0} {1}", syncStatus,
@@ -668,7 +800,7 @@ namespace KPSyncForDrive
         /// </summary>
         /// <param name="service">The Google Drive service</param>
         /// <param name="file">The Google Drive File instance</param>
-        /// <param name="filePath">The local file name and path to download to (timestamp will be appended)</param>
+        /// <param name="filePath">The local file name and path to download to</param>
         /// <returns>File's path if successful, null or empty otherwise.</returns>
         private async Task<string> DownloadCopy(DriveService service,
             GDriveFile file, string filePath)
@@ -807,7 +939,8 @@ namespace KPSyncForDrive
         /// file</param>
         /// <returns>Return Google File</returns>
         private async Task<GDriveFile> GetFile(DriveService service,
-            List<Folder> folders, string fileName, SyncConfiguration config)
+            List<Folder> folders, string fileName, SyncConfiguration config,
+            bool autoSync)
         {
             string status = Resources.GetFormat("Msg_RetrievingGDriveFileFmt", fileName);
             m_host.ShowStatusMessage(status);
@@ -872,14 +1005,16 @@ namespace KPSyncForDrive
             }
             GDriveFile file = await ResolveShortcut(service, files.First());
 
-            Debug.Assert(file == null || file.Shared.HasValue,
-                "req.Fields 'shared property' not observed");
+            if (file != null && !file.Shared.HasValue)
+            {
+                Log.Debug("req.Fields 'shared property' not observed.");
+            }
             if (file != null && (!file.Shared.HasValue || file.Shared.Value))
             {
-                // The file is a shared file or it's shared-ness cannot
-                // be determined.
+                Log.Info("Drive file '{0}' is 'shared', or assumed to " +
+                    "be so.", fileName);
                 DialogResult dr = SharedFileError.ShowIfNeeded(m_host,
-                    fileName, config);
+                    fileName, config, autoSync);
                 if (dr == DialogResult.OK)
                 {
                     throw new PluginStatusException(
@@ -910,6 +1045,8 @@ namespace KPSyncForDrive
                 if (shortcutName == null)
                 {
                     shortcutName = driveObject.Name;
+                    Log.Debug("Resolving shortcuts named '{0}'.",
+                        shortcutName);
                 }
 
                 // Resolve a shortcut link to a file.
@@ -929,6 +1066,9 @@ namespace KPSyncForDrive
                     = service.Files.Get(driveObject.ShortcutDetails.TargetId);
                 listReq.Fields = "id,name,trashed,mimeType," +
                     "shortcutDetails/targetId,shared";
+                Log.Debug("Querying shortcut info with: '{0}'",
+                    listReq.Fields);
+
                 try
                 {
                     driveObject = await listReq.ExecuteAsync();
@@ -961,8 +1101,8 @@ namespace KPSyncForDrive
         /// <param name="tempFilePath">Full path of database file to sync
         /// with</param>
         /// <returns>Return status of the update</returns>
-        private string SyncFromThenDeleteFile(PwDatabase db,
-            string tempFilePath)
+        private string SyncFromThenDeleteFile(DatabaseContext dbCtx,
+            string tempFilePath, bool bIsAutoSync)
         {
             string status = null;
             Form fParent = m_host.MainWindow;
@@ -970,7 +1110,8 @@ namespace KPSyncForDrive
             {
                 fParent.Invoke(new MethodInvoker(() =>
                 {
-                    status = SyncFromThenDeleteFile(db, tempFilePath);
+                    status = SyncFromThenDeleteFile(dbCtx, tempFilePath,
+                        bIsAutoSync);
                 }));
                 return status;
             }
@@ -985,16 +1126,30 @@ namespace KPSyncForDrive
             bool? success;
             using (new MruFreezer(m_host))
             {
-                success = ImportUtil.Synchronize(db, uiOps,
-                    connection, true, fParent);
+                success = ImportUtil.Synchronize(dbCtx.Database, uiOps,
+                    connection, bForceSave: true, fParent: fParent);
             }
 
             // Delete the file.
             Task.Run(() =>
             {
-                File.Delete(tempFilePath);
+                try
+                {
+                    File.Delete(tempFilePath);
+                }
+                catch (Exception e)
+                {
+                    Log.Warning("Temporary file '{0}' not deleted: {1}",
+                        tempFilePath, e.Message);
+                }
             });
 
+            if ((!success.HasValue || !success.Value) &&
+                bIsAutoSync && !dbCtx.Database.IsOpen)
+            {
+                throw new PluginException(
+                    Resources.GetString("Exc_DbClosedOnAutoSync"));
+            }
             if (!success.HasValue)
             {
                 throw new PluginException(
@@ -1135,7 +1290,7 @@ namespace KPSyncForDrive
         /// </summary>
         /// <param name="downloadFilePath">Full path of the new database file</param>
         /// <returns>Status of the replacement</returns>
-        private async Task<string> ReplaceDatabase(PwDatabase db,
+        private async Task<string> ReplaceDatabase(DatabaseContext dbCtx,
             string currentFilePath, string downloadFilePath)
         {
             string tempFilePath = currentFilePath + GdsDefs.GsyncBackupExt;
@@ -1143,8 +1298,14 @@ namespace KPSyncForDrive
             string status = Resources.GetString("Msg_TempClose");
             m_host.ShowStatusMessage(status);
 
-            KeePassLib.Keys.CompositeKey pwKey = db.MasterKey;
-            db.Close();
+            KeePassLib.Keys.CompositeKey pwKey = null;
+            if (dbCtx.Database.IsOpen)
+            {
+                PwDatabase db = dbCtx.Database;
+                pwKey = db.MasterKey;
+                Log.Debug("Temporarily closing database '{0}'.", db.Name);
+                db.Close();
+            }
 
             status = Resources.GetString("Msg_ReplacingFile");
             m_host.ShowStatusMessage(status);
@@ -1153,8 +1314,15 @@ namespace KPSyncForDrive
             {
                 try
                 {
+                    Log.Debug("Moving '{0}' to '{1}'.",
+                        currentFilePath, tempFilePath);
                     File.Move(currentFilePath, tempFilePath);
+
+                    Log.Debug("Moving '{0}' to '{1}'.",
+                        downloadFilePath, currentFilePath);
                     File.Move(downloadFilePath, currentFilePath);
+
+                    Log.Debug("Deleting '{0}'.", tempFilePath);
                     File.Delete(tempFilePath);
                     return Resources.GetFormat("Msg_ReplaceDbStatusFmt",
                                 Path.GetFileName(currentFilePath));
@@ -1166,20 +1334,24 @@ namespace KPSyncForDrive
                 }
             });
 
-            status = Resources.GetString("Msg_ReopenDatabase");
-            m_host.ShowStatusMessage(status);
+            if (pwKey != null)
+            {
+                status = Resources.GetString("Msg_ReopenDatabase");
+                m_host.ShowStatusMessage(status);
 
-            try
-            {
-                // Re-open the database with the prior key.
-                db.Open(IOConnectionInfo.FromPath(currentFilePath),
-                                        pwKey, new NullStatusLogger());
-            }
-            catch (KeePassLib.Keys.InvalidCompositeKeyException)
-            {
-                // The key is different in the downloaded file, so allow user
-                // to open it via dialog.
-                KpOpenDatabase(currentFilePath);
+                try
+                {
+                    Log.Debug("Re-opening database with prior key.");
+                    IOConnectionInfo pathInfo
+                        = IOConnectionInfo.FromPath(currentFilePath);
+                    dbCtx.Database.Open(pathInfo, pwKey,
+                        new NullStatusLogger());
+                }
+                catch (KeePassLib.Keys.InvalidCompositeKeyException)
+                {
+                    Log.Debug("Prior key not valid; prompting.");
+                    KpOpenDatabase(currentFilePath);
+                }
             }
 
             return returnStatus;
@@ -1205,25 +1377,25 @@ namespace KPSyncForDrive
         /// </summary>
         /// <returns>The Sign-in credentials (access token)</returns>
         private static async Task<UserCredential> GetAuthorization(IPluginHost host,
-            PwDatabase db, SyncConfiguration config)
+            DatabaseContext dbCtx, SyncConfiguration config)
         {
             string clientId;
             ProtectedString secret;
             if (!config.UseLegacyCreds)
             {
-                // Built-in credentials.
+                Log.Debug("Using built-in app creds for authorization.");
                 clientId = GdsDefs.ClientId.ReadString().Trim();
                 secret = GdsDefs.ClientSecret;
             }
             else if (config.IsEmptyOauthCredentials)
             {
-                // Legacy built-in credentials.
+                Log.Debug("Using GSync 3.0 app creds for authorization.");
                 clientId = GdsDefs.LegacyClientId.ReadString().Trim();
                 secret = GdsDefs.LegacyClientSecret;
             }
             else
             {
-                // Personal credentials.
+                Log.Debug("Using personal app creds for authorization.");
                 clientId = config.ClientId;
                 secret = config.ClientSecret;
             }
@@ -1233,6 +1405,8 @@ namespace KPSyncForDrive
             if (config.UseLegacyCreds &&
                 !string.IsNullOrEmpty(config.LegacyDriveScope))
             {
+                Log.Debug("Requesting scope '{0}' for legacy app creds.",
+                    config.LegacyDriveScope);
                 scope = config.LegacyDriveScope;
             }
             else
@@ -1247,6 +1421,7 @@ namespace KPSyncForDrive
             GoogleAuthorizationCodeFlow.Initializer init;
             init = new GoogleAuthorizationCodeFlow.Initializer
             {
+                DataStore = DataStore.Default,
                 ClientSecrets = new ClientSecrets()
                 {
                     ClientId = clientId,
@@ -1255,8 +1430,10 @@ namespace KPSyncForDrive
                 Scopes = new[] { scope },
                 HttpClientFactory = new ProxyHttpClientFactory()
             };
-            GoogleAuthorizationCodeFlow codeFlow = new GoogleAuthorizationCodeFlow(init);
-            NativeCodeReceiver codeReceiver = new NativeCodeReceiver(host, db, config);
+            GoogleAuthorizationCodeFlow codeFlow
+                = new GoogleAuthorizationCodeFlow(init);
+            NativeCodeReceiver codeReceiver
+                = new NativeCodeReceiver(host, dbCtx, config);
             AuthorizationCodeInstalledApp authCode;
             authCode = new AuthorizationCodeInstalledApp(codeFlow, codeReceiver);
             UserCredential credential = null;
@@ -1265,11 +1442,12 @@ namespace KPSyncForDrive
 
             // Look for the auth token in the session state first, then
             // check in the config entry.
-            Guid databaseUuid = db.GetUuid();
+            Guid databaseUuid = dbCtx.Uuid;
             ProtectedString authToken = GdsDefs.PsEmptyEx;
             if (!s_sessionAuthTokens.TryGetValue(databaseUuid, out authToken) &&
                 !config.DontSaveAuthToken)
             {
+                Log.Debug("Retrieving refresh token from config.");
                 authToken = config.RefreshToken;
             }
 
@@ -1286,6 +1464,7 @@ namespace KPSyncForDrive
                 });
                 if (dlgRes != DialogResult.OK)
                 {
+                    Log.Debug("Discarding stored refresh token.");
                     authToken = config.RefreshToken = GdsDefs.PsEmptyEx;
                 }
             }
@@ -1306,12 +1485,13 @@ namespace KPSyncForDrive
                 }
                 catch (TokenResponseException ex)
                 {
+                    Log.Error(ex, "Auth with refresh token failed.");
                     switch (ex.Error.Error)
                     {
                         case "unauthorized_client":
                         case "invalid_grant":
-                            // Refresh Token is invalid. Get user authorization
-                            // below and dump the token.
+                            Log.Debug("Assuming the token is stale; should " +
+                                "attempt reauth ('{0}').", ex.Error.Error);
                             credential = null;
                             config.RefreshToken = null;
                             s_sessionAuthTokens.Remove(databaseUuid);
@@ -1346,6 +1526,7 @@ namespace KPSyncForDrive
                 (config.RefreshToken.IsNullOrEmpty() ||
                     !config.RefreshToken.OrdinalEquals(authToken, false)))
             {
+                Log.Debug("Saving refresh token to the database.");
                 config.RefreshToken = authToken;
             }
 
@@ -1358,7 +1539,7 @@ namespace KPSyncForDrive
         /// Find active configured Google Accounts, avoiding the recycle bin.
         /// (Should only return one account.)
         /// </summary>
-        private IList<EntryConfiguration> FindActiveAccounts(PwDatabase db)
+        static IList<EntryConfiguration> FindActiveAccounts(PwDatabase db)
         {
             if (!db.IsOpen)
             {
@@ -1373,11 +1554,27 @@ namespace KPSyncForDrive
             return accounts;
         }
 
-        private bool InsertActiveEntryHandler(PwDatabase db,
+        static bool TraverseTreePostedNull(PwEntry e)
+        {
+            if (e == null)
+            {
+                Log.Debug("TraverseTree posted null entry; ignoring.");
+                return true;
+            }
+            return false;
+        }
+
+        static bool InsertActiveEntryHandler(PwDatabase db,
             List<EntryConfiguration> accts, PwEntry e)
         {
+            if (TraverseTreePostedNull(e))
+            {
+                return true;
+            }
             PwUuid recycler = db.RecycleBinUuid;
-            if (e.ParentGroup.Uuid.Equals(recycler))
+            if (e.ParentGroup == null ||
+                e.ParentGroup.Uuid == null ||
+                e.ParentGroup.Uuid.Equals(recycler))
             {
                 // Ignore anything in the recycle bin.
                 return true;
@@ -1401,6 +1598,8 @@ namespace KPSyncForDrive
                     })
                     .Count();
                 accts.Insert(i, entry);
+                Log.Debug("Found entry candidate '{0}'; current rank {1}.",
+                    entry.Entry.Strings.ReadSafe(PwDefs.TitleField), i);
             }
             return true;
         }
@@ -1411,7 +1610,7 @@ namespace KPSyncForDrive
             if (Program.MainForm.InvokeRequired ||
                 f.InvokeRequired != Program.MainForm.InvokeRequired)
             {
-                Debug.Fail("must create form and call this method on the UI thread");
+                Log.Debug("Form not created or shown on UI thread - aborting.");
                 return DialogResult.Abort;
             }
 
@@ -1451,7 +1650,7 @@ namespace KPSyncForDrive
         }
 
         async Task<IEnumerable<Color>> GetColors(SyncConfiguration authData,
-            PwDatabase db)
+            DatabaseContext dbCtx)
         {
             SyncConfiguration originalAuthData = authData;
             if (!authData.UseLegacyCreds)
@@ -1479,7 +1678,7 @@ namespace KPSyncForDrive
             int[] palette = new int[0];
 
             string status;
-            status = await UseDriveService(authData, db,
+            status = await UseDriveService(authData, dbCtx,
                 async (service, config) =>
             {
                 AboutResource aboutResource = new AboutResource(service);
@@ -1527,7 +1726,10 @@ namespace KPSyncForDrive
             PwUuid recyclerID = db.RecycleBinUuid;
             root.TraverseTree(TraversalMethod.PreOrder, null, e =>
             {
-                if (e.ParentGroup.Uuid.Equals(recyclerID))
+                if (TraverseTreePostedNull(e) ||
+                    e.ParentGroup == null ||
+                    e.ParentGroup.Uuid == null ||
+                    e.ParentGroup.Uuid.Equals(recyclerID))
                 {
                     return true;
                 }
@@ -1643,6 +1845,9 @@ namespace KPSyncForDrive
                     return null;
                 }
 
+                // Update Plugin defaults
+                PluginConfig.UpdateDefault(options.PluginConfig);
+
                 // Update commands.
                 m_tsmiSync.Enabled = options.CmdSyncEnabled;
                 m_tsmiUpload.Enabled = options.CmdUploadEnabled;
@@ -1695,6 +1900,10 @@ namespace KPSyncForDrive
             string searchString = GdsDefs.ProductName;
             EntryHandler checkEntry = delegate(PwEntry e)
             {
+                if (TraverseTreePostedNull(e))
+                {
+                    return true;
+                }
                 return -1 == e.Strings.ReadSafe(PwDefs.TitleField)
                             .IndexOf(searchString,
                                 StringComparison.OrdinalIgnoreCase);
@@ -1713,22 +1922,27 @@ namespace KPSyncForDrive
         }
 
         /// <summary>
-        /// Load the current configuration
+        /// Load the current configuration and adds it to the database
+        /// context.  Return true if loaded, false otherwise.
         /// </summary>
-        private EntryConfiguration LoadConfiguration(PwDatabase db)
+        private bool TryLoadConfiguration(DatabaseContext dbCtx)
         {
-            EntryConfiguration entryConfig = null;
+            if (dbCtx.LoadedConfig != null)
+            {
+                return true;
+            }
 
+            PwDatabase db = dbCtx.Database;
             if (!db.IsOpen)
             {
-                return entryConfig;
+                return false;
             }
 
             // Find the active account.
             IEnumerable<EntryConfiguration> accounts = FindActiveAccounts(db);
             if (accounts.Any())
             {
-                entryConfig = accounts.First();
+                dbCtx.LoadedConfig = accounts.First();
             }
             else
             {
@@ -1740,25 +1954,28 @@ namespace KPSyncForDrive
                     {
                         PwEntry entry = db.RootGroup.FindEntry(
                                                 strUuid.ToPwUuid(), true);
-                        entryConfig = new EntryConfiguration(entry);
+                        if (entry != null)
+                        {
+                            dbCtx.LoadedConfig = new EntryConfiguration(entry);
+                        }
                     }
                 }
-                catch (ArgumentException) 
+                catch (SystemException) 
                 {
                     // Bad config, etc.
-                    entryConfig = null;
                 }
             }
 
-            return entryConfig;
+            return dbCtx.LoadedConfig != null;
         }
 
         /// <summary>
-        /// Load saved configuration or if missing query user for it.
+        /// Use context config or if missing query user for it.
         /// </summary>
-        private EntryConfiguration GetConfiguration(PwDatabase db)
+        private EntryConfiguration GetConfiguration(DatabaseContext dbCtx)
         {
-            EntryConfiguration config = LoadConfiguration(db);
+            //EntryConfiguration config = LoadConfiguration(db);
+            EntryConfiguration config = dbCtx.LoadedConfig;
             if (config != null)
             {
                 // Migrate older settings if necessary.
@@ -1769,10 +1986,10 @@ namespace KPSyncForDrive
             }
             else
             {
-                config = AskForConfiguration(db);
+                config = AskForConfiguration(dbCtx.Database);
                 if (config != null)
                 {
-                    SaveConfiguration(config, db);
+                    SaveConfiguration(config, dbCtx.Database);
 
                     // Seed the effective credentials.
                     if (!config.UseLegacyCreds)
@@ -1842,7 +2059,8 @@ namespace KPSyncForDrive
             db.Modified = entryConfig.ChangesCommitted ||
                                             db.Modified;
 
-            SaveDatabase(m_host, db, Resources.GetString("Msg_SavingConfig"));
+            SaveDatabase(m_host, new DatabaseContext(db),
+                Resources.GetString("Msg_SavingConfig"));
             entryConfig.Reset();
 
             if (m_host.GetConfig(GdsDefs.ConfigUUID) != null)
@@ -1860,7 +2078,7 @@ namespace KPSyncForDrive
     {
         readonly SyncConfiguration m_entry;
         readonly IPluginHost m_host;
-        readonly PwDatabase m_db;
+        readonly DatabaseContext m_dbCtx;
         string m_code, m_state, m_redirectUri;
         HttpListener m_listener;
 
@@ -1881,11 +2099,14 @@ namespace KPSyncForDrive
                         m_listener = new HttpListener();
                         m_listener.Prefixes.Add(m_redirectUri);
                         m_listener.Start();
-                        Debug.WriteLine(string.Format("Listening for '{0}'...",
-                                                        RedirectUri));
+                        Log.Debug("Listening for '{0}'...", m_redirectUri);
                     }
                     catch (Exception e)
                     {
+                        Log.Error(e,
+                            "Failed to get RedirectUri: '{0}', '{1}'.",
+                            m_redirectUri ?? "(null)",
+                            m_listener.ToString() ?? "(null)");
                         using (m_listener) { }
                         m_code = e.ToString();
                         m_listener = null;
@@ -1895,7 +2116,7 @@ namespace KPSyncForDrive
             }
         }
 
-        public NativeCodeReceiver(IPluginHost host, PwDatabase db,
+        internal NativeCodeReceiver(IPluginHost host, DatabaseContext dbCtx,
             SyncConfiguration entry)
         {
             m_entry = entry;
@@ -1903,7 +2124,7 @@ namespace KPSyncForDrive
             m_listener = null;
             m_state = null;
             m_code = "access_denied";
-            m_db = db;
+            m_dbCtx = dbCtx;
         }
 
         public async Task<AuthorizationCodeResponseUrl> ReceiveCodeAsync(
@@ -1957,6 +2178,7 @@ namespace KPSyncForDrive
             portGrabber = new TcpListener(IPAddress.Loopback, 0);
             portGrabber.Start();
             int port = ((IPEndPoint)portGrabber.LocalEndpoint).Port;
+            Log.Debug("TcpListener takes TCP port {0}.", port);
             portGrabber.Stop();
             return port;
         }
@@ -1992,38 +2214,51 @@ namespace KPSyncForDrive
             }
             else
             {
-                using (AuthWaitOrCancel form = new AuthWaitOrCancel(m_host, m_db,
-                                                    m_entry as EntryConfiguration))
+                using (AuthWaitOrCancel form 
+                    = new AuthWaitOrCancel(m_host, m_dbCtx,
+                        m_entry as EntryConfiguration))
                 {
                     Task t = new Task(async () =>
                     {
                         try
                         {
                             // Wait for user to ponder scary warning about
-                            // using unverified apps, hopefully resulting in
-                            // OAuth authentication/authorization response via
-                            // the redirect.
+                            // native though verified apps, hopefully
+                            // resulting in OAuth authentication/authorization
+                            // response via the redirect.
                             context = await m_listener.GetContextAsync();
                         }
-                        catch (ObjectDisposedException)
+                        catch (ObjectDisposedException e)
                         {
                             // This can happen when the user cancels and the
                             // listener is disposed.
                             context = null;
+                            Log.Error(e, "HttpListener may have been " +
+                                "disposed by cancelled op.");
                         }
 
                         // Close the waiter dialog if not already gone.
                         if (!form.IsDisposed)
                         {
+                            Log.Debug("Attempting to close waiter dialog.");
                             form.Invoke(new MethodInvoker(form.Close));
                         }
 
-                        // Bring main KeePass window back.  
+                        // Bring main KeePass window back.
+                        Log.Debug("Activating KP main window.");
                         Form window = m_host.MainWindow;
                         window.BeginInvoke(new MethodInvoker(window.Activate));
                     });
-                    form.Shown += (o, e) => t.Start();
-                    KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
+                    form.Shown += (o, e) =>
+                    {
+                        Log.Debug("Wait dialog shown, starting response " +
+                            "listener task.");
+                        t.Start();
+                    };
+                    DialogResult dr =
+                        KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
+                    Log.Debug("Wait dialog returned '{0}'.",
+                        dr.ToString("G"));
                 }
             }
             return context;
@@ -2042,7 +2277,9 @@ namespace KPSyncForDrive
             url.State = RandomDataBase64url(32);
 
             // Open browser via Windows URL doc handler.
-            Process.Start(url.Build().ToString());
+            string urlStr = url.Build().ToString();
+            Log.Debug("Opening OS URL handler ('{0}').", urlStr);
+            Process.Start(urlStr);
 
             // Show a dialog to direct user's attention to the browser, and
             // to offer a way to get out of this if the browser is somehow
@@ -2050,13 +2287,14 @@ namespace KPSyncForDrive
             HttpListenerContext context = DisplayFormAndAwaitAuth();
             if (context == null)
             {
+                Log.Debug("Assuming user cancelled the listener.");
                 m_code = "user_cancelled";
                 return false;
             }
 
             // Send acknowledgement response to the browser user.
-            string responseString;
-            responseString = Resources.GetFormat("Html_AuthResponseString",
+            string responseString
+                = Resources.GetFormat("Html_AuthResponseString",
                                             GdsDefs.UrlGoogleDrive);
             byte[] buffer = Encoding.UTF8.GetBytes(responseString);
             HttpListenerResponse response = context.Response;
@@ -2064,17 +2302,17 @@ namespace KPSyncForDrive
             response.ContentLength64 = buffer.Length;
             using (Stream responseOutput = response.OutputStream)
             {
-                // Don't use non-blocking here so that m_listener doesn't
+                // Use blocking I/O here so that m_listener doesn't
                 // dispose before we push out the response.
                 responseOutput.Write(buffer, 0, buffer.Length);
-                Debug.WriteLine("Browser acknowledged.");
+                Log.Debug("Listener response returned to browser.");
             }
 
             // Check for error response.
             string error = context.Request.QueryString.Get("error");
             if (error != null)
             {
-                Debug.WriteLine(string.Format("OAuth response error: {0}.", error));
+                Log.Debug("OAuth response error: '{0}'", error);
                 return false;
             }
 
@@ -2083,8 +2321,8 @@ namespace KPSyncForDrive
             m_state = context.Request.QueryString.Get("state");
             if (m_code == null || m_state == null)
             {
-                Debug.WriteLine(string.Format("Unexpected response: {0}",
-                    context.Request.QueryString));
+                Log.Debug("Unexpected response: '{0}'",
+                    context.Request.QueryString);
                 return false;
             }
 
@@ -2092,12 +2330,12 @@ namespace KPSyncForDrive
             // sent above resulted in this authorization response.
             if (m_state != url.State)
             {
-                Debug.WriteLine(string.Format("Response with unexpected state ({0}).",
-                    m_state));
+                Log.Debug("Response with unexpected state ({0}).",
+                    m_state);
                 return false;
             }
 
-            Debug.WriteLine(string.Format("Authorization code: {0}.", m_code));
+            Log.Debug("Authorization code: {0}.", m_code);
             return true;
         }
     }

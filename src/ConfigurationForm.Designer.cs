@@ -58,6 +58,7 @@
             this.m_lblDefaultFolderLabel = new System.Windows.Forms.Label();
             this.m_lblDefFolderColor = new System.Windows.Forms.Label();
             this.m_grpAutoSync = new System.Windows.Forms.GroupBox();
+            this.m_chkSyncOnReopen = new System.Windows.Forms.CheckBox();
             this.m_chkSyncOnSave = new System.Windows.Forms.CheckBox();
             this.m_chkSyncOnOpen = new System.Windows.Forms.CheckBox();
             this.m_tabGSignIn = new System.Windows.Forms.TabPage();
@@ -194,7 +195,7 @@
             this.m_grpCmdEnabled.Controls.Add(this.m_chkSyncEnabled);
             this.m_grpCmdEnabled.Location = new System.Drawing.Point(6, 6);
             this.m_grpCmdEnabled.Name = "m_grpCmdEnabled";
-            this.m_grpCmdEnabled.Size = new System.Drawing.Size(266, 86);
+            this.m_grpCmdEnabled.Size = new System.Drawing.Size(236, 86);
             this.m_grpCmdEnabled.TabIndex = 0;
             this.m_grpCmdEnabled.TabStop = false;
             this.m_grpCmdEnabled.Text = "Group_CmdEnabled";
@@ -401,14 +402,26 @@
             // 
             // m_grpAutoSync
             // 
+            this.m_grpAutoSync.Controls.Add(this.m_chkSyncOnReopen);
             this.m_grpAutoSync.Controls.Add(this.m_chkSyncOnSave);
             this.m_grpAutoSync.Controls.Add(this.m_chkSyncOnOpen);
-            this.m_grpAutoSync.Location = new System.Drawing.Point(278, 6);
+            this.m_grpAutoSync.Location = new System.Drawing.Point(248, 6);
             this.m_grpAutoSync.Name = "m_grpAutoSync";
-            this.m_grpAutoSync.Size = new System.Drawing.Size(266, 86);
+            this.m_grpAutoSync.Size = new System.Drawing.Size(296, 86);
             this.m_grpAutoSync.TabIndex = 1;
             this.m_grpAutoSync.TabStop = false;
             this.m_grpAutoSync.Text = "Group_AutoSync";
+            // 
+            // m_chkSyncOnReopen
+            // 
+            this.m_chkSyncOnReopen.AutoSize = true;
+            this.m_chkSyncOnReopen.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_chkSyncOnReopen.Location = new System.Drawing.Point(39, 62);
+            this.m_chkSyncOnReopen.Name = "m_chkSyncOnReopen";
+            this.m_chkSyncOnReopen.Size = new System.Drawing.Size(144, 17);
+            this.m_chkSyncOnReopen.TabIndex = 2;
+            this.m_chkSyncOnReopen.Text = "Lbl_AutoSyncOnReopen";
+            this.m_chkSyncOnReopen.UseVisualStyleBackColor = true;
             // 
             // m_chkSyncOnSave
             // 
@@ -746,14 +759,14 @@
             this.m_lblAboutProd.ForeColor = System.Drawing.Color.White;
             this.m_lblAboutProd.Location = new System.Drawing.Point(297, 97);
             this.m_lblAboutProd.Name = "m_lblAboutProd";
-            this.m_lblAboutProd.Size = new System.Drawing.Size(222, 20);
+            this.m_lblAboutProd.Size = new System.Drawing.Size(183, 20);
             this.m_lblAboutProd.TabIndex = 1;
             this.m_lblAboutProd.Text = "KPSync for Google Drive™";
             // 
             // m_aboutPic
             // 
             this.m_aboutPic.ErrorImage = null;
-            this.m_aboutPic.Image = global::KPSyncForDrive.Images.gdsync;
+            this.m_aboutPic.Image = KPSyncForDrive.Images.gdsync;
             this.m_aboutPic.InitialImage = null;
             this.m_aboutPic.Location = new System.Drawing.Point(11, 80);
             this.m_aboutPic.Name = "m_aboutPic";
@@ -886,5 +899,6 @@
         private System.Windows.Forms.LinkLabel m_lnkAuthTokenDefaultsHelp;
         private System.Windows.Forms.CheckBox m_chkWarnAuthToken;
         private System.Windows.Forms.CheckBox m_chkDontSaveAuthDefault;
+        private System.Windows.Forms.CheckBox m_chkSyncOnReopen;
     }
 }
