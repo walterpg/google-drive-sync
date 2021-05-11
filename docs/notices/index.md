@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Security Bulletins
+title: Security Bulletins and Known Issues
 ---
 
 In the interest of full disclosure and gaining your trust, this page
@@ -11,5 +11,8 @@ needed to reflect bug fixes or improved features in new releases.
 
 ---
 #### [Shared Databases May Allow Unauthorized Access to Partially-Trusted Users](sharedsec)
+
+---
+#### [KeePass v2.48 Save Command Failure](kp2-48-save)
 
 ---
