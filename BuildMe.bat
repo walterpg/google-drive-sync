@@ -24,7 +24,7 @@
 
 set archname=KPSyncForDrive
 set kp_version_manifest_name=kpsync_final
-set versionPrefix=4.0.6
+set versionPrefix=4.0.7
 set versionSuffix=unstable
 set netsdkver=net45
 

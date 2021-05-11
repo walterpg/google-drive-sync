@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Condition=" '$(VersionPrefix)' == ''">
-    <VersionPrefix>4.0.6</VersionPrefix>
+    <VersionPrefix>4.0.7</VersionPrefix>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(VersionSuffix)' == ''">

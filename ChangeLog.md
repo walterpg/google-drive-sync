@@ -1,3 +1,35 @@
+## 4.0.7-beta
+
+#### [Important: do not use KeePass 2.48 with this or the prior two plugin releases.](https://www.kpsync.org/notices/kp2-48-save)  The [2.48.1](https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.48.1/KeePass-2.48.1-Setup.exe/download) release fixes a blocking issue, and earlier KeePass releases do not appear to exhibit the problem.
+ 
+* Several backlog bugfixes, including issue #32, #18, and (with any luck) #37 and #27.
+* Rudimentary diagnostic logging feature (partially implementing #33).
+* Fix to use new app creds by default in new "clean" installation and databases.
+* Fix for #36, auto sync ops disrupted by KP auto-lock, save-on-exit, etc.
+* New plugin option to automatically handle deferred auto-sync-on-save ops.
+* For new installs, disable "legacy creds" for new databases. 
+
+#### Release Notes
+Thanks to all for your continued support.
+
+Apologies for the relatively long delay in this release.  With any luck this is the last beta.  Unfortunately, the current maintainers are the only source of *pre-release* feedback. Also, a few non-trivial issues went unnoticed even after a several releases.
+
+As outlined above, this is mostly a bufix release.  The most significant new feature is plugin run-time logging.  The plugin can now be configured to log development "asserts", Google API logging, and other significant events to a plain text file.  Currently, logging can only be enabled via the ``KeePass.exe.config`` file.  For example:
+
+    <configuration>
+        ...
+	    <appSettings>
+            ...
+            <add key="KpSyncLogLevel" value="Debug"/>
+            <add key="KpSyncLogFile" value="c:\temp\KpSyncLog.txt"/>
+	    </appSettings>
+    </configuration>
+
+Modifying the configuration as shown above (and subsequently restarting KP) causes the plugin to create a file named ``KpSyncLogXXX.txt`` for each new KP session, where "XXX" is the encoded date/time for the session.  In this case, the file will be created in the ``c:\temp`` folder.
+
+Eventually, this crude interface should be replaced with a GUI-accessible logging feature.  For now, please experiment with the feature to help us troubleshoot plugin problems in [bug reports and other issues](https://github.com/walterpg/google-drive-sync/issues), and to help everyone understand how the plugin works internally.
+
+---
 ## 4.0.6-beta
 
 * #31 REBRANDING. The name of the plugin has changed yet again, this time in deference to KP preferences.  This is the first release with the new name, matching changes already made to the [website](https://kpsync.org) and the Google Sign-in consent screen. See further notes below regarding this change.
