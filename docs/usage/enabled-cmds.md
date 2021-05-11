@@ -10,7 +10,7 @@ title: Enable or Disable Commands
 The Problem: the
 [**Sync with Drive**](sync) command is directly adjacent to the 
 [**Upload to Drive**](upload)
-command, and an accidental slip of the mouse might end in a minor catastrophe.
+command on the plugin menu, and an accidental slip of the mouse might end in a minor catastrophe.
 
 To help avoid that hazard, you can enable the commands you use most, and 
 disable those you don't.  
