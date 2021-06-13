@@ -75,4 +75,8 @@ KeePass maintains a [cache](https://keepass.info/help/v2/plugins.html#cache) of 
 
 If, after installing a new version of a KeePass plugin, you notice that the plugin release version has not changed, or some other anomaly, you can try deleting the cache using the KeePass Plugins maintenance dialog: **Tools** ⇒ **Plugins...**.  Under **Plugin Cache**, click the **Clear** button, then restart KeePass.  
 
-KeePass will rebuild the cache, so the restart may take a few seconds longer, especially if you have many plugins.
+<div class="alert alert-secondary" role="alert">
+When KeePass rebuilds the plugin cache, restarting may take a few seconds longer, especially if you have many plugins.
+</div>
+
+With each plugin [release](https://github.com/walterpg/google-drive-sync/releases), notes are posted in the project's source code repository regarding the updates and issues known both before and after the release.  There may be information available there that is not yet posted here, or is otherwise unavailable.  Please consult this resource if you encounter other problems.
