@@ -58,7 +58,7 @@ To have the plugin perform deferred sync ops automatically when the database is 
 {: refdef}
 
 <div class="alert alert-secondary" role="alert">
-Note: The <b>Resume on return from Auto-Lock</b> checkbox is only enabled when the <b>Auto Sync</b> on <b>Save</b> option is enabled.  The **Resume on return...** option was first available in version 4.0.7-beta.
+Note: The <b>Resume on return from Auto-Lock</b> checkbox is only enabled when the <b>Auto Sync</b> on <b>Save</b> option is enabled.  The <b>Resume on return...</b> option was first available in version 4.0.7-beta.
 </div>
 
 Disabling the resume option causes the plugin to revert to showing the message window each time the deferred sync condition is detected upon reopen.
