@@ -6,7 +6,9 @@ author: walterpg
 date: May 9, 2021
 ---
 
-Users are advised to **avoid using KeePass v2.48** with the plugin.  If you [experience the problem](#detecting-the-problem) outlined in this document, please try the [workaround](#possible-workaround) given below.  To avoid the problem, [please use another KeePass release](#use-a-different-keepass-release), or discontinue using the plugin.
+Users are advised to **avoid using KeePass v2.48**.  If you have KeePass v2.48 installed, we recommend upgrading to [v2.48.1](https://keepass.info/news/n210507_2.48.html) (or later) immediately.
+
+If you [experience the problem](#detecting-the-problem) outlined in this document, please try the [workaround](#possible-workaround) given below.  If upgrading to KeePass v2.48.1 is not a viable option, [please use another KeePass release](#use-a-different-keepass-release), or discontinue using the plugin.
 
 ## The Issue
 
@@ -16,11 +18,12 @@ If you experience this problem, you may be able to recover the database by follo
 
 ## Use a Different KeePass Release
 
-To continue using the plugin safely, please install an [earlier or later](https://sourceforge.net/projects/keepass/files/KeePass%202.x/) KeePass release.  As of the 4.0.6-beta release, the plugin supports KeePass releases from v2.35 through v2.47.  Though not recommended, you may otherwise consider installing a plugin release other than the effected release versions listed below.
+Users of KeePass v2.48 should upgrade to KeePass v2.48.1 immediately.  Otherwise, to continue using the plugin safely, please install an [earlier or later](https://sourceforge.net/projects/keepass/files/KeePass%202.x/) KeePass release.  
 
-It is believed that this defect first appeared in KeePass v2.48.  It effects the following plugin releases:
-* [4.0.5-beta](https://github.com/walterpg/google-drive-sync/releases/tag/v4.0.5-beta)
-* [4.0.6-beta](https://github.com/walterpg/google-drive-sync/releases/tag/v4.0.6-beta)
+The defect apparently first appeared in KeePass v2.48.  It effects all plugin releases from v4.0.5-beta.
+
+As of the 4.0.7-beta release, the plugin supports KeePass releases v2.35 through v2.47.  Though not recommended, you may could consider installing a plugin release prior to v4.0.5-beta.
+
 
 ## Detecting the Problem
 

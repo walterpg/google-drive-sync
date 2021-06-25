@@ -216,9 +216,7 @@ used with the plugin, and default settings for new databases.
 [**Enabled Commands**](../usage/enabled-cmds) lets you choose the commands
 you want to use with the plugin, and the commands you would rather disable.
 
-The [**Auto Sync**](../usage/autosync) group are options to completely
-automate the [Sync with Drive](../usage/sync) command by invoking it
-automatically when Saving or Opening a database.
+The [**Auto Sync**](../usage/autosync) group are options to automate the [Sync with Drive](../usage/sync) command by invoking it automatically when Saving or Opening a database.  The **Resume on return from Auto-Lock or Exit** option is enabled when the **Auto Sync** on **Save** option is selected, and when selected it automatically ensures that KP ops that save-then-close are still processed by **Auto Sync** on reopen.  For more details, see the [Deferred Sync](/usage/autosync#deferred-auto-sync) topic.
 
 The **Default Drive Authorization Token Handling** effect how the plugin
 saves authorization tokens in *new* databases, and how it reacts to finding
