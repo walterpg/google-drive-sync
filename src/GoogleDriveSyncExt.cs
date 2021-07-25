@@ -1753,7 +1753,9 @@ namespace KPSyncForDrive
             options = new ConfigurationFormData(acctList, GetColors, db);
             ConfigurationForm optionsForm = new ConfigurationForm(options)
             {
-                DatabaseFilePath = db.IOConnectionInfo.Path
+                DatabaseFilePath = db.IOConnectionInfo.Path,
+                Icon = Images.GdsyncIcon,
+                ShowIcon = true
             };
             using (options)
             using (optionsForm)

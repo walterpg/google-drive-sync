@@ -223,7 +223,7 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
     <value>Más información de actualización disponible en {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
-    <value>Los sitio web.</value>
+    <value>Los KPSync.org.</value>
   </data>
   <data name="Lnk_SignInHelp" xml:space="preserve">
     <value>¿Problema de Sign-In?</value>
@@ -454,7 +454,7 @@ De lo contrario, regrese a KeePass para crear una nueva entrada o editar una exi
     <value>Entrada de contraseña de Plugin</value>
   </data>
   <data name="Lbl_LegacyAttribution" xml:space="preserve">
-    <value>Basado y compatible con el complemento KeePass Google Sync, Copyright © 2016 DesignsInnovate.</value>
+    <value>Basado en KeePass Google Sync Plugin 3.0, Copyright © 2016 DesignsInnovate.</value>
   </data>
   <data name="Group_CmdEnabled" xml:space="preserve">
     <value>Comandos habilitados (por lo menos uno)</value>
@@ -590,5 +590,11 @@ Es posible que la base de datos local no esté sincronizada con el archivo de Dr
   </data>
   <data name="Lbl_AutoSyncOnReopen" xml:space="preserve">
     <value>Reanudar al regresar de Bloqueo Automático</value>
+  </data>
+  <data name="Btn_About" xml:space="preserve">
+    <value>Sobre esto</value>
+  </data>
+  <data name="Lnk_PrivacyPolicy" xml:space="preserve">
+    <value>Política de privacidad</value>
   </data>
 </root>

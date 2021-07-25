@@ -22,6 +22,7 @@
 
 using KeePass.UI;
 using KeePassLib.Security;
+using KPSyncForDrive.WindowsControls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,25 +53,16 @@ namespace KPSyncForDrive
 
             Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
-            m_lblAboutVer.Text = GdsDefs.Version;
-            m_lblAboutProd.Text = GdsDefs.ProductAttributedTitle;
-            m_lblCopyright.Text = Assembly
-                .GetAssembly(typeof(ConfigurationForm))
-                .GetCustomAttribute<AssemblyCopyrightAttribute>()
-                .Copyright;
 
             // Localize the form
             Control[] textCx = new Control[]
             {
                 m_lnkGoogle,
                 m_lnkHelp,
-                m_lnkHome,
-                m_lnkPrivacy,
                 m_lnkGoogle2,
                 m_lnkHelp2,
                 m_tabGSignIn,
                 m_tabOptions,
-                m_tabAbout,
                 m_grpEntry,
                 m_grpDriveAuth,
                 m_lblAccount,
@@ -83,6 +75,7 @@ namespace KPSyncForDrive
                 m_lblFolder,
                 m_btnCancel,
                 m_btnOK,
+                m_btnAbout,
                 m_grpCmdEnabled,
                 m_chkSyncEnabled,
                 m_chkUploadEnabled,
@@ -99,7 +92,6 @@ namespace KPSyncForDrive
                 m_lblDefaultFolderLabel,
                 m_lblDefFolderColor,
                 m_btnGetColors,
-                m_lblAttribution,
                 m_chkDefaultUseLegacyCreds,
                 m_chkUseLegacyCreds,
                 m_grpAuthTokenSecurityDefaults,
@@ -342,10 +334,8 @@ namespace KPSyncForDrive
             // Initialize link handlers.
             m_lnkGoogle.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlGoogleDev);
             m_lnkHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHelp);
-            m_lnkHome.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHome);
             m_lnkGoogle2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlGoogleDev);
             m_lnkHelp2.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlHelp);
-            m_lblAttribution.Click += (o, e) => Process.Start(GdsDefs.UrlLegacyHome);
             m_lnkAuthTokenDefaultsHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlSharedFileHelp);
             m_lnkAuthTokenHelp.LinkClicked += (o, e) => Process.Start(GdsDefs.UrlSharedFileHelp);
 
@@ -392,9 +382,16 @@ namespace KPSyncForDrive
                 Resources.GetBitmap("round_help_outline_black_18dp"));
             m_tabGSignIn.ImageKey = GSigninTabIcoKey;
             m_tabOptions.ImageKey = GeneralTabIcoKey;
-            m_tabAbout.ImageKey = AboutIcoKey;
 
+            // About button handler
+            m_btnAbout.Click += HandleAboutClicked;
             base.OnLoad(args);
+        }
+
+        private void HandleAboutClicked(object sender, EventArgs e)
+        {
+            Form f = Forms.GetNewAboutForm(new AboutData(), Images.GdsyncIcon);
+            f.ShowDialog(this);
         }
 
         // Don't allow the last enabled command to be disabled.

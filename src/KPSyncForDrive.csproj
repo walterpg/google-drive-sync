@@ -16,6 +16,7 @@
     <Description>Safely synchronize KeePass database files with Google Drive.</Description>
     <Copyright>Copyright ©  2020-2021</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
+    <ApplicationIcon>Images\gdsync.ico</ApplicationIcon>
     <PlatformTarget Condition=" '$(PlatformTarget)' == '' ">AnyCPU</PlatformTarget>
     <LangVersion>5</LangVersion>
     <UseWindowsForms>true</UseWindowsForms>
@@ -32,11 +33,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\lib\src\WindowsControls\WindowsControls.csproj" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Net.Http" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.51.0.2265" />
-    <PackageReference Include="PlgxBuildTasks" Version="0.1.1-alpha" />
+    <PackageReference Include="PlgxBuildTasks" Version="1.1.0-beta" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <Reference Include="KeePass.exe">
@@ -76,27 +78,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="SavedAuthWarning.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="SavedAuthWarning.cs" />
     <Compile Update="SavedAuthWarning.Designer.cs">
       <DependentUpon>SavedAuthWarning.cs</DependentUpon>
     </Compile>
-    <Compile Update="ConfigurationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ConfigurationForm.cs" />
     <Compile Update="ConfigurationForm.Designer.cs">
       <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </Compile>
-    <Compile Update="AuthWaitOrCancel.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="AuthWaitOrCancel.cs" />
     <Compile Update="AuthWaitOrCancel.Designer.cs">
       <DependentUpon>AuthWaitOrCancel.cs</DependentUpon>
     </Compile>
-    <Compile Update="AppCredsUpgrade.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="AppCredsUpgrade.cs" />
     <Compile Update="AppCredsUpgrade.Designer.cs">
       <DependentUpon>AppCredsUpgrade.cs</DependentUpon>
     </Compile>
@@ -105,9 +99,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Images.resx</DependentUpon>
     </Compile>
-    <Compile Update="SharedFileError.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="SharedFileError.cs" />
     <Compile Update="SharedFileError.Designer.cs">
       <DependentUpon>SharedFileError.cs</DependentUpon>
     </Compile>
@@ -152,6 +144,14 @@
       <ExcludeFromPlgx />
     </None>
   </ItemGroup>
+
+  <!-- ===== This is for PlgxBuildTasks dev building, etc. Remove <PackageReference> above. =====
+  <Import Project="..\..\plgx-build-tasks\PlgxBuild\PlgxBuildTasks.targets" />
+  <PropertyGroup>
+    <GeneratePlgx>true</GeneratePlgx>
+    <PlgxBuildTasksDir>..\..\plgx-build-tasks\PlgxBuild\bin\Debug\netstandard2.0\</PlgxBuildTasksDir>
+  </PropertyGroup>
+  -->
 
   <!-- Embed version number in .PLGX name-->
   <Target Name="KpSyncSetPlgxFileName"

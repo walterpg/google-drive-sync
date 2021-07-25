@@ -257,7 +257,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>KeePass UUID:</value>
   </data>
   <data name="Lbl_LegacyAttribution" xml:space="preserve">
-    <value>Based on and compatible with KeePass Google Sync Plugin 3.0, Copyright © 2016 DesignsInnovate.</value>
+    <value>Based on KeePass Google Sync Plugin 3.0, Copyright © 2016 DesignsInnovate.</value>
   </data>
   <data name="Lbl_OauthCreds" xml:space="preserve">
     <value>Custom OAuth 2.0 Credentials</value>
@@ -288,7 +288,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>More upgrade information available at {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
-    <value>Visit the Website.</value>
+    <value>Visite KPSync.org.</value>
   </data>
   <data name="Lnk_SignInHelp" xml:space="preserve">
     <value>Sign-In Problem?</value>
@@ -597,5 +597,11 @@ The local database could be out of sync with the Drive file.  Would you like to 
   </data>
   <data name="Lbl_AutoSyncOnReopen" xml:space="preserve">
     <value>Resume on return from Auto-Lock or Exit</value>
+  </data>
+  <data name="Btn_About" xml:space="preserve">
+    <value>About This Plugin</value>
+  </data>
+  <data name="Lnk_PrivacyPolicy" xml:space="preserve">
+    <value>Privacy Policy</value>
   </data>
 </root>

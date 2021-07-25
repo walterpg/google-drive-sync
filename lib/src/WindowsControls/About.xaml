@@ -1,0 +1,66 @@
+﻿<UserControl x:Name="AboutControl" x:Class="KPSyncForDrive.WindowsControls.About"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KPSyncForDrive.WindowsControls"
+             mc:Ignorable="d" 
+             >
+    <UserControl.Resources>
+        <local:AboutData x:Key="aboutDataResource"/>
+        <Style TargetType="Hyperlink">
+            <EventSetter Event="RequestNavigate" Handler="HandleBrowse"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <Binding Source="{StaticResource aboutDataResource}"/>
+    </UserControl.DataContext>
+    <Grid Width="auto" Height="auto" Background="#FF4E5D6C" MouseUp="Grid_MouseUp"
+          KeyUp="Grid_KeyUp">
+        <StackPanel Margin="10,10" Width="260" VerticalAlignment="Top">
+            <WrapPanel >
+                <Image x:Name="AppIcon" HorizontalAlignment="Left" Height="128" Width="128" Source="Resources/gdsync.png"/>
+                <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right"  Margin="20,30,0,0">
+                    <Label x:Name="VersionLabel"  Foreground="White" RenderTransformOrigin="0.155,0.515" Content="{Binding SemVer}"/>
+                    <Label x:Name="WebsiteLink">
+                        <Hyperlink NavigateUri="{Binding WebsiteLink}"  TextDecorations="{x:Null}">
+                            <TextBlock Foreground="#FFDF691A" FontSize="11" FontWeight="Bold" Text="{Binding WebsiteLinkText}"/>
+                        </Hyperlink>
+                    </Label>
+                    <Label x:Name="PrivacyLink">
+                        <Hyperlink NavigateUri="{Binding PrivacyLink}" TextDecorations="{x:Null}">
+                            <TextBlock Foreground="#FFDF691A" FontSize="11" FontWeight="Bold" Text="{Binding PrivacyLinkText}"/>
+                        </Hyperlink>
+                    </Label>
+                </StackPanel>
+            </WrapPanel>
+            <StackPanel Margin="20,10">
+                <StackPanel.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                            AccelerationRatio="0.2"
+                                                            From="0.2" To="1.0" Duration="0:0:2"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </StackPanel.Triggers>
+                <Label x:Name="AppTitle" Foreground="White" FontSize="16">
+                    KPSync for Google Drive&#x2122;
+                </Label>
+                <Label x:Name="AppCopyright" Foreground="White" FontSize="11" Content="{Binding CopyrightText}"/>
+            </StackPanel>
+            <Label x:Name="LegacyAttribution" Margin="0,5" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="#FFABB6C2" FontSize="11" >
+                <Hyperlink NavigateUri="https://sourceforge.net/projects/kp-googlesync/" TextDecorations="{x:Null}" >
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"  Foreground="#FFABB6C2" Text="{Binding Gs3Attribution}"/>
+                </Hyperlink>
+            </Label>
+        </StackPanel>
+    </Grid>
+</UserControl>
