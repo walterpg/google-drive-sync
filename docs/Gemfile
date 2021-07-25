@@ -3,5 +3,6 @@ source "https://rubygems.org"
 gem "jekyll", "~> 3.9.0"
 gem "github-pages", "~> 214", group: :jekyll_plugins
 gem "jekyll-github-metadata", "~> 2.13.0", group: :jekyll_plugins
+gem "addressable", ">= 2.8.0"
 gem "nokogiri", ">= 1.11.4"
 gem "webrick"
