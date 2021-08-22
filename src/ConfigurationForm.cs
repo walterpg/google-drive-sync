@@ -49,6 +49,7 @@ namespace KPSyncForDrive
             EnsureCheckEnabledGroupBox(m_chkDefaultUseLegacyCreds,
                                         m_grpDriveAuthDefaults);
             EnsureCheckEnabledGroupBox(m_chkUseLegacyCreds, m_grpDriveAuth);
+            EnsureCheckEnabledGroupBox(m_chkUseFileScope, m_grpFileScope);
 
             Text = GdsDefs.ProductName;
             DatabaseFilePath = string.Empty;
@@ -110,6 +111,9 @@ namespace KPSyncForDrive
                 m_chkDontSaveAuthToken,
                 m_lnkAuthTokenHelp,
                 m_chkSyncOnReopen,
+                m_lblTargetFile,
+                m_chkUseFileScope,
+                m_btnSelectFile,
             };
             foreach (Control c in textCx)
             {
@@ -147,6 +151,13 @@ namespace KPSyncForDrive
             }
             m_btnGetColors.Enabled = string.IsNullOrWhiteSpace(m_txtFolderDefault.Text);
             m_bColorsQueried = false;
+
+            m_btnSelectFile.Click += HandleSelectFile;
+        }
+
+        private async void HandleSelectFile(object sender, EventArgs e)
+        {
+            await m_data.GetFile();
         }
 
         static void EnsureCheckEnabledGroupBox(CheckBox chk, GroupBox grp)
@@ -610,6 +621,11 @@ namespace KPSyncForDrive
         private void m_chkUseLegacyCreds_CheckedChanged(object sender, EventArgs e)
         {
             m_grpDriveAuth.Enabled = m_chkUseLegacyCreds.Checked;
+        }
+
+        private void m_UseFileScope_CheckedChanged(object sender, EventArgs e)
+        {
+            m_grpFileScope.Enabled = m_chkUseFileScope.Checked;
         }
     }
 }

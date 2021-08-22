@@ -145,10 +145,15 @@ namespace KPSyncForDrive
 
         readonly ResourceManager m_strings;
         readonly ResourceManager m_images;
+        readonly ResourceManager m_pages;
+        readonly string m_namespace;
+        readonly Assembly m_assembly;
 
         Resources()
         {
             Type thisType = GetType();
+            m_namespace = thisType.Namespace;
+            m_assembly = thisType.Assembly;
             m_strings = new SingleAssemblyResourcesManager(
                 thisType.Namespace + ".Strings", thisType.Assembly);
             m_images = new ResourceManager(thisType.Namespace + ".Images", thisType.Assembly);
@@ -215,6 +220,16 @@ namespace KPSyncForDrive
         public static Bitmap GetBitmap(string name)
         {
             return (Bitmap)Instance.m_images.GetObject(name);
+        }
+
+        public static byte[] ReadByteResourceFromAssembly(string name)
+        {
+            using (var stream = Instance.m_assembly.GetManifestResourceStream(Instance.m_namespace + "." + name))
+            {
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, (int)stream.Length);
+                return buffer;                
+            }
         }
 
         public static MemoryStream GetImageStream(string name, ImageFormat fmt)

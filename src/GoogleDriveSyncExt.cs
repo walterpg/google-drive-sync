@@ -1750,7 +1750,7 @@ namespace KPSyncForDrive
 
             // Create a "presentation" object for dialog data binding.
             ConfigurationFormData options;
-            options = new ConfigurationFormData(acctList, GetColors, db);
+            options = new ConfigurationFormData(acctList, GetColors, GetFile, db);
             ConfigurationForm optionsForm = new ConfigurationForm(options)
             {
                 DatabaseFilePath = db.IOConnectionInfo.Path
@@ -2071,6 +2071,12 @@ namespace KPSyncForDrive
             }
 
             return true;
+        }
+
+        async Task<FilePick> GetFile(SyncConfiguration authData, DatabaseContext dbCtx)
+        {
+            var picker = new FilePicker(m_host, dbCtx, authData);
+            return await picker.SelectFile(CancellationToken.None);
         }
     }
 

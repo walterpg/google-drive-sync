@@ -40,13 +40,17 @@ namespace KPSyncForDrive
         public delegate Task<IEnumerable<Color>> ColorProvider(
             EntryConfiguration ec, DatabaseContext dbCtx);
 
+        public delegate Task<FilePick> FilePicker(EntryConfiguration ec,
+            DatabaseContext dbCtx);
+
         IEnumerable<Color> m_colors;
         readonly ColorProvider m_colorProvider;
+        readonly FilePicker m_picker;
         readonly PwDatabase m_db;
         PluginConfig m_config;
 
         public ConfigurationFormData(IList<EntryConfiguration> entries,
-            ColorProvider colorProvider, PwDatabase db)
+            ColorProvider colorProvider, FilePicker picker, PwDatabase db)
         {
             Entries = entries;
             EntryBindingSource = new BindingSource
@@ -56,6 +60,7 @@ namespace KPSyncForDrive
 
             m_colors = null;
             m_colorProvider = colorProvider;
+            m_picker = picker;
             m_db = db;
             DefaultUseKpgs3ClientId = 
                 SyncConfiguration.IsEmpty(
@@ -346,6 +351,13 @@ namespace KPSyncForDrive
                 m_colors = result;
             }
             return m_colors;
+        }
+
+        public async Task<FilePick> GetFile()
+        {
+            EntryConfiguration current;
+            current = EntryBindingSource.Current as EntryConfiguration;
+            return await m_picker(current, new DatabaseContext(m_db));
         }
 
         void RaisePropertyChanged(string propName)

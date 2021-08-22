@@ -598,4 +598,13 @@ The local database could be out of sync with the Drive file.  Would you like to 
   <data name="Lbl_AutoSyncOnReopen" xml:space="preserve">
     <value>Resume on return from Auto-Lock or Exit</value>
   </data>
+  <data name="Lbl_UseFileScope" xml:space="preserve">
+    <value>Use Google Drive File Scope</value>
+  </data>
+  <data name="Lbl_TargetFile" xml:space="preserve">
+    <value>Database file path:</value>
+  </data>
+  <data name="Btn_SelectFile" xml:space="preserve">
+    <value>Select file</value>
+  </data>
 </root>

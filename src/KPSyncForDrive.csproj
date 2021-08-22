@@ -142,6 +142,8 @@
     <EmbeddedResource Update="Strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Pages/picker.html">
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
