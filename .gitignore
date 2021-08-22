@@ -173,3 +173,6 @@ lib/src/GenVerInfo/PrivateKey.xml
 
 # More VS-generated backups
 MigrationBackup*/
+
+# scratch kp pig
+kp/
