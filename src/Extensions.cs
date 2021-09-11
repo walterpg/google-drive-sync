@@ -154,7 +154,27 @@ namespace KPSyncForDrive
             return GetFileEventFlags(db, DeferredAutoSyncKey, bErase);
         }
 
-        public static FileEventFlags GetFileEventFlags(PwDatabase db,
+        static FileEventFlags? GetPropAsFileEventFlags(
+            StringDictionaryEx props, string key)
+        {
+            if (!props.Exists(key))
+            {
+                return null;
+            }
+            string stringVal = props.Get(key);
+            if (string.IsNullOrEmpty(stringVal))
+            {
+                return null;
+            }
+            FileEventFlags retVal;
+            if (!Enum.TryParse(stringVal, out retVal))
+            {
+                return null;
+            }
+            return retVal;
+        }
+
+        static FileEventFlags GetFileEventFlags(PwDatabase db,
             string key, bool bErase)
         {
             if (db == null || !db.IsOpen || db.CustomData == null)
@@ -162,23 +182,40 @@ namespace KPSyncForDrive
                 return FileEventFlags.None;
             }
             StringDictionaryEx props = db.CustomData;
-            string stringVal = props.Get(key);
-            if (string.IsNullOrEmpty(stringVal))
-            {
-                stringVal = string.Empty;
-            }
-            FileEventFlags retVal;
-            if (!Enum.TryParse(stringVal, out retVal))
+            FileEventFlags? retVal = GetPropAsFileEventFlags(props, key);
+            if (!retVal.HasValue)
             {
                 retVal = FileEventFlags.None;
+                bErase = true;
             }
             retVal &= FileEventFlags.Exiting | FileEventFlags.Locking;
-            if ((bErase || retVal == FileEventFlags.None) &&
-                props.Exists(key))
+            if (bErase)
             {
-                props.Remove(key);
+                SetFileEventFlags(props, key, FileEventFlags.None);
             }
-            return retVal;
+            return retVal.Value;
+        }
+
+        static void SetFileEventFlags(StringDictionaryEx props,
+            string key, FileEventFlags flag)
+        {
+            // 'None' is special: it is equivalent to no key,
+            // or, on retrieval, an invalid value.
+            // Don't set 'None' if the key doesn't exist.
+            if (flag == FileEventFlags.None && !props.Exists(key))
+            {
+                return;
+            }
+            // Setting a value marks the database "dirty", even when the
+            // value isn't changed. Avoid when the value is already set.
+            FileEventFlags? existingValue
+                = GetPropAsFileEventFlags(props, key);
+            if (existingValue.HasValue &&
+                existingValue.Value == flag)
+            {
+                return;
+            }
+            props.Set(key, flag.ToString("G"));
         }
 
         public static void SetClosingEvent(this PwDatabase db,
@@ -201,17 +238,10 @@ namespace KPSyncForDrive
                 return;
             }
 
-            // Record only locking & exit events.
-            StringDictionaryEx props = db.CustomData;
+            // Record locking, exit, and clearing events.
             reason &= FileEventFlags.Exiting | FileEventFlags.Locking;
-            if (reason != FileEventFlags.None)
-            {
-                props.Set(key, reason.ToString("G"));
-            }
-            else if (props.Exists(key))
-            {
-                props.Remove(key);
-            }
+
+            SetFileEventFlags(db.CustomData, key, reason);
         }
 
         /// <summary>
