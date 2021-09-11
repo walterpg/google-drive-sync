@@ -7,7 +7,7 @@ title: Auto Sync
 ![Auto Sync Config](../assets/img/auto-sync.png)
 {: refdef}
 
-Sync every time you open or save the database.
+Sync every time you open or save the database ([unless you don't want to!](#temporarily-disable-with-the-shift-key)).
 
 ## What Happens
 * If **Auto Sync** is enabled for the KeePass **Open** command, then each time you open a 
@@ -27,6 +27,9 @@ shown above.
 * **Auto Sync** only works if the current database is configured for the plugin,
 and if the **Sync with Drive** function is enabled.
 * **BEWARE:** KeePass features such as [auto-lock](https://keepass.info/help/base/security.html#seclocking) save changes then immediately close the database, preventing the plugin from automatically syncing.  In such cases, you can optionally defer **Auto Sync** until the database is reopened.  For more details, see [**Deferred Auto Sync**](#deferred-auto-sync) below.
+
+## Temporarily Disable with the Shift Key
+Hold down the **Shift** key then run the KeePass **Save** or **Open** command to bypass **Auto Sync** for the current command.
 
 ## Deferred Auto Sync
 KeePass' [auto-lock](https://keepass.info/help/base/security.html#seclocking) and related features interfere with the operation of the **Auto Sync** on **Save** option.  To help ensure minimal impact to **Auto Sync** operations, the plugin implements a "deferred sync" option when the condition is detected.
