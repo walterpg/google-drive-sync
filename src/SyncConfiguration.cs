@@ -64,6 +64,9 @@ namespace KPSyncForDrive
         public const string EntryUseLegacyCredsKey = "GoogleSync.UseLegacyAppCreds";
         public const string EntryVersionKey = "GoogleSync.ConfigVersion";
         public const string EntryDontCacheAuthTokenKey = "GoogleSync.NoAuthTokens";
+        public const string EntryUseFileScope = "GoogleSync.UseFileScope";
+        public const string EntryFileScopeFileTarget = "GoogleSync.FileScopeFileTarget";
+        public const string EntryFileScopeFileTargetId = "GoogleSync.FileScopeFileTargetId";
 
         public static Version CurrentVersion
         {
@@ -120,6 +123,12 @@ namespace KPSyncForDrive
         public abstract string LegacyDriveScope { get; set; }
         public abstract bool UseLegacyCreds { get; set; }
         public abstract bool DontSaveAuthToken { get; set; }
+
+
+        public abstract bool UseFileScope { get; set; }
+        public abstract string FileScopeFileTarget { get; set; }
+        public abstract string FileScopeFileTargetId { get; set; }
+
         public abstract Version Version { get; }
     }
 
@@ -167,6 +176,11 @@ namespace KPSyncForDrive
             m_title = copyee.Title;
             ActiveFolder = copyee.ActiveFolder;
             LegacyDriveScope = copyee.LegacyDriveScope;
+
+            UseFileScope = copyee.UseFileScope;
+            FileScopeFileTarget = copyee.FileScopeFileTarget;
+            FileScopeFileTargetId = copyee.FileScopeFileTargetId;
+
             m_ver = copyee.Version;
         }
 
@@ -222,6 +236,12 @@ namespace KPSyncForDrive
         {
             get { return m_ver; }
         }
+
+        public override bool UseFileScope { get; set; }
+
+        public override string FileScopeFileTarget { get; set; }
+
+        public override string FileScopeFileTargetId { get; set; }
     }
 
     /// <summary>
@@ -302,6 +322,9 @@ namespace KPSyncForDrive
                         case EntryDriveScopeKey:
                         case EntryVersionKey:
                         case EntryDontCacheAuthTokenKey:
+                        case EntryUseFileScope:
+                        case EntryFileScopeFileTarget:
+                        case EntryFileScopeFileTargetId:
                             string stringVal = kv.Value as string;
                             CustomData.Set(kv.Key, 
                                 stringVal == null ? string.Empty : stringVal);
@@ -708,6 +731,47 @@ namespace KPSyncForDrive
             }
         }
 
+        public override bool UseFileScope
+        {
+            get
+            {
+                return GdsDefs.ConfigTrue ==
+                    GetValue(EntryUseFileScope, ReadSafe);
+            }
+            set
+            {
+                SetValue(EntryUseFileScope,
+                    value ? GdsDefs.ConfigTrue : GdsDefs.ConfigFalse);
+            }
+        }
+
+        public override string FileScopeFileTarget
+        {
+            get
+            {
+                return GetValue(EntryFileScopeFileTarget, ReadSafe);
+            }
+            set
+            {
+                // when file name is updated reset id
+                // mainly when user decides to manually enter name
+                SetValue(EntryFileScopeFileTarget, value);
+                SetValue(EntryFileScopeFileTargetId, (string)null); // reset Id when name is changed.
+            }
+        }
+
+        public override string FileScopeFileTargetId
+        {
+            get
+            {
+                return GetValue(EntryFileScopeFileTargetId, ReadSafe);
+            }
+            set
+            {
+                SetValue(EntryFileScopeFileTargetId, value);
+            }
+        }
+
         public override Version Version
         {
             get
@@ -746,6 +810,12 @@ namespace KPSyncForDrive
             }
 
             Debug.Assert(Version == CurrentVersion);
+        }
+
+        public class FileScopeFile
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }

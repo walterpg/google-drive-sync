@@ -157,7 +157,8 @@ namespace KPSyncForDrive
 
         private async void HandleSelectFile(object sender, EventArgs e)
         {
-            await m_data.GetFile();
+            await m_data.PickFile();
+            m_data.EntryBindingSource.ResetBindings(false); // somewhat hacky way to refresh bound values to re-read datasource
         }
 
         static void EnsureCheckEnabledGroupBox(CheckBox chk, GroupBox grp)
@@ -339,6 +340,20 @@ namespace KPSyncForDrive
             binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
             binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
             m_chkSyncOnReopen.DataBindings.Add(binding);
+
+            // File scope options
+            Debug.Assert(m_chkUseFileScope is CheckBox);
+            binding = new Binding("Checked",
+                bindingSource,
+                "UseFileScope");
+            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            m_chkUseFileScope.DataBindings.Add(binding);
+            
+            Debug.Assert(m_txtTargetFile is TextBox);
+            binding = new Binding("Text",
+                bindingSource,
+                "FileScopeFileTarget");
+            m_txtTargetFile.DataBindings.Add(binding);
 
             // Select first "active" entry in the accounts combo.
             IEnumerable<EntryConfiguration> actives = m_data.Entries

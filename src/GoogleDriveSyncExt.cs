@@ -713,8 +713,16 @@ namespace KPSyncForDrive
                 status = null;
 
                 List<Folder> folders = await GetFolders(service, config.ActiveFolder);
-                GDriveFile file = await GetFile(service, folders, fileName, 
+                GDriveFile file;
+                if (config.UseFileScope)
+                {
+                    file = await GetFileDirect(service, config.FileScopeFileTargetId);
+                } else 
+                {
+                    file = await GetFile(service, folders, fileName, 
                                             config, autoSync);
+                }
+
                 if (file == null)
                 {
                     if (sync == SyncCommands.DOWNLOAD)
@@ -1022,6 +1030,13 @@ namespace KPSyncForDrive
                 }
             }
             return file;
+        }
+
+        async Task<GDriveFile> GetFileDirect(DriveService service, string fileId)
+        {
+            var req = service.Files.Get(fileId);
+            req.Fields = "id,name,mimeType,shortcutDetails/targetId,shared";
+            return await req.ExecuteAsync();
         }
 
         /// <summary>

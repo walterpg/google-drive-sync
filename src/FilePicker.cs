@@ -12,10 +12,9 @@ namespace KPSyncForDrive
 {
     class FilePicker
     {
-        readonly SyncConfiguration m_entry;
+        readonly SyncConfiguration m_syncConfig;
         readonly IPluginHost m_host;
         readonly DatabaseContext m_dbCtx;
-        bool disposedValue;
 
         // TODO: Add multiple options since these have to be added as authorized origins on Google API side.
         static int[] m_allowedPorts = new int[] { 50100 };
@@ -27,34 +26,29 @@ namespace KPSyncForDrive
         }
 
         internal FilePicker(IPluginHost host, DatabaseContext dbCtx,
-            SyncConfiguration entry)
+            SyncConfiguration syncConfig)
         {
-            m_entry = entry;
+            m_syncConfig = syncConfig;
             m_host = host;
             m_dbCtx = dbCtx;
         }
 
         public async Task<FilePick> SelectFile(CancellationToken cancellationToken)
         {
-            // 1. SHOW PROMPT
-            // 2. START LISTENER
-            // 3. OPEN PAGE
-            // 4. WAIT FOR POST
-            // 5. RETURN Id/Name
-
-            // 1.
             FilePick pick;
-            using (AuthWaitOrCancel form = new AuthWaitOrCancel(m_host, m_dbCtx, m_entry as EntryConfiguration))
+            using (AuthWaitOrCancel form = new AuthWaitOrCancel(m_host, m_dbCtx, m_syncConfig as EntryConfiguration))
             {
                 using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
                     var httpHandlerTask = HandleRequests(
                         cts.Token,
-                        (uri) => {
+                        (uri) =>
+                        {
                             Log.Debug("Opening OS URL handler ('{0}').", uri);
                             Process.Start(uri);
                         },
-                        () => {
+                        () =>
+                        {
                             if (!form.IsDisposed)
                             {
                                 Log.Debug("Attempting to close waiter dialog.");
@@ -64,13 +58,11 @@ namespace KPSyncForDrive
                     );
 
                     // Wait for dialog.
-                    form.FormClosing += (o, e) => { Log.Debug("Closing"); if (!cts.IsCancellationRequested) { cts.Cancel(); }};
+                    form.FormClosing += (o, e) => { Log.Debug("Closing"); if (!cts.IsCancellationRequested) { cts.Cancel(); } };
 
                     DialogResult dr = KPSyncForDriveExt.ShowModalDialogAndDestroy(form);
 
-                    Log.Debug("Waiting.");
                     pick = await httpHandlerTask;
-                    Log.Debug("Picked.");
                     cts.Cancel();
 
                     Log.Debug("Wait dialog returned '{0}'.", dr.ToString("G"));
@@ -81,7 +73,7 @@ namespace KPSyncForDrive
             Log.Debug("Activating KP main window.");
             Form window = m_host.MainWindow;
             window.BeginInvoke(new MethodInvoker(window.Activate));
- 
+
             return pick;
         }
 
@@ -94,7 +86,7 @@ namespace KPSyncForDrive
                 listener.Prefixes.Add(uri);
                 try
                 {
-                    listener.Start();                    
+                    listener.Start();
                 }
                 catch (HttpListenerException ex)
                 {
@@ -115,10 +107,6 @@ namespace KPSyncForDrive
 
                     while (!cts.Token.IsCancellationRequested)
                     {
-                        // task completes when request is received, thus in order to react to
-                        // cancellations we can't just await it directly.
-                        Log.Debug("starting to get context");
-                        
                         HttpListenerContext context = null;
                         try
                         {
@@ -129,14 +117,14 @@ namespace KPSyncForDrive
                             Log.Error("Failed to get context: {0}", ex.ErrorCode);
                         }
 
-                        Log.Debug("got context");
                         if (context == null)
                         {
                             Log.Debug("Assuming user cancelled the listener.");
                             break;
                         }
 
-                        if (context.Request.HttpMethod == "POST") {
+                        if (context.Request.HttpMethod == "POST")
+                        {
                             using (var sr = new StreamReader(context.Request.InputStream))
                             {
                                 var input = await sr.ReadToEndAsync();
@@ -145,8 +133,10 @@ namespace KPSyncForDrive
                                 {
                                     pick = JsonConvert.DeserializeObject<FilePick>(input);
                                     Log.Debug("Picked {0}, {1}", pick.Id, pick.Name);
+                                    UpdateSyncConfiguration(pick);
                                 }
-                                catch (JsonSerializationException ex) {
+                                catch (JsonSerializationException ex)
+                                {
                                     Log.Error(ex, "Failed to deserialize file pick response");
                                 }
 
@@ -158,7 +148,9 @@ namespace KPSyncForDrive
                                 onPicked();
                                 return pick;
                             }
-                        } else {
+                        }
+                        else
+                        {
                             var response = context.Response;
                             response.KeepAlive = false;
                             response.ContentLength64 = pageBuffer.Length;
@@ -175,9 +167,16 @@ namespace KPSyncForDrive
             onPicked();
             return null;
         }
+
+        private void UpdateSyncConfiguration(FilePick pick)
+        {
+            m_syncConfig.FileScopeFileTarget = pick.Name;
+            m_syncConfig.FileScopeFileTargetId = pick.Id;
+        }
     }
-    
-    internal class FilePick {
+
+    internal class FilePick
+    {
         public string Id { get; set; }
         public string Name { get; set; }
     }

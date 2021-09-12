@@ -353,11 +353,11 @@ namespace KPSyncForDrive
             return m_colors;
         }
 
-        public async Task<FilePick> GetFile()
+        public async Task PickFile()
         {
             EntryConfiguration current;
             current = EntryBindingSource.Current as EntryConfiguration;
-            return await m_picker(current, new DatabaseContext(m_db));
+            await m_picker(current, new DatabaseContext(m_db));
         }
 
         void RaisePropertyChanged(string propName)

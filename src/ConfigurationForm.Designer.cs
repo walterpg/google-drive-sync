@@ -67,7 +67,7 @@
             this.m_chkDontSaveAuthToken = new System.Windows.Forms.CheckBox();
             this.m_grpFileScope = new System.Windows.Forms.GroupBox();
             this.m_btnSelectFile = new System.Windows.Forms.Button();
-            this.m_txtFile = new System.Windows.Forms.TextBox();
+            this.m_txtTargetFile = new System.Windows.Forms.TextBox();
             this.m_lblTargetFile = new System.Windows.Forms.Label();
             this.m_chkUseFileScope = new System.Windows.Forms.CheckBox();
             this.m_grpDriveAuth = new System.Windows.Forms.GroupBox();
@@ -500,7 +500,7 @@
             // m_grpFileScope
             // 
             this.m_grpFileScope.Controls.Add(this.m_btnSelectFile);
-            this.m_grpFileScope.Controls.Add(this.m_txtFile);
+            this.m_grpFileScope.Controls.Add(this.m_txtTargetFile);
             this.m_grpFileScope.Controls.Add(this.m_lblTargetFile);
             this.m_grpFileScope.Controls.Add(this.m_chkUseFileScope);
             this.m_grpFileScope.Location = new System.Drawing.Point(6, 182);
@@ -518,12 +518,12 @@
             this.m_btnSelectFile.Text = "Btn_SelectFile";
             this.m_btnSelectFile.UseVisualStyleBackColor = true;
             // 
-            // m_txtFile
+            // m_txtTargetFile
             // 
-            this.m_txtFile.Location = new System.Drawing.Point(131, 35);
-            this.m_txtFile.Name = "m_txtFile";
-            this.m_txtFile.Size = new System.Drawing.Size(289, 20);
-            this.m_txtFile.TabIndex = 33;
+            this.m_txtTargetFile.Location = new System.Drawing.Point(131, 35);
+            this.m_txtTargetFile.Name = "m_txtTargetFile";
+            this.m_txtTargetFile.Size = new System.Drawing.Size(289, 20);
+            this.m_txtTargetFile.TabIndex = 33;
             // 
             // m_lblTargetFile
             // 
@@ -961,6 +961,6 @@
         private System.Windows.Forms.GroupBox m_grpFileScope;
         private System.Windows.Forms.Label m_lblTargetFile;
         private System.Windows.Forms.Button m_btnSelectFile;
-        private System.Windows.Forms.TextBox m_txtFile;
+        private System.Windows.Forms.TextBox m_txtTargetFile;
     }
 }
