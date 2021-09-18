@@ -1417,7 +1417,11 @@ namespace KPSyncForDrive
 
             // Scope choice only available with legacy creds.
             string scope;
-            if (config.UseLegacyCreds &&
+            if (config.UseFileScope)
+            {
+                scope = DriveService.Scope.DriveFile;
+            }
+            else if (config.UseLegacyCreds &&
                 !string.IsNullOrEmpty(config.LegacyDriveScope))
             {
                 Log.Debug("Requesting scope '{0}' for legacy app creds.",
