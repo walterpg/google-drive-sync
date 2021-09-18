@@ -714,7 +714,7 @@ namespace KPSyncForDrive
 
                 List<Folder> folders = await GetFolders(service, config.ActiveFolder);
                 GDriveFile file;
-                if (config.UseFileScope)
+                if (config.UseFileScope && !string.IsNullOrEmpty(config.FileScopeFileTargetId))
                 {
                     file = await GetFileDirect(service, config.FileScopeFileTargetId);
                 } else 
@@ -746,10 +746,40 @@ namespace KPSyncForDrive
                             }
                             folder = folders.First().DriveEntry;
                         }
-                        status = await UploadFile(service, folder,
+
+                        file = await UploadFile(service,
+                            folder,
                             Resources.GetString("Descr_KpDbFile"),
-                            string.Empty, contentType, filePath,
+                            config.UseFileScope ? config.FileScopeFileTarget : string.Empty,
+                            contentType,
+                            filePath,
                             ContentHints);
+
+                        // If we are using file scope re-upload with set target information,
+                        // otherwise the initial uploaded file will not have target information
+                        // and downloading the uploaded version will cause those fields to reset.
+                        if (config.UseFileScope && file != null)
+                        {
+                            config.FileScopeFileTarget = file.Name;
+                            config.FileScopeFileTargetId = file.Id;
+
+                            // yuck
+                            var entryConfig = config as EntryConfiguration;
+                            if (entryConfig != null)
+                            {
+                                // not sure if this is any good according to KDBX standards
+                                // but have to make sure that changes are saved in db before
+                                // 2nd upload.
+                                entryConfig.CommitChangesIfAny();
+                                SaveConfiguration(entryConfig, dbCtx.Database);
+                                SaveDatabase(m_host, dbCtx, this);
+
+                                await UpdateFile(service, file,
+                                    filePath, contentType, ContentHints);
+                            }
+                        }
+
+                        status = Resources.GetFormat("Msg_FileUploadedFmt", file.Name, file.Id);
                     }
                 }
                 else
@@ -1034,6 +1064,8 @@ namespace KPSyncForDrive
 
         async Task<GDriveFile> GetFileDirect(DriveService service, string fileId)
         {
+            // should handle the case when file is deleted completely and it is impossible
+            // to get it using id.
             var req = service.Files.Get(fileId);
             req.Fields = "id,name,mimeType,shortcutDetails/targetId,shared";
             return await req.ExecuteAsync();
@@ -1212,8 +1244,8 @@ namespace KPSyncForDrive
         /// <param name="fileName">File name</param>
         /// <param name="contentType">File content type</param>
         /// <param name="filepath">Full path of the current database file</param>
-        /// <returns>Return status of the upload</returns>
-        private async Task<string> UploadFile(DriveService service, GDriveFile folder,
+        /// <returns>Return uploaded file</returns>
+        private async Task<GDriveFile> UploadFile(DriveService service, GDriveFile folder,
             string description, string fileName, string contentType, string filePath,
             GDriveFile.ContentHintsData thumbnailImage)
         {
@@ -1240,7 +1272,7 @@ namespace KPSyncForDrive
                 s => service.Files.Create(temp, s, contentType),
                 filePath);
 
-            return Resources.GetFormat("Msg_FileUploadedFmt", file.Name, file.Id);
+            return file;
         }
 
         private async Task<GDriveFile> UploadFileImpl(
