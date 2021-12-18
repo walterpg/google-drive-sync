@@ -319,8 +319,7 @@ namespace KPSyncForDrive
             }
             PwDatabase db = e.Database;
             FileEventFlags flags = db.GetClosingEvent(bErase: true);
-            if (PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE) &&
-                flags != FileEventFlags.None)
+            if (PluginConfig.Default.IsAutoSync(AutoSyncMode.SAVE))
             {
                 db.SetDeferrredAutoSync(flags);
             }
