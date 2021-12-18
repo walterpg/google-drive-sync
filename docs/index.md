@@ -5,9 +5,9 @@ title: KPSync for Google Drive™
 
 <div class="alert alert-warning text-dark" role="alert">
     <div>
-        <a href="/notices/kp2-48-save">KeePass v2.48 <b>Save</b> Command Bug</a>
+        <a href="/notices/kp2-48-save"> KeePass v2.48 <b>Save</b> Command Bug</a>
     </div>
-    KeePass 2.48 includes a defect which could cause <b>DATA LOSS</b> when used with the plugin.  Users are advised to upgrade immediately to <a href="https://keepass.info/news/n210507_2.48.html">KeePass 2.48.1</a> or later. If you are affected by the bug 
+    KeePass 2.48 includes a defect which could cause <b>DATA LOSS</b> when used with the plugin.  Users are advised to upgrade immediately to <a href="https://keepass.info/news/n210507_2.48.html"> KeePass 2.48.1</a> or later. If you are affected by the bug 
     <a href="/notices/kp2-48-save">please read this notice</a> for possible recovery of your data.
 </div>
 
