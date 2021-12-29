@@ -123,9 +123,49 @@ namespace KPSyncForDrive {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_security_black_36dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_security_black_36dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_security_black_48dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_security_black_48dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_settings_black_18dp {
             get {
                 object obj = ResourceManager.GetObject("outline_settings_black_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_settings_black_36dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_settings_black_36dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_settings_black_48dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_settings_black_48dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -167,6 +207,26 @@ namespace KPSyncForDrive {
         internal static System.Drawing.Bitmap round_help_outline_black_18dp {
             get {
                 object obj = ResourceManager.GetObject("round_help_outline_black_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap round_help_outline_black_36dp {
+            get {
+                object obj = ResourceManager.GetObject("round_help_outline_black_36dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap round_help_outline_black_48dp {
+            get {
+                object obj = ResourceManager.GetObject("round_help_outline_black_48dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

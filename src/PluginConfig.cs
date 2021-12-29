@@ -20,15 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-using Google.Apis.Drive.v3;
-using KeePass.Plugins;
-using KeePassLib.Security;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Google.Apis.Drive.v3;
+using KeePass.Plugins;
+using KeePassLib.Security;
+using Newtonsoft.Json;
 
 namespace KPSyncForDrive
 {
@@ -410,21 +410,8 @@ namespace KPSyncForDrive
             }
         }
 
-        public void UpdateConfig(IPluginHost host)
+        public void Save(IPluginHost host)
         {
-            Version currentVer, configVer;
-            currentVer = new Version(CurrentVer);
-            configVer = new Version(ConfigVersion);
-
-            if (!m_isDirty && configVer >= currentVer)
-            {
-                return;
-            }
-
-            // New properties take default values. No mods to existing
-            // properties required so far.
-            ConfigVersion = CurrentVer;
-
             JsonSerializerSettings serSettings = new JsonSerializerSettings()
             {
                 //Formatting = Formatting.Indented
@@ -440,6 +427,23 @@ namespace KPSyncForDrive
             host.MainWindow.SaveConfig();
 
             m_isDirty = false;
+        }
+
+        public void UpdateConfig(IPluginHost host)
+        {
+            Version currentVer, configVer;
+            currentVer = new Version(CurrentVer);
+            configVer = new Version(ConfigVersion);
+
+            if (!m_isDirty && configVer >= currentVer)
+            {
+                return;
+            }
+
+            // New properties take default values. No mods to existing
+            // properties required so far.
+            ConfigVersion = CurrentVer;
+            Save(host);
         }
 
         public static PluginConfig InitDefault(IPluginHost host)

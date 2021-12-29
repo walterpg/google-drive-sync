@@ -374,18 +374,47 @@ namespace KPSyncForDrive
                 Resources.GetFormat("Lbl_CurrentDbFmt", DatabaseFilePath));
 
             // Initialize tab images.
-            m_imgList.Images.Add(GSigninTabIcoKey,
-                Resources.GetBitmap("outline_security_black_18dp"));
-            m_imgList.Images.Add(GeneralTabIcoKey,
-                Resources.GetBitmap("outline_settings_black_18dp"));
-            m_imgList.Images.Add(AboutIcoKey,
-                Resources.GetBitmap("round_help_outline_black_18dp"));
+            ScaleImages(Forms.ScalingFactor);
             m_tabGSignIn.ImageKey = GSigninTabIcoKey;
             m_tabOptions.ImageKey = GeneralTabIcoKey;
+            m_btnAbout.ImageKey = AboutIcoKey;
 
             // About button handler
             m_btnAbout.Click += HandleAboutClicked;
             base.OnLoad(args);
+        }
+
+        void ScaleImages(SizeF factor)
+        {
+            const int DesignSquare = 16;
+            m_imgList.Images.Clear();
+            string dpSize;
+            if (factor.Width > 2)
+            {
+                dpSize = "48";
+            }
+            else if (factor.Width > 1)
+            {
+                dpSize = "36";
+            }
+            else
+            {
+                dpSize = "18";
+            }
+            m_imgList.ImageSize = new Size
+            {
+                Width = (int)(factor.Width * DesignSquare),
+                Height = (int)(factor.Height * DesignSquare)
+            };
+            m_imgList.Images.Add(GSigninTabIcoKey,
+                Resources.GetBitmap(
+                    string.Format("outline_security_black_{0}dp", dpSize)));
+            m_imgList.Images.Add(GeneralTabIcoKey,
+                Resources.GetBitmap(
+                    string.Format("outline_settings_black_{0}dp", dpSize)));
+            m_imgList.Images.Add(AboutIcoKey,
+                Resources.GetBitmap(
+                    string.Format("round_help_outline_black_{0}dp", dpSize)));
         }
 
         private void HandleAboutClicked(object sender, EventArgs e)

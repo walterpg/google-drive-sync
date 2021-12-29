@@ -30,9 +30,12 @@ namespace KPSyncForDrive.WindowsControls
 {
     public static class Forms
     {
-        const int INDEX_LOGPIXELSX = 88;
+        public const int DEFAULT_LOGICALDPI = 96;
 
-        static int? s_dpi;
+        const int INDEX_LOGPIXELSX = 88;
+        const int INDEX_LOGPIXELSY = 90;
+
+        static int? s_dpiX, s_dpiY;
 
         [DllImport("user32.dll")]
         static extern IntPtr GetDC(HandleRef hWnd);
@@ -43,39 +46,77 @@ namespace KPSyncForDrive.WindowsControls
         [DllImport("gdi32.dll")]
         static extern int GetDeviceCaps(HandleRef hDC, int nIndex);
 
-        static int DPI
+        static void EnsureDpi()
         {
-            get
+            if (s_dpiX is null)
             {
-                if (s_dpi is null)
+                HandleRef winHwnd = new HandleRef(null, IntPtr.Zero);
+                IntPtr hDC = GetDC(winHwnd);
+                HandleRef winDC = new HandleRef(null, hDC);
+                try
                 {
-                    HandleRef winHwnd = new HandleRef(null, IntPtr.Zero);
-                    IntPtr hDC = GetDC(winHwnd);
-                    HandleRef winDC = new HandleRef(null, hDC);
-                    try
-                    {
-                        s_dpi = GetDeviceCaps(winDC, INDEX_LOGPIXELSX);
-                    }
-                    finally
-                    {
-                        ReleaseDC(winHwnd, winDC);
-                    }
+                    s_dpiX = GetDeviceCaps(winDC, INDEX_LOGPIXELSX);
+                    s_dpiY = GetDeviceCaps(winDC, INDEX_LOGPIXELSY);
                 }
-                return s_dpi.Value;
+                finally
+                {
+                    ReleaseDC(winHwnd, winDC);
+                }
             }
         }
 
-        static double DIPixelsPerPixel => (double)96 / DPI;
-
-        static int DIPixelsToPixels(double diPixels)
+        public static SizeF Dpi
         {
-            return (int)(diPixels / DIPixelsPerPixel);
+            get
+            {
+                EnsureDpi();
+                if (s_dpiX is null)
+                {
+                    return new SizeF(DEFAULT_LOGICALDPI, DEFAULT_LOGICALDPI);
+                }
+                return new SizeF(s_dpiX.Value,
+                    s_dpiY.GetValueOrDefault(s_dpiX.Value));
+            }
+        }
+
+        public static SizeF ScalingFactor
+        {
+            get
+            {
+                EnsureDpi();
+                SizeF dpi = Dpi;
+                return new SizeF
+                {
+                    Width = dpi.Width / DEFAULT_LOGICALDPI,
+                    Height = dpi.Height / DEFAULT_LOGICALDPI
+                };
+            }
+        }
+
+        static SizeF DIPixelsPerPixel =>
+            new SizeF
+            {
+                Width = DEFAULT_LOGICALDPI / Dpi.Width,
+                Height = DEFAULT_LOGICALDPI / Dpi.Height
+            };
+
+        static SizeF DIPixelsToPixels(SizeF diPixels)
+        {
+            return new SizeF
+            {
+                Width = diPixels.Width / DIPixelsPerPixel.Width,
+                Height = diPixels.Height / DIPixelsPerPixel.Height
+            };
         }
 
         static Size SizeFromWpfSize(System.Windows.Size wpfSize)
         {
-            return new Size(DIPixelsToPixels(wpfSize.Width),
-                DIPixelsToPixels(wpfSize.Height));
+            SizeF floatSize = new SizeF
+            {
+                Width = (float)wpfSize.Width,
+                Height = (float)wpfSize.Height
+            };
+            return DIPixelsToPixels(floatSize).ToSize();
         }
 
         public static Form GetNewAboutForm(IAboutData data,
@@ -116,6 +157,5 @@ namespace KPSyncForDrive.WindowsControls
                 f.Close();
             }
         }
-
     }
 }
