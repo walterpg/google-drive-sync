@@ -4,10 +4,6 @@
     <VersionPrefix>4.1.0</VersionPrefix>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(VersionSuffix)' == ''">
-    <VersionSuffix>unstable</VersionSuffix>
-  </PropertyGroup>
-
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net45</TargetFramework>
@@ -38,7 +34,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Net.Http" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.51.0.2265" />
-    <PackageReference Include="PlgxBuildTasks" Version="1.1.0-beta" />
+    <PackageReference Include="PlgxBuildTasks" Version="1.1.1-beta" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <Reference Include="KeePass.exe">
