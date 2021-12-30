@@ -1,3 +1,17 @@
+## 4.1.0
+
+There are only a few bugfixes and enhancements in this release:
+
+* Several modifications to address issues related to the [Auto Sync](https://www.kpsync.org/usage/autosync) feature, as mentioned in #49 and #50. If you continue to experience these problems in this release, do let us know.
+* The [configuration](https://www.kpsync.org/install/config) UI has undergone a minor makeover.  This includes improvements in visual performance for higher pixel density displays.
+
+#### Release Notes
+
+Though unresolved [issues](https://github.com/walterpg/google-drive-sync/issues) and many reasonable enhancement requests remain, it appears that most  who have used and commented on the operation of the plugin are generally satisfied with its day-to-day performance. Google reports that in the last 30 days the plugin successfully exercised Drive transactions at an average rate of 2-3 per minute. We are therefore pleased to announce this first "General Availability" release.
+
+Apologies again for the delay, and not yet addressing the concerns of all users. Life has a curious habit of distracting us from our favorite endeavors. It is our *intention* to pick up the pace with new features in the new year. As always your involvement and support are most welcome.
+
+---
 ## 4.0.7-beta
 
 #### [Important: do not use KeePass 2.48 with this or the prior two plugin releases.](https://www.kpsync.org/notices/kp2-48-save)  The [2.48.1](https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.48.1/KeePass-2.48.1-Setup.exe/download) release fixes a blocking issue, and earlier KeePass releases do not appear to exhibit the problem.
