@@ -27,16 +27,16 @@ using KeePassLib.Serialization;
 
 namespace KPSyncForDrive
 {
-    public class DatabaseContext
+    class DatabaseContext
     {
-        PwDatabase m_db;
-        Guid m_uuid;
-        IOConnectionInfo m_pathEtc;
+        readonly PwDatabase m_db;
+        readonly Guid m_uuid;
+        readonly IOConnectionInfo m_pathEtc;
 
-        internal DatabaseContext(PwDatabase db)
+        public DatabaseContext(PwDatabase db)
         {
             m_db = db;
-            m_uuid = db.GetUuid();
+            m_uuid = db.GetKpSyncUuid();
             m_pathEtc = db.IOConnectionInfo.CloneDeep();
             LoadedConfig = null;
         }

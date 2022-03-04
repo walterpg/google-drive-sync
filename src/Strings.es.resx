@@ -223,7 +223,7 @@ Si el error fue que las claves maestras (contraseñas) no coinciden, use los com
     <value>Más información de actualización disponible en {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
-    <value>Los KPSync.org.</value>
+    <value>Visitar KPSync.org.</value>
   </data>
   <data name="Lnk_SignInHelp" xml:space="preserve">
     <value>¿Problema de Sign-In?</value>

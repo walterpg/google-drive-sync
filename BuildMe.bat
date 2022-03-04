@@ -1,4 +1,4 @@
-﻿:: 
+:: 
 :: Google Sync Plugin for KeePass Password Safe
 :: Copyright © 2012-2016  DesignsInnovate
 :: Copyright © 2014-2016  Paul Voegler
@@ -24,7 +24,7 @@
 
 set archname=KPSyncForDrive
 set kp_version_manifest_name=kpsync_final
-set versionPrefix=4.0.7
+set versionPrefix=4.1.0
 set versionSuffix=unstable
 set netsdkver=net45
 
@@ -52,7 +52,11 @@ if %errorlevel% NEQ 0 goto error
 
 xcopy src\bin\Release\%netsdkver%\*.* build\bin /e /h
 copy build\bin\*.plgx build\dist\
-%sevenzip% a -tzip -r build\dist\%archname%-%versionPrefix%-%versionSuffix%.zip .\build\bin\*.dll .\build\bin\*.pdb .\build\bin\es\*
+set zipFileName=%archname%-%versionPrefix%-%versionSuffix%.zip
+if [%versionSuffix%]==[] (
+    set zipFileName=%archname%-%versionPrefix%.zip
+)
+%sevenzip% a -tzip -r build\dist\%zipFileName% .\build\bin\*.dll .\build\bin\*.pdb .\build\bin\es\*
 .\lib\src\GenVerInfo\bin\Release\%netsdkver%\GenVerInfo.exe .\build\bin\%archname%.dll .\%kp_version_manifest_name%.txt
 
 if not exist %pandoc% goto end

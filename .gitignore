@@ -176,3 +176,6 @@ MigrationBackup*/
 
 # scratch kp pig
 kp/
+
+# Local VS settings
+/src/Properties/launchSettings.json

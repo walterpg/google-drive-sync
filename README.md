@@ -3,15 +3,14 @@
 [![GitHub license](https://img.shields.io/github/license/walterpg/google-drive-sync)](https://raw.githubusercontent.com/walterpg/google-drive-sync/master/LICENSE)
 
 ---
-Beta release now available! If you currently have an Alpha release
-installed, you should
+Download the current release using the link above. If you are upgrading from an Alpha release (v4.0.0 or v4.0.1), you should
 [review the upgrade notes](https://www.kpsync.org/install/upgrade0).
 
-If you currently authorize Drive access with Google Sync Plugin 3.0's built-in
+If you are replacing Google Sync Plugin 3.0, or authorize Drive access with Google Sync Plugin 3.0's built-in
 OAuth credentials, you may want to
 [review the creds upgrade notes](https://www.kpsync.org/install/upgrade1).
 
-Current release downloads and full docs on [kpsync.org](https://www.kpsync.org) including:
+Full documentation is available at [kpsync.org](https://www.kpsync.org) including:
 * [System Requirements](https://www.kpsync.org/install/require)
 * [Compatibility](https://www.kpsync.org/install/require#compatibility-with-google-sync-plugin)
 * [Installation](https://www.kpsync.org/install/normal)

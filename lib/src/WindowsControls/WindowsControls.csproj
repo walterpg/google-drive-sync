@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup Condition=" '$(VersionPrefix)' == ''">
+    <VersionPrefix>4.1.0</VersionPrefix>
+  </PropertyGroup>
+
   <PropertyGroup>
     <AssemblyName>KPSyncWindows</AssemblyName>
     <RootNamespace>KPSyncForDrive.WindowsControls</RootNamespace>

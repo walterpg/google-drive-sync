@@ -81,11 +81,8 @@ namespace KPSyncForDrive
     /// <summary>
     /// main plugin class
     /// </summary>
-    public sealed class KPSyncForDriveExt : Plugin, IDriveServiceProvider
+    public sealed class KPSyncForDriveExt : Plugin
     {
-        private readonly static Dictionary<Guid, ProtectedString> s_sessionAuthTokens
-            = new Dictionary<Guid, ProtectedString>();
-
         private IPluginHost m_host = null;
 
         private ToolStripSeparator m_tsSeparator = null;
@@ -249,7 +246,7 @@ namespace KPSyncForDrive
             m_host.MainWindow.FileClosingPre -= OnFileClosingBeforeSave;
             m_host.MainWindow.FileClosingPost -= OnFileClosingAfterSave;
 
-            s_sessionAuthTokens.Clear();
+            Session.ClearSessionTokens();
 
             Log.Shutdown();
         }
@@ -557,7 +554,7 @@ namespace KPSyncForDrive
         /// function. Obtain and update authorization details from/to the
         /// current configuration.
         /// </summary>
-        public async Task<string> ConfigAndUseDriveService(
+        internal async Task<string> ConfigAndUseDriveService(
             DatabaseContext dbCtx,
             Func<DriveService, SyncConfiguration, Task<string>> use)
         {
@@ -616,7 +613,7 @@ namespace KPSyncForDrive
             return status;
         }
 
-        public async Task<string> UseDriveService(SyncConfiguration authData,
+        internal async Task<string> UseDriveService(SyncConfiguration authData,
             DatabaseContext dbCtx,
             Func<DriveService, SyncConfiguration, Task<string>> use)
         {
@@ -1441,9 +1438,8 @@ namespace KPSyncForDrive
 
             // Look for the auth token in the session state first, then
             // check in the config entry.
-            Guid databaseUuid = dbCtx.Uuid;
             ProtectedString authToken = GdsDefs.PsEmptyEx;
-            if (!s_sessionAuthTokens.TryGetValue(databaseUuid, out authToken) &&
+            if (!dbCtx.Database.TryGetSessionToken(out authToken) &&
                 !config.DontSaveAuthToken)
             {
                 Log.Debug("Retrieving refresh token from config.");
@@ -1493,7 +1489,7 @@ namespace KPSyncForDrive
                                 "attempt reauth ('{0}').", ex.Error.Error);
                             credential = null;
                             config.RefreshToken = null;
-                            s_sessionAuthTokens.Remove(databaseUuid);
+                            dbCtx.Database.RemoveSessionToken();
                             break;
                         default:
                             throw;
@@ -1529,28 +1525,9 @@ namespace KPSyncForDrive
                 config.RefreshToken = authToken;
             }
 
-            s_sessionAuthTokens[databaseUuid] = authToken;
+            dbCtx.Database.SetSessionToken(authToken);
 
             return credential;
-        }
-
-        /// <summary>
-        /// Find active configured Google Accounts, avoiding the recycle bin.
-        /// (Should only return one account.)
-        /// </summary>
-        static IList<EntryConfiguration> FindActiveAccounts(PwDatabase db)
-        {
-            if (!db.IsOpen)
-            {
-                return Enumerable.Empty<EntryConfiguration>().ToList();
-            }
-
-            List<EntryConfiguration> accounts = new List<EntryConfiguration>();
-
-            db.RootGroup.TraverseTree(TraversalMethod.PreOrder,
-                null, e => InsertActiveEntryHandler(db, accounts, e));
-
-            return accounts;
         }
 
         static bool TraverseTreePostedNull(PwEntry e)
@@ -1714,39 +1691,8 @@ namespace KPSyncForDrive
                 return null;
             }
 
-            // Plugin entries, this and legacy, have the google accounts
-            // url fragment in their URL field (and apparently, legacy entries
-            // might also have this in the title field).  Get a list of all
-            // such entries to populate the accounts drop-down in the dialog.
-            // Later, respect the very obsolete PwUuid-based configuration
-            // option used in very old clients.
-            List<EntryConfiguration> acctList = new List<EntryConfiguration>();
-            PwGroup root = db.RootGroup;
-            PwUuid recyclerID = db.RecycleBinUuid;
-            root.TraverseTree(TraversalMethod.PreOrder, null, e =>
-            {
-                if (TraverseTreePostedNull(e) ||
-                    e.ParentGroup == null ||
-                    e.ParentGroup.Uuid == null ||
-                    e.ParentGroup.Uuid.Equals(recyclerID))
-                {
-                    return true;
-                }
-                if (-1 != e.Strings.ReadSafe(PwDefs.UrlField)
-                                .IndexOf(GdsDefs.AccountSearchString,
-                                    StringComparison.OrdinalIgnoreCase))
-                {
-                    acctList.Add(new EntryConfiguration(e));
-                }
-                else if(-1 != e.Strings.ReadSafe(PwDefs.TitleField)
-                                .IndexOf(GdsDefs.AccountSearchString,
-                                    StringComparison.OrdinalIgnoreCase))
-                {
-                    acctList.Add(new EntryConfiguration(e));
-                }
-                return true;
-            });
-
+            List<EntryConfiguration> acctList = db.GetLegacyAccounts();
+            
             // Create a "presentation" object for dialog data binding.
             ConfigurationFormData options;
             options = new ConfigurationFormData(acctList, GetColors, db);
@@ -1761,7 +1707,7 @@ namespace KPSyncForDrive
             {
                 // Find an "active account".
                 IEnumerable<EntryConfiguration> activeAccounts;
-                activeAccounts = FindActiveAccounts(db);
+                activeAccounts = db.GetActiveAccounts();
                 string strUuid = null;
                 EntryConfiguration entryConfig;
                 if (activeAccounts.Any())
@@ -1820,7 +1766,7 @@ namespace KPSyncForDrive
                         {
                             return null;
                         }
-                        entryFactory = GetEntryFactory(db);
+                        entryFactory = db.GetEntryFactory();
                         entryConfig = new EntryConfiguration(entryFactory.Entry);
                     }
                 }
@@ -1895,78 +1841,21 @@ namespace KPSyncForDrive
             return true;
         }
 
-        static PluginEntryFactory GetEntryFactory(PwDatabase db)
-        {
-            // Search KeePass for pre-existing entry titles.
-            string searchString = GdsDefs.ProductName;
-            EntryHandler checkEntry = delegate(PwEntry e)
-            {
-                if (TraverseTreePostedNull(e))
-                {
-                    return true;
-                }
-                return -1 == e.Strings.ReadSafe(PwDefs.TitleField)
-                            .IndexOf(searchString,
-                                StringComparison.OrdinalIgnoreCase);
-            };
-            int cDup = 2;
-            PwGroup root = db.RootGroup;
-            while (!root.TraverseTree(TraversalMethod.PreOrder,
-                            null, checkEntry))
-            {
-                searchString = string.Format("{0}-{1}",
-                                    GdsDefs.ProductName, cDup++);
-            }
-
-            // Return entry creator with unused title.
-            return PluginEntryFactory.CreateDefault(searchString);
-        }
-
         /// <summary>
         /// Load the current configuration and adds it to the database
         /// context.  Return true if loaded, false otherwise.
         /// </summary>
         private bool TryLoadConfiguration(DatabaseContext dbCtx)
         {
-            if (dbCtx.LoadedConfig != null)
-            {
-                return true;
-            }
-
             PwDatabase db = dbCtx.Database;
-            if (!db.IsOpen)
+            if (dbCtx.LoadedConfig == null && db.IsOpen)
             {
-                return false;
-            }
-
-            // Find the active account.
-            IEnumerable<EntryConfiguration> accounts = FindActiveAccounts(db);
-            if (accounts.Any())
-            {
-                dbCtx.LoadedConfig = accounts.First();
-            }
-            else
-            {
-                try
+                EntryConfiguration config;
+                if (m_host.TryGetDbConfig(db, out config))
                 {
-                    // Attempt to use long-obsolete UUID config.
-                    string strUuid = m_host.GetConfig(GdsDefs.ConfigUUID);
-                    if (!string.IsNullOrEmpty(strUuid))
-                    {
-                        PwEntry entry = db.RootGroup.FindEntry(
-                                                strUuid.ToPwUuid(), true);
-                        if (entry != null)
-                        {
-                            dbCtx.LoadedConfig = new EntryConfiguration(entry);
-                        }
-                    }
-                }
-                catch (SystemException) 
-                {
-                    // Bad config, etc.
+                    dbCtx.LoadedConfig = config;
                 }
             }
-
             return dbCtx.LoadedConfig != null;
         }
 
@@ -1975,7 +1864,6 @@ namespace KPSyncForDrive
         /// </summary>
         private EntryConfiguration GetConfiguration(DatabaseContext dbCtx)
         {
-            //EntryConfiguration config = LoadConfiguration(db);
             EntryConfiguration config = dbCtx.LoadedConfig;
             if (config != null)
             {
@@ -2024,7 +1912,7 @@ namespace KPSyncForDrive
                 return false;
             }
 
-            IEnumerable<EntryConfiguration> accounts = FindActiveAccounts(db);
+            IEnumerable<EntryConfiguration> accounts = db.GetActiveAccounts();
             EntryConfiguration currentConfig = accounts.FirstOrDefault(e =>
                 entryConfig.Entry.Uuid.Equals(e.Entry.Uuid));
             if (accounts.Any() && currentConfig != null)
@@ -2040,7 +1928,10 @@ namespace KPSyncForDrive
             {
                 entry.ActiveAccount = null;
                 entry.CommitChangesIfAny();
-                db.Modified = entry.ChangesCommitted;
+                if (entry.ChangesCommitted)
+                {
+                    db.MarkDirty();
+                }
             }
 
             bool activeEntryChanged = !entryConfig.ActiveAccount.HasValue ||
@@ -2054,11 +1945,13 @@ namespace KPSyncForDrive
             // for the current database.
             if (activeEntryChanged || entryConfig.CredentialsChanged)
             {
-                s_sessionAuthTokens.Remove(db.GetUuid());
+                db.RemoveSessionToken();
             }
 
-            db.Modified = entryConfig.ChangesCommitted ||
-                                            db.Modified;
+            if (entryConfig.ChangesCommitted)
+            {
+                db.MarkDirty();
+            }
 
             SaveDatabase(m_host, new DatabaseContext(db),
                 Resources.GetString("Msg_SavingConfig"));

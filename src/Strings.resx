@@ -288,7 +288,7 @@ If the error was that master keys (passwords) do not match, use Upload / Downloa
     <value>More upgrade information available at {0}.</value>
   </data>
   <data name="Lnk_Home" xml:space="preserve">
-    <value>Visite KPSync.org.</value>
+    <value>Visit KPSync.org.</value>
   </data>
   <data name="Lnk_SignInHelp" xml:space="preserve">
     <value>Sign-In Problem?</value>
