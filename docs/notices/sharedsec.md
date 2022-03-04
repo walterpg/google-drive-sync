@@ -4,6 +4,7 @@ title: SECURITY BULLETIN
 subtitle: Shared Databases May Allow Unauthorized Access to Partially-Trusted Users
 author: walterpg
 date: Dec 30 2020
+update: Jan 29, 2022
 ---
 
 This documents a potential security threat to your personal data.
@@ -142,4 +143,4 @@ Drive shared file feature, and join in the research for a permanent
 solution. 
 
 ---
-[View all Security Bulletins](/notices)
+[View all Security Bulletins and Known Issues](/notices)

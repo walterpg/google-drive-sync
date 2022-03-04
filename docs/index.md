@@ -5,15 +5,14 @@ title: KPSync for Google Drive™
 
 <div class="alert alert-warning text-dark" role="alert">
     <div>
-        <a href="/notices/kp2-48-save"> KeePass v2.48 <b>Save</b> Command Bug</a>
+        <a href="/notices/kp2-48-save"> KeePass Recommended Upgrades</a>
     </div>
-    KeePass 2.48 includes a defect which could cause <b>DATA LOSS</b> when used with the plugin.  Users are advised to upgrade immediately to <a href="https://keepass.info/news/n210507_2.48.html"> KeePass 2.48.1</a> or later. If you are affected by the bug 
-    <a href="/notices/kp2-48-save">please read this notice</a> for possible recovery of your data.
+    Users of KeePass 2.48 are advised to <a href="https://keepass.info/download.html">upgrade to KeePass 2.48.1 or later</a> to avoid a defect which could cause <em>data loss</em> when used with the plugin. If you are affected by the bug <a href="/notices/kp2-48-save">please read this notice</a> for possible recovery of your data.
 </div>
 
 <div class="alert alert-warning text-dark" role="alert">
     <div>
-        <a href="/notices/sharedsec">SECURITY ALERT</a>
+        <a href="/notices/sharedsec">Security Alerts</a>
     </div>
     KeePass databases synchronized with this plugin, then
     <em>shared with partially-trusted users</em>, could present a security hazard.

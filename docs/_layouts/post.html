@@ -15,7 +15,15 @@ layout: default
         • {{ page.author }}
       {%- endif -%}
     </p>
-  </header>
+    {%- if page.update -%}
+    <p class="text-muted">(Updated 
+      <time datetime="{{ page.update | date_to_xmlschema }}">
+        {%- assign date_format = "%b %-d, %Y" -%}
+        {{ page.update | date: date_format }}
+      </time>)
+    </p>
+    {%- endif -%}
+    </header>
 
   <section>
     {{ content }}
